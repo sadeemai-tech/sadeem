@@ -1,3 +1,0 @@
-# SADEEM release artifact hashes. sha256 = hex, sha512 = base64 (electron-updater format).
-644f804506aa0aa60bee86d5418073646f173c14ebb02408885fa7815a631dba  SADEEM-Setup-11.12.0.exe  sha512:MBNu6pnvyDejSL+9im+jqZeUXeV1eiqvP+0upaP0rfI2Em60e1fy9mPcAbbb7EDGMtn+hdmAX+yrsBfexsxEQg==
-278c8aa8fab2b2df8ed1d5de539783f5f0eb7da94bf55a62e645f711648e8dc4  SADEEM-11.12.0-win.zip  sha512:GhruOR4ASzaTG6ESJIIhH8sOidNCBHP+y40Xjh98t9hd07LNS+RrMdwEtwbp+1/v4ky+qB9SgfZ5AXWXSdFFew==
