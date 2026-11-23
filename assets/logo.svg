@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 48 48" fill="none" role="img" aria-label="SADEEM">
-  <rect x="3" y="3" width="42" height="42" rx="12" fill="#1c1b19"/>
-  <rect x="3.75" y="3.75" width="40.5" height="40.5" rx="11.25" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="0.75"/>
-  <path d="M33.6 15.4c-2.3-2.1-5.4-3.1-8.7-2.6-4.9 0.8-8.5 4.4-8.5 8.6 0 6.2 12.9 3.4 12.9 9.6 0 3.6-3.1 6.2-7.5 6.5-2.8 0.2-5.5-0.7-7.4-2.3" stroke="#A9BE56" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <circle cx="35.9" cy="11.6" r="2.7" fill="#A9BE56"/>
-  <circle cx="12.9" cy="36.6" r="1.7" fill="#C4A97C"/>
-</svg>
