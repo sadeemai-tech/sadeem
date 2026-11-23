@@ -1,0 +1,121 @@
+/* ============================================================
+   Changelog — editorial timeline. Square corners, hairlines,
+   giant serif versions, mono instrumentation.
+   ============================================================ */
+
+.c-page{overflow:hidden}
+.c-hero{padding-block:clamp(60px,9vw,120px) clamp(34px,5vw,60px)}
+.c-hero-lead{max-width:74ch}
+
+/* ---------- version filter row ---------- */
+.c-toolbar{margin-top:clamp(30px,4vw,48px);border-block:1px solid var(--line)}
+.c-toolbar-row{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;padding-block:18px}
+.c-filters{display:flex;flex-wrap:wrap;gap:6px 8px}
+.c-filter{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--dim);background:transparent;border:1px solid transparent;padding:7px 11px;cursor:pointer;transition:color .2s,border-color .2s}
+html[lang='ar'] .c-filter{font-family:var(--arabic);letter-spacing:0;font-size:12px}
+.c-filter:hover{color:var(--ink)}
+.c-filter[aria-pressed='true']{color:var(--accent);border-color:var(--line-strong)}
+.c-count{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.1em;margin:0;padding-bottom:18px}
+html[lang='ar'] .c-count{font-family:var(--arabic);letter-spacing:0}
+
+/* ---------- timeline ---------- */
+.c-timeline{margin-top:6px}
+.c-entry{display:grid;gap:20px;padding-block:clamp(34px,5vw,62px);border-top:1px solid var(--line)}
+@media(min-width:900px){.c-entry{grid-template-columns:minmax(160px,230px) 1fr;gap:clamp(26px,5vw,74px)}}
+.c-ver{margin:0;font-family:var(--serif);font-size:clamp(46px,5.8vw,82px);line-height:.9;letter-spacing:-.045em;color:var(--ink)}
+html[lang='ar'] .c-ver{font-family:var(--arabic);font-weight:700;font-size:clamp(40px,4.8vw,66px);line-height:1.12;letter-spacing:0}
+.c-entry.is-current .c-ver{color:var(--accent)}
+.c-meta{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:18px;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.06em}
+html[lang='ar'] .c-meta{font-family:var(--arabic);letter-spacing:0;font-size:12px}
+.c-badge{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--accent);border:1px solid var(--accent);padding:3px 8px}
+html[lang='ar'] .c-badge{font-family:var(--arabic);letter-spacing:0}
+.c-detail{min-width:0}
+.c-notes{list-style:none;margin:22px 0 0;padding:0}
+.c-note{display:grid;grid-template-columns:34px 1fr;gap:14px;padding-block:12px;border-top:1px solid var(--line-soft);font-size:15px;line-height:1.8;color:var(--dim)}
+.c-note:last-child{border-bottom:1px solid var(--line-soft)}
+.c-note-no{font-size:11px;color:var(--faint);padding-top:5px}
+.c-honesty{margin-top:36px;max-width:82ch}
+
+/* ---------- closing ---------- */
+.c-cta{display:grid;gap:24px;align-items:end;margin-top:clamp(48px,7vw,90px);padding-block:clamp(34px,5vw,58px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+@media(min-width:800px){.c-cta{grid-template-columns:1fr auto}}
+.c-cta p{margin:12px 0 0;color:var(--dim)}
+
+/* ---------- signature ink timeline ---------- */
+/* rail centre = left 17 + width 2 / 2 = 18px from the timeline box.
+   Each node is 20px wide at left -28 relative to a column starting at 36px,
+   so its centre = 36 - 28 + 10 = 18px — exactly on the rail. */
+.c-timeline{position:relative;padding-left:36px}
+.c-rail{position:absolute;left:17px;top:0;bottom:0;width:2px;background:var(--line)}
+.c-rail-fill{display:block;position:absolute;inset:0;background:var(--accent);transform-origin:top center}
+.c-version-col{position:relative}
+
+.c-node{position:absolute;left:-28px;top:clamp(44px,5vw,66px);width:20px;height:20px;overflow:visible}
+.c-node-blob{fill:var(--paper);stroke:var(--ink);stroke-width:1}
+.c-node-dot{fill:var(--faint)}
+.c-node-tick{fill:none;stroke:var(--accent);stroke-width:1.2}
+.c-entry.is-current .c-node-blob{fill:var(--accent-fill);stroke:var(--accent)}
+.c-entry.is-current .c-node-dot{fill:var(--ink)}
+
+.c-stamp{display:block;width:54px;height:54px;margin-top:16px}
+.c-stamp-rays{transform-box:view-box;transform-origin:50% 50%;animation:c-stamp-spin 26s linear infinite}
+@keyframes c-stamp-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+@media (prefers-reduced-motion:reduce){
+  .c-stamp-rays{animation:none}
+  .c-filter{transition:none}
+}
+
+/* ---------- concept motion (shared layer: art-motion.css) ----------
+   Each release node writes its 1px outline once; the current wave's
+   stamp breathes. The tick draw + current-node pulse live in the
+   shared layer so all three pages use the same 2.8s cadence. */
+.c-node-blob{--art-from:52;stroke-dasharray:52;stroke-dashoffset:52;animation:am-outline-draw var(--art-cadence) ease-out .2s both}
+.c-stamp>circle{transform-box:fill-box;transform-origin:center;animation:am-node-pulse var(--art-cadence) ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){
+  .c-node-blob{animation:none!important;stroke-dashoffset:0!important}
+  .c-stamp>circle{animation:none!important;transform:none!important;opacity:1!important}
+}
+html.reduce-motion .c-node-blob,html[data-art='off'] .c-node-blob{animation:none!important;stroke-dashoffset:0!important}
+html.reduce-motion .c-stamp>circle,html[data-art='off'] .c-stamp>circle{animation:none!important;transform:none!important;opacity:1!important}
+
+/* ============================================================
+   V1145 · CHANGELOG — A TIMELINE WRITING ITSELF
+   ------------------------------------------------------------
+   An original chronicle spine: one 1px rule, six nodes at exact
+   y positions and alternating date ticks. It writes top-to-bottom
+   on the 11.2s film arc; the current node blinks on the same arc.
+   It frames the hero type rather than the release rail (which is
+   already the real timeline). Masks painted by --ink / --art-lime.
+   ============================================================ */
+.c-hero{position:relative}
+.c-hero::before,.c-hero::after{
+  content:'';position:absolute;z-index:-1;pointer-events:none;
+  inset-inline-end:clamp(0px,3vw,48px);inset-block-start:50%;translate:0 -50%;
+  width:clamp(90px,15vw,190px);height:clamp(180px,28vw,340px);
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+}
+.c-hero::after{
+  background-color:var(--ink);opacity:.46;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 260'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Cpath d='M60 12v236M48 12h24M48 248h24M70 28h24M70 72h14M70 116h24M70 160h14M70 204h24M70 238h14'/%3E%3Ccircle cx='60' cy='28' r='5'/%3E%3Ccircle cx='60' cy='72' r='5'/%3E%3Ccircle cx='60' cy='116' r='5'/%3E%3Ccircle cx='60' cy='160' r='5'/%3E%3Ccircle cx='60' cy='204' r='5'/%3E%3Ccircle cx='60' cy='238' r='5'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 260'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Cpath d='M60 12v236M48 12h24M48 248h24M70 28h24M70 72h14M70 116h24M70 160h14M70 204h24M70 238h14'/%3E%3Ccircle cx='60' cy='28' r='5'/%3E%3Ccircle cx='60' cy='72' r='5'/%3E%3Ccircle cx='60' cy='116' r='5'/%3E%3Ccircle cx='60' cy='160' r='5'/%3E%3Ccircle cx='60' cy='204' r='5'/%3E%3Ccircle cx='60' cy='238' r='5'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* same viewBox and box as the spine, so the dot lands exactly on
+   node 238 without any guessed offsets. */
+.c-hero::before{
+  background-color:var(--art-lime);opacity:.75;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 260'%3E%3Ccircle cx='60' cy='238' r='3' fill='white'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 260'%3E%3Ccircle cx='60' cy='238' r='3' fill='white'/%3E%3C/svg%3E");
+}
+html[data-js='1'] .c-hero::after{animation:v1145-wipe-y calc(var(--art-cadence) * 4) var(--ease-art) both}
+html[data-js='1'] .c-hero::before{animation:v1145-node-blink calc(var(--art-cadence) * 4) ease-in-out calc(var(--art-cadence) * 2) infinite}
+@media (prefers-reduced-motion: reduce){
+  .c-hero::before,.c-hero::after{animation:none!important;transform:none!important;clip-path:none!important;opacity:1!important}
+}
+html.reduce-motion :is(.c-hero::before,.c-hero::after),
+html[data-art='off'] :is(.c-hero::before,.c-hero::after){
+  animation:none!important;transform:none!important;clip-path:none!important;opacity:1!important
+}
+html[data-art='off'] :is(.c-hero::before,.c-hero::after){display:none!important}

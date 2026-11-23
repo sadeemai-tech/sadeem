@@ -1,0 +1,170 @@
+/* Auth / pairing — editorial. Globals tokens only, 2px corners max. */
+
+.auth-page{padding-bottom:clamp(40px,6vw,80px)}
+
+/* hero */
+.auth-hero{padding-top:clamp(56px,8vw,104px);padding-bottom:clamp(28px,4vw,48px)}
+.auth-hero .display{max-width:15ch}
+.auth-hero .lead{max-width:64ch}
+
+/* layout */
+.auth-grid{display:grid;gap:clamp(38px,5vw,68px);align-items:start}
+@media(min-width:980px){.auth-grid{grid-template-columns:minmax(0,1.2fr) minmax(0,.85fr)}}
+.auth-main{display:grid;gap:22px;align-content:start}
+
+/* three-step explainer — numbered editorial rows */
+.auth-steps .label{display:block;margin-bottom:8px}
+.auth-steps .frow{grid-template-columns:44px 1fr;gap:18px;padding-block:22px}
+.auth-steps .frow:first-of-type{border-top:1px solid var(--line)}
+.auth-steps .frow:last-of-type{border-bottom:1px solid var(--line)}
+.auth-step-title{font-size:clamp(20px,2vw,26px);margin:0 0 8px}
+.auth-steps .frow p{margin:0;font-size:14px;line-height:1.8;color:var(--dim)}
+.auth-steps-foot{margin-top:20px;font-size:13px;color:var(--dim)}
+.auth-steps-foot .link{margin-inline-start:6px}
+
+/* loading */
+.auth-loading{border-block:1px solid var(--line);padding-block:28px}
+.auth-loading .label{color:var(--dim)}
+
+/* missing / invalid pair */
+.auth-inline{border-block:1px solid var(--line);padding-block:clamp(24px,3vw,36px)}
+.auth-inline>p{margin:12px 0 0;max-width:70ch;color:var(--dim);font-size:15px;line-height:1.85}
+.auth-snippet{margin-top:22px;overflow-x:auto}
+.auth-snippet code{display:block;margin-top:10px;font-family:var(--mono);font-size:12px;line-height:1.8;color:var(--dim);white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* form panel */
+.auth-form-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.auth-pair{display:inline-flex;align-items:center;border:1px solid var(--accent);border-radius:2px;padding:7px 12px;color:var(--accent)}
+.auth-pair .mono{font-size:18px;letter-spacing:.24em}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;margin-top:26px;border-bottom:1px solid var(--line)}
+.auth-tab{padding:13px 8px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--faint);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:color .2s,border-color .2s}
+html[lang='ar'] .auth-tab{font-family:var(--arabic);font-size:13px;letter-spacing:0;text-transform:none;font-weight:600}
+.auth-tab:hover{color:var(--accent)}
+.auth-tab[aria-selected='true']{color:var(--ink);border-bottom-color:var(--accent)}
+
+.auth-field{display:block;margin-top:24px}
+.auth-label{display:block;margin-bottom:7px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+html[lang='ar'] .auth-label{font-family:var(--arabic);font-size:12px;letter-spacing:0;text-transform:none;font-weight:600}
+.auth-input{width:100%;padding:11px 0;background:transparent;border:0;border-bottom:1px solid var(--line-strong);border-radius:0;color:var(--ink);outline:none;transition:border-color .2s}
+.auth-input::placeholder{color:var(--faint)}
+.auth-input:focus{border-bottom-color:var(--accent)}
+.auth-input.invalid{border-bottom-color:var(--ink)}
+.auth-error{display:block;margin-top:8px;font-size:12px;color:var(--accent)}
+.auth-no-password{margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+.auth-no-password p{margin:9px 0 0;color:var(--dim);font-size:14px;line-height:1.8}
+.auth-submit{margin-top:28px}
+.auth-micro{margin:14px 0 0;font-size:12px;line-height:1.75;color:var(--faint);text-align:center}
+html[lang='ar'] .auth-micro{font-family:var(--arabic)}
+.auth-form .auth-micro{text-align:center}
+
+/* honest no-backend notice */
+.auth-honest{border-block:1px solid var(--line);padding-block:22px}
+.auth-honest .h3{margin-top:12px}
+.auth-honest p{margin:10px 0 0;max-width:74ch;color:var(--dim);font-size:14px;line-height:1.85}
+
+/* saved local account — hairline row, not a card */
+.auth-saved{display:flex;align-items:center;flex-wrap:wrap;gap:16px;border-block:1px solid var(--line);padding-block:18px}
+.auth-saved-mark{width:42px;height:42px;flex:none;display:grid;place-items:center;border:1px solid var(--line-strong);border-radius:2px;font-family:var(--serif);font-size:22px;color:var(--accent)}
+html[lang='ar'] .auth-saved-mark{font-family:var(--arabic);font-weight:700}
+.auth-saved-info{display:grid;gap:2px;line-height:1.5;min-width:0}
+.auth-saved-info strong{font-size:15px;font-weight:500}
+.auth-saved-info>span:last-child{font-size:12px;color:var(--faint)}
+.auth-forget{margin-inline-start:auto}
+
+/* confirmation */
+.auth-recap{margin-block:26px;border-top:1px solid var(--line)}
+.auth-recap-row{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+.auth-recap-row strong{font-size:14px;font-weight:500;overflow-wrap:anywhere}
+.auth-open{padding:16px 22px;font-size:15px}
+.auth-fallback{margin-top:30px;padding-top:24px;border-top:1px solid var(--line)}
+.auth-fallback-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px}
+.auth-fallback-top strong{font-size:14px;font-weight:500}
+.auth-fallback .auth-micro{text-align:start}
+.auth-warn{margin-top:22px;border-inline-start:2px solid var(--accent);padding-inline-start:16px}
+.auth-warn p{margin:8px 0 0;color:var(--dim);font-size:13px;line-height:1.8;max-width:66ch}
+.auth-again{margin-top:22px}
+
+.auth-footnote{margin:clamp(40px,6vw,72px) 0 0;padding-top:22px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--faint)}
+html[lang='ar'] .auth-footnote{font-family:var(--arabic);letter-spacing:0;font-size:12px}
+
+@media(max-width:520px){
+  .auth-recap-row{grid-template-columns:90px 1fr;gap:12px}
+  .auth-forget{margin-inline-start:0}
+}
+
+/* ---------- signature pairing diagram ---------- */
+.au-diagram-wrap{padding-block:clamp(24px,3vw,42px);display:flex;justify-content:center}
+.au-diagram{display:block;width:100%;max-width:560px;height:auto;color:var(--ink);overflow:visible}
+.au-diagram-label{font-family:var(--mono);font-size:11px;letter-spacing:2px;fill:var(--faint)}
+.au-diagram-caption{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;fill:var(--accent)}
+html[lang='ar'] .au-diagram-label,html[lang='ar'] .au-diagram-caption{font-family:var(--arabic);letter-spacing:0;font-weight:600;font-size:12px}
+
+.au-link-dash{animation:au-dash 2.6s linear infinite}
+@keyframes au-dash{to{stroke-dashoffset:-26}}
+
+/* Both share one view-box origin and one linear 26s tempo; the inner disc
+   runs in reverse at exactly the same rate, so the code net-rotates to zero
+   and stays upright (perfectly legible) at every point in the cycle. */
+.au-medallion,.au-medallion-inner{transform-box:view-box;transform-origin:260px 112px;animation:au-spin 26s linear infinite}
+.au-medallion-inner{animation-direction:reverse}
+.au-medallion-inner text{font-weight:600}
+@keyframes au-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* At 320px the SVG scales as one unit; nudge labels up so they stay legible
+   without ever crowding the neighbouring orbit or caption. */
+@media(max-width:520px){
+  .au-diagram-label{font-size:13px}
+  .au-diagram-caption{font-size:11px}
+}
+
+/* wax seal in the confirmation state */
+.au-wax{display:block;width:96px;height:96px;margin:0 auto 20px;transform:rotate(-6deg);overflow:visible}
+.au-wax-body{fill:var(--accent-fill);stroke:var(--accent);stroke-width:1.4}
+.au-wax-ring{fill:none;stroke:var(--paper);stroke-width:1;opacity:.85}
+.au-wax-code{font-family:var(--mono);font-size:15px;letter-spacing:1.4px;fill:var(--ink)}
+.au-wax-star{fill:var(--ink);opacity:.8}
+
+@media (prefers-reduced-motion:reduce){
+  .au-link-dash,.au-medallion,.au-medallion-inner{animation:none}
+  .auth-tab,.auth-input{transition:none}
+}
+
+/* ============================================================
+   V1145 · AUTH — A PAIRING HANDSHAKE
+   ------------------------------------------------------------
+   Two exact node rings (r=22 at x=54 and x=206) with facing
+   half-arcs approach on an 11.2s scaleX arc; the measured bridge
+   with two inward arrowheads writes once on the 8.4s accent.
+   This is a DISTINCT mark from the medallion diagram below —
+   it frames the hero type and never covers it. Masks painted by
+   --ink / --art-lime.
+   ============================================================ */
+.auth-hero{position:relative}
+.auth-hero::before,.auth-hero::after{
+  content:'';position:absolute;z-index:-1;pointer-events:none;
+  inset-inline-end:clamp(0px,3vw,48px);inset-block-start:50%;translate:0 -50%;
+  width:clamp(160px,28vw,340px);height:clamp(100px,18vw,210px);
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+}
+.auth-hero::before{
+  background-color:var(--ink);opacity:.44;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 160'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Ccircle cx='54' cy='80' r='22'/%3E%3Ccircle cx='206' cy='80' r='22'/%3E%3Ccircle cx='54' cy='80' r='4'/%3E%3Ccircle cx='206' cy='80' r='4'/%3E%3Cpath d='M54 26a54 54 0 0 1 0 108M206 26a54 54 0 0 0 0 108'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 160'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Ccircle cx='54' cy='80' r='22'/%3E%3Ccircle cx='206' cy='80' r='22'/%3E%3Ccircle cx='54' cy='80' r='4'/%3E%3Ccircle cx='206' cy='80' r='4'/%3E%3Cpath d='M54 26a54 54 0 0 1 0 108M206 26a54 54 0 0 0 0 108'/%3E%3C/g%3E%3C/svg%3E");
+}
+.auth-hero::after{
+  background-color:var(--art-lime);opacity:.72;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 160'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Cpath d='M76 80h42M142 80h42M118 74l8 6-8 6M142 74l-8 6 8 6M108 60h44M108 100h44'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 160'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Cpath d='M76 80h42M142 80h42M118 74l8 6-8 6M142 74l-8 6 8 6M108 60h44M108 100h44'/%3E%3C/g%3E%3C/svg%3E");
+}
+html[data-js='1'] .auth-hero::before{animation:v1145-handshake calc(var(--art-cadence) * 4) ease-in-out infinite}
+html[data-js='1'] .auth-hero::after{animation:v1145-wipe-x calc(var(--art-cadence) * 3) var(--ease-art) calc(var(--art-cadence) * .22) both}
+@media (prefers-reduced-motion:reduce){
+  .auth-hero::before,.auth-hero::after{animation:none!important;transform:none!important;clip-path:none!important;opacity:1!important}
+}
+html.reduce-motion :is(.auth-hero::before,.auth-hero::after),
+html[data-art='off'] :is(.auth-hero::before,.auth-hero::after){
+  animation:none!important;transform:none!important;clip-path:none!important;opacity:1!important
+}
+html[data-art='off'] :is(.auth-hero::before,.auth-hero::after){display:none!important}

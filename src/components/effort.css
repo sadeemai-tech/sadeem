@@ -1,0 +1,231 @@
+/* ============================================================
+   Surnia v1142 — EFFORT / REASONING hairline control
+   ------------------------------------------------------------
+   Design law (founder): a calm, precise instrument — not a card.
+   • ONE hairline rule, no enclosing box: no shadow, no blur, no
+     4-sided border, no gradient, no keyframes.
+   • The MODEL rail is primary: its own named stops, its own count,
+     Anthropic token budgets shown verbatim.
+   • The ENGINE rail is a quiet, explicitly-labelled second line so the
+     two axes can never be confused again.
+   • Instrument Serif for the LATIN title only (Arabic falls to Cairo via
+     --font-display-ar), IBM Plex Mono + tabular-nums for the live value.
+   • Logical insets + `dir="ltr"` on the rail: RTL-safe, low→high never flips.
+   • BOTH reduced-motion signals settle the control (OS + in-app toggle).
+   Imported AFTER chat-final.css so these override the shared baseline.
+   ============================================================ */
+
+.chat-panel-root .cf-effort-pop.effort-pop {
+  /* override the baseline's 4-sided frame: a hairline rule, not a box */
+  border: 0;
+  border-block-start: 1px solid var(--line-soft);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 10px 10px 8px;
+  width: 282px;
+  max-width: min(92vw, 320px);
+}
+
+/* the two sections share one column; only a whisper of a divider between */
+.chat-panel-root .effort-section + .effort-section {
+  margin-block-start: 10px;
+  padding-block-start: 9px;
+  border-block-start: 1px solid var(--line-soft);
+}
+
+.chat-panel-root .effort-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 22px;
+}
+.chat-panel-root .effort-title {
+  font-family: var(--font-display-serif, 'Instrument Serif', Georgia, serif);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+html[lang='ar'] .chat-panel-root .effort-title,
+[dir='rtl'] .chat-panel-root .effort-title {
+  font-family: var(--font-display-ar, 'Cairo', sans-serif);
+  font-weight: 600;
+  letter-spacing: 0;
+  font-size: 14.5px;
+}
+.chat-panel-root .effort-title--sub {
+  font-family: var(--font-app, 'Inter', sans-serif);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+  text-transform: uppercase;
+}
+html[lang='ar'] .chat-panel-root .effort-title--sub,
+[dir='rtl'] .chat-panel-root .effort-title--sub {
+  font-family: var(--font-display-ar, 'Cairo', sans-serif);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.chat-panel-root .effort-value {
+  margin-inline-start: auto;
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  color: var(--acc);
+  direction: ltr;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}
+.chat-panel-root .effort-value--sub {
+  color: var(--dim);
+  font-size: 10.5px;
+}
+.chat-panel-root .effort-value-detail {
+  color: var(--faint);
+  font-size: 10px;
+}
+
+/* ---- the per-model rail: a hairline + N named dots ---- */
+.chat-panel-root .cf-effort-rail--model {
+  display: block;
+  position: relative;
+  padding-block: 16px 2px;
+  gap: 0;
+}
+.chat-panel-root .effort-track {
+  position: absolute;
+  inset-inline: 12px;
+  inset-block-start: 23px;
+  height: 1px;
+  background: var(--line-soft);
+  pointer-events: none;
+}
+.chat-panel-root .cf-effort-rail--model .effort-range {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  flex: none;
+  min-width: 0;
+  margin: 0;
+}
+.chat-panel-root .effort-stops {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0;
+  margin-block-start: 1px;
+}
+.chat-panel-root .cf-effort-rail--model .effort-stop {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 1px;
+  border: 0;
+  background: none;
+  color: var(--faint);
+  font-size: 10.5px;
+  line-height: 1.25;
+  text-align: center;
+}
+.chat-panel-root .effort-dot {
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--panel);
+  transition: background var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
+}
+.chat-panel-root .effort-stop:hover { color: var(--ink); }
+.chat-panel-root .effort-stop:hover .effort-dot { border-color: var(--acc); }
+.chat-panel-root .cf-effort-rail--model .effort-stop.is-on { color: var(--ink); }
+.chat-panel-root .cf-effort-rail--model .effort-stop.is-on .effort-dot {
+  border-color: var(--acc);
+  background: var(--acc);
+}
+.chat-panel-root .effort-stop-label { white-space: nowrap; }
+.chat-panel-root .effort-stop-detail {
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-variant-numeric: tabular-nums;
+  font-size: 9px;
+  color: var(--faint);
+}
+
+/* the engine rail stays compact but reads differently from the model rail */
+.chat-panel-root .cf-effort-rail--engine {
+  padding-block: 4px 1px;
+}
+.chat-panel-root .cf-effort-rail--engine .effort-stop {
+  min-width: 46px;
+  font-size: 10.5px;
+}
+
+.chat-panel-root .effort-meta,
+.chat-panel-root .effort-unset {
+  font-size: 9.5px;
+  line-height: 1.45;
+  color: var(--faint);
+  overflow-wrap: anywhere;
+}
+.chat-panel-root .effort-source { color: var(--acc2, var(--acc)); }
+.chat-panel-root .effort-unset { margin-block-start: 2px; font-style: italic; }
+.chat-panel-root .effort-note {
+  margin-block-start: 6px;
+  padding-block-start: 6px;
+  border-block-start: 1px solid var(--line-soft);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--faint);
+}
+.chat-panel-root .effort-note--sub {
+  margin-block-start: 2px;
+  padding-block-start: 0;
+  border-block-start: 0;
+  font-size: 10.5px;
+}
+
+/* ---- chip: engine stage in mono, model stop in the display serif ---- */
+.chat-panel-root .cf-effort-trigger .effort-chip-sep { color: var(--faint); }
+.chat-panel-root .cf-effort-trigger .effort-chip-model {
+  font-family: var(--font-display-serif, 'Instrument Serif', Georgia, serif);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--ink);
+  max-width: 11ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+html[lang='ar'] .chat-panel-root .cf-effort-trigger .effort-chip-model,
+[dir='rtl'] .chat-panel-root .cf-effort-trigger .effort-chip-model {
+  font-family: var(--font-display-ar, 'Cairo', sans-serif);
+  font-size: 11.5px;
+}
+
+/* ---- BOTH reduced-motion signals — zero motion, no keyframes anywhere ---- */
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .effort-dot,
+  .chat-panel-root .effort-stop,
+  .chat-panel-root .effort-value,
+  .chat-panel-root .effort-range {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+html.reduce-motion .chat-panel-root .effort-dot,
+html.reduce-motion .chat-panel-root .effort-stop,
+html.reduce-motion .chat-panel-root .effort-value,
+html.reduce-motion .chat-panel-root .effort-range {
+  transition: none !important;
+  animation: none !important;
+}

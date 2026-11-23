@@ -1,0 +1,202 @@
+/* ============================================================
+   Download — editorial v2. Hairlines, engraving, square corners.
+   Colour comes only from globals.css custom properties.
+   ============================================================ */
+
+.d-page{overflow:hidden}
+
+/* ---------- hero ---------- */
+.d-hero{padding-block:clamp(60px,9vw,120px) clamp(44px,6vw,76px)}
+.d-hero-grid{display:grid;gap:clamp(38px,6vw,72px);align-items:center}
+@media(min-width:1000px){.d-hero-grid{grid-template-columns:1.12fr .88fr}}
+.d-hero-copy{max-width:740px}
+.d-hero-title{margin-top:26px}
+.d-hero-title .slash{color:var(--dim)}
+.d-hero-meta{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;margin-top:34px;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.08em}
+html[lang='ar'] .d-hero-meta{font-family:var(--arabic);letter-spacing:0}
+.d-hero-meta b{font-weight:400;color:var(--ink)}
+.d-hero-actions{margin-top:36px}
+
+/* engraved artifact plate — ink lines only, no gradients */
+.d-fig{position:relative;aspect-ratio:1/1;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;color:var(--ink)}
+.d-fig svg{width:88%;height:88%}
+.d-fig-label{position:absolute;font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--faint)}
+.d-fig-label.tl{top:18px;inset-inline-start:20px}
+.d-fig-label.br{bottom:18px;inset-inline-end:20px}
+html[lang='ar'] .d-fig-label{font-family:var(--arabic);letter-spacing:0;font-size:11px}
+
+/* ---------- platform strip ---------- */
+.d-strip{display:grid;border-block:1px solid var(--line)}
+@media(min-width:760px){.d-strip{grid-template-columns:repeat(3,1fr)}}
+.d-plat{display:block;padding:clamp(24px,3vw,38px) clamp(16px,2.4vw,30px);border-inline-end:1px solid var(--line)}
+.d-plat:last-child{border-inline-end:0}
+@media(max-width:759px){.d-plat{border-bottom:1px solid var(--line)}.d-plat:last-child{border-bottom:0}}
+.d-plat-no{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)}
+.d-plat-name{font-family:var(--serif);font-size:clamp(30px,3.4vw,46px);line-height:1.05;margin:14px 0 10px;letter-spacing:-.02em}
+html[lang='ar'] .d-plat-name{font-family:var(--arabic);font-weight:700;line-height:1.3;letter-spacing:0}
+.d-plat-state{font-size:14px;color:var(--dim);margin:0;line-height:1.7}
+.d-plat.is-live .d-plat-state{color:var(--accent)}
+.d-plat-foot{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink);border-bottom:1px solid var(--line-strong);padding-bottom:3px}
+.d-plat.is-live:hover .d-plat-foot{color:var(--accent);border-color:var(--accent)}
+html[lang='ar'] .d-plat-foot{font-family:var(--arabic);letter-spacing:0}
+.d-plat-off{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--faint);margin-top:18px}
+html[lang='ar'] .d-plat-off{font-family:var(--arabic);letter-spacing:0}
+
+/* ---------- artifact rows ---------- */
+.d-rows{margin-top:clamp(30px,4vw,52px)}
+.frow.d-row{align-items:start}
+@media(min-width:900px){.frow.d-row{grid-template-columns:52px minmax(180px,1fr) minmax(250px,1.35fr) minmax(150px,.8fr);gap:clamp(18px,2.4vw,34px)}}
+.d-rec{display:inline-block;margin-top:12px;font-size:10px;letter-spacing:.14em;color:var(--accent);border:1px solid var(--accent);padding:3px 8px}
+html[lang='ar'] .d-rec{letter-spacing:0}
+.d-desc{margin-top:12px!important;max-width:44ch}
+.d-hash{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.d-hash code{display:block;font-family:var(--mono);font-size:11.5px;line-height:1.75;color:var(--dim);overflow-wrap:anywhere;direction:ltr;unicode-bidi:isolate}
+.d-copy.is-done{color:var(--accent);border-color:var(--accent)}
+.d-file{margin:10px 0 0;font-family:var(--mono);font-size:11px;color:var(--faint);overflow-wrap:anywhere}
+.d-note-line{margin-top:30px;max-width:80ch}
+.d-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ---------- before you run ---------- */
+.d-notes{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+@media(min-width:860px){.d-notes{grid-template-columns:repeat(3,1fr)}}
+.d-note{background:var(--bg);padding:clamp(26px,3.2vw,42px)}
+.d-note-num{font-family:var(--mono);font-size:clamp(38px,4.4vw,60px);line-height:.9;letter-spacing:-.05em;color:var(--accent)}
+.d-note h3{margin-top:26px}
+.d-note p{margin:14px 0 0;font-size:15px;color:var(--dim);line-height:1.85}
+.d-note-path{font-family:var(--mono);font-size:12px;color:var(--ink);border-bottom:1px solid var(--line-strong);overflow-wrap:anywhere}
+html[lang='ar'] .d-note-path{font-family:var(--arabic)}
+
+/* ---------- quick start ---------- */
+.d-quick{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:clamp(30px,4vw,52px)}
+@media(min-width:640px){.d-quick{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1100px){.d-quick{grid-template-columns:repeat(4,1fr)}}
+.d-step{background:var(--bg);padding:clamp(26px,3.2vw,40px)}
+.d-step-num{font-family:var(--mono);font-size:clamp(54px,6.4vw,86px);line-height:.86;letter-spacing:-.06em;color:var(--accent)}
+.d-step h3{margin-top:30px}
+.d-step p{margin:14px 0 0;font-size:15px;color:var(--dim);line-height:1.85}
+.d-inline{border-bottom:1px solid var(--line-strong);color:var(--ink);padding-bottom:2px}
+.d-inline:hover{color:var(--accent);border-color:var(--accent)}
+
+/* ---------- privacy / faq ---------- */
+.d-privacy{display:grid;gap:24px;align-items:start}
+@media(min-width:860px){.d-privacy{grid-template-columns:200px 1fr;gap:40px}}
+.d-privacy-body{max-width:72ch}
+.d-privacy-body p{margin:16px 0 0;color:var(--dim)}
+.d-privacy-tags{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:24px;font-family:var(--mono);font-size:11px;color:var(--faint)}
+html[lang='ar'] .d-privacy-tags{font-family:var(--arabic)}
+.d-faq{margin-top:clamp(28px,4vw,44px);max-width:900px}
+.d-faq-q-sign{font-family:var(--mono);font-size:20px;color:var(--faint);line-height:1}
+.faq-item.is-open .d-faq-q-sign{color:var(--accent)}
+.d-faq-end{margin-top:30px}
+
+/* ---------- signature plate details ---------- */
+.d-fig .d-seal{transform-box:view-box;transform-origin:50% 50%;animation:d-seal-spin 30s linear infinite}
+@keyframes d-seal-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* hand-drawn platform glyphs */
+.d-plat-glyph{display:inline-block;line-height:0;color:var(--faint);margin-bottom:6px}
+.d-plat.is-live .d-plat-glyph{color:var(--accent)}
+
+/* the checksum inverts the instant it is copied, then settles back */
+.d-hash code{transition:background .1s steps(2,end),color .1s steps(2,end),padding .1s}
+.d-hash code.is-inverted{background:var(--ink);color:var(--bg);padding:2px 5px;outline:1px solid var(--ink)}
+
+/* ---------- release instrument (server-rendered, bilingual via CSS) ---------- */
+.dl-ar{display:none}
+html[lang='ar'] .dl-en{display:none}
+html[lang='ar'] .dl-ar{display:inline}
+
+.dl-inst-sec{padding-top:clamp(28px,4vw,52px)}
+.dl-inst{position:relative;overflow:hidden;border:1px solid var(--line);background:var(--paper);box-shadow:var(--shadow);padding:clamp(18px,2.6vw,30px) clamp(18px,2.8vw,36px) 16px}
+.dl-inst .crosshairs{position:absolute;inset:0;pointer-events:none;z-index:0}
+.dl-inst .crosshairs i{position:absolute;width:11px;height:11px;opacity:.55}
+.dl-inst .crosshairs i::before,.dl-inst .crosshairs i::after{content:'';position:absolute;background:var(--line-strong)}
+.dl-inst .crosshairs i::before{left:50%;top:0;bottom:0;width:1px;transform:translateX(-50%)}
+.dl-inst .crosshairs i::after{top:50%;left:0;right:0;height:1px;transform:translateY(-50%)}
+.dl-inst .crosshairs i:nth-child(1){top:6px;left:6px}
+.dl-inst .crosshairs i:nth-child(2){top:6px;right:6px}
+.dl-inst .crosshairs i:nth-child(3){bottom:6px;left:6px}
+.dl-inst .crosshairs i:nth-child(4){bottom:6px;right:6px}
+.dl-inst-head{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.dl-inst-grid{display:grid;gap:clamp(22px,3vw,40px);align-items:center;padding-block:clamp(20px,2.6vw,32px)}
+@media(min-width:900px){.dl-inst-grid{grid-template-columns:1.05fr .8fr 1.35fr}}
+
+/* version figure */
+.dl-inst-version{position:relative;display:flex;flex-direction:column;gap:8px}
+.dl-inst-kicker{font-size:10px;letter-spacing:.18em;color:var(--faint)}
+.dl-inst-ver-num{font-family:var(--serif);font-size:clamp(54px,7vw,92px);line-height:.95;letter-spacing:-.04em;color:var(--ink);position:relative;width:max-content}
+html[lang='ar'] .dl-inst-ver-num{font-family:var(--mono);letter-spacing:0;font-size:clamp(38px,5vw,64px)}
+/* a single, calm hairline sweep across the figure on first paint */
+.dl-inst-ver-num::after{content:'';position:absolute;inset-inline:-4px;bottom:-6px;height:1px;background:var(--accent);transform:scaleX(0);transform-origin:left center;animation:dl-figure-draw 1.1s var(--ease-art) .25s forwards}
+@keyframes dl-figure-draw{to{transform:scaleX(1)}}
+.dl-inst-state{font-size:10px;letter-spacing:.1em;color:var(--dim)}
+html[lang='ar'] .dl-inst-state{font-family:var(--arabic);letter-spacing:0;font-size:11px}
+
+/* platform mark */
+.dl-inst-mark{display:grid;place-items:center}
+.dl-inst-mark svg{width:min(100%,150px);height:auto;color:var(--ink)}
+.dl-inst-orbit{transform-box:view-box;transform-origin:80px 80px;animation:d-seal-spin 46s linear infinite}
+.dl-inst-glyph{transform-box:fill-box;transform-origin:center;animation:dl-glyph-breathe 4s var(--ease-art) infinite}
+@keyframes dl-glyph-breathe{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.97);opacity:.8}}
+
+/* hashes as mono figures */
+.dl-inst-hashes{display:grid;gap:16px;align-content:center}
+.dl-inst-hash{display:grid;gap:6px;padding-inline-start:14px;border-inline-start:1px solid var(--line)}
+.dl-inst-hash code{font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--dim);overflow-wrap:anywhere;direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+.dl-inst-hash{animation:dl-hash-in .8s var(--ease-art) both}
+.dl-inst-hash:nth-child(2){animation-delay:.14s}
+@keyframes dl-hash-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.dl-inst-rule{margin-top:2px}
+.dl-inst-foot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:14px}
+.dl-inst-foot .mono{font-size:9.5px;letter-spacing:.1em;color:var(--faint)}
+html[lang='ar'] .dl-inst-foot .mono{font-family:var(--arabic);letter-spacing:0;font-size:10px}
+
+@media (prefers-reduced-motion:reduce){
+  .d-fig .d-seal,.dl-inst-orbit,.dl-inst-glyph{animation:none}
+  .dl-inst-ver-num::after{animation:none;transform:scaleX(1)}
+  .dl-inst-hash{animation:none!important;opacity:1!important;transform:none!important}
+  .d-hash code,.d-hash code.is-inverted{transition:none}
+}
+html.reduce-motion .dl-inst-orbit,html.reduce-motion .dl-inst-glyph,html[data-art='off'] .dl-inst-orbit,html[data-art='off'] .dl-inst-glyph{animation:none}
+html.reduce-motion .dl-inst-ver-num::after,html[data-art='off'] .dl-inst-ver-num::after{animation:none;transform:scaleX(1)}
+html.reduce-motion .dl-inst-hash,html[data-art='off'] .dl-inst-hash{animation:none!important;opacity:1!important;transform:none!important}
+
+/* ============================================================
+   V1145 · DOWNLOAD — VERIFICATION SEAL + DESCENDING ARROW
+   ------------------------------------------------------------
+   A precise check-ring with four cardinal ticks (exact user
+   units) and a hairline arrow that descends a measured guide.
+   The ring holds on an 11.2s eased arc; the arrow drops on the
+   same 11.2s film loop and fades at both edges, so the loop
+   never snaps. It frames the real artifact figure in the hero
+   without covering it. Masks painted by --art-lime / --ink.
+   ============================================================ */
+.d-hero{position:relative}
+.d-hero::before,.d-hero::after{
+  content:'';position:absolute;z-index:-1;pointer-events:none;
+  inset-inline-start:0;inset-block-start:50%;translate:0 -50%;
+  width:clamp(150px,24vw,300px);height:clamp(165px,26vw,330px);
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+}
+.d-hero::before{
+  background-color:var(--art-lime);opacity:.66;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 220'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Ccircle cx='100' cy='64' r='40'/%3E%3Cpath d='M100 16v8M100 104v8M56 64h-8M152 64h8M82 64l12 12 24-26'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 220'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Ccircle cx='100' cy='64' r='40'/%3E%3Cpath d='M100 16v8M100 104v8M56 64h-8M152 64h8M82 64l12 12 24-26'/%3E%3C/g%3E%3C/svg%3E");
+}
+.d-hero::after{
+  background-color:var(--ink);opacity:.6;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 220'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Cpath d='M100 118v78M88 184l12 12 12-12M74 118h52M80 132h40'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 220'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Cpath d='M100 118v78M88 184l12 12 12-12M74 118h52M80 132h40'/%3E%3C/g%3E%3C/svg%3E");
+}
+html[data-js='1'] .d-hero::before{animation:v1145-seal-turn calc(var(--art-cadence) * 4) ease-in-out infinite}
+html[data-js='1'] .d-hero::after{animation:v1145-arrow-drop calc(var(--art-cadence) * 4) var(--ease-art) infinite}
+@media (prefers-reduced-motion: reduce){
+  .d-hero::before,.d-hero::after{animation:none!important;transform:none!important;clip-path:none!important;opacity:1!important}
+}
+html.reduce-motion :is(.d-hero::before,.d-hero::after),
+html[data-art='off'] :is(.d-hero::before,.d-hero::after){
+  animation:none!important;transform:none!important;clip-path:none!important;opacity:1!important
+}
+html[data-art='off'] :is(.d-hero::before,.d-hero::after){display:none!important}

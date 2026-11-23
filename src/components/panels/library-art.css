@@ -1,0 +1,292 @@
+/* ============================================================
+   LIBRARY — editorial art layer (v11.12 final polish).
+   Ink on paper: mono instrumentation, one serif title, a measured
+   filing-box shelf, hairline-separated rows. Every colour is a
+   token or currentColor. No gradients, no glows, no new palette.
+   Motion honours BOTH prefers-reduced-motion and html.reduce-motion.
+   ============================================================ */
+
+.lib-art {
+  --lib-ease: cubic-bezier(.22, .72, .18, 1);
+  --lib-draw: 900ms;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px 24px;
+  overflow-y: auto;
+  min-height: 0;
+  height: 100%;
+}
+.lib-art.w-full { width: 100%; }
+
+/* ---------- shared editorial vocabulary ---------- */
+.ed-mono {
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.ed-head {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 2px 0 16px;
+  border-bottom: 1px solid var(--line);
+}
+.ed-head::before {
+  content: '';
+  position: absolute;
+  inset-block-start: -2px;
+  inset-inline-start: 0;
+  inline-size: 38px;
+  block-size: 2px;
+  background: var(--acc);
+  pointer-events: none;
+}
+.ed-head-main { flex: 1 1 300px; min-width: 0; }
+.ed-head-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+.ed-eyebrow {
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .2em;
+  color: var(--acc);
+}
+html[dir='rtl'] .ed-eyebrow { letter-spacing: .06em; }
+.ed-glyph {
+  width: 46px;
+  height: 22px;
+  color: var(--faint);
+  flex: 0 0 auto;
+  opacity: .85;
+}
+.ed-head-title {
+  margin: 0;
+  font-family: var(--font-display-serif, Georgia, serif);
+  font-size: clamp(34px, 5vw, 50px);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -.02em;
+  color: var(--ink);
+}
+html[dir='rtl'] .ed-head-title,
+html[lang='ar'] .ed-head-title {
+  font-family: var(--font-display-ar, var(--font-app-ar, Cairo, sans-serif));
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.32;
+}
+.ed-head-desc {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--dim);
+  max-width: 64ch;
+}
+.ed-head-actions { display: flex; align-items: center; gap: 8px; padding-top: 4px; }
+.ed-head-count {
+  font-size: 13px;
+  color: var(--ink);
+  border-inline-end: 1px solid var(--line);
+  padding-inline-end: 10px;
+  margin-inline-end: 2px;
+}
+.ed-icon {
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--dim);
+  cursor: pointer;
+  transition: color .2s var(--lib-ease), border-color .2s var(--lib-ease);
+}
+.ed-icon:hover:not(:disabled) { color: var(--acc); border-color: var(--acc); }
+.ed-icon:disabled { opacity: .35; cursor: default; }
+.ed-muted { color: var(--faint); }
+.ed-body { font-size: 13px; }
+
+/* ---------- the shelf centerpiece ---------- */
+.lib-shelf {
+  margin: 0;
+  padding: 12px 14px 10px;
+  border: 1px solid var(--line);
+  background: transparent;
+}
+.lib-shelf-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.lib-shelf-total { color: var(--ink); font-size: 12px; letter-spacing: .16em; }
+.lib-shelf svg { display: block; width: 100%; height: auto; color: var(--faint); }
+.lib-shelf-ink { color: var(--dim); }
+/* hairlines draw themselves once on mount */
+.lib-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: libDraw var(--lib-draw) var(--lib-ease) both;
+}
+@keyframes libDraw { to { stroke-dashoffset: 0; } }
+.lib-bay { opacity: 0; animation: libFade 520ms var(--lib-ease) both; }
+@keyframes libFade { to { opacity: 1; } }
+.lib-box rect,
+.lib-box path,
+.lib-box circle { color: var(--dim); }
+.lib-box.is-filled rect { stroke: var(--acc); }
+.lib-box.is-filled path { color: var(--acc); }
+.lib-bay-count {
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 11px;
+  fill: var(--ink);
+}
+.lib-bay-kind {
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 9px;
+  letter-spacing: .1em;
+  fill: var(--faint);
+}
+.lib-shelf-cap { margin-top: 6px; font-size: 10px; }
+
+/* ---------- segmented tabs ---------- */
+.ed-seg {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--line);
+}
+.ed-seg button {
+  appearance: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--faint);
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 8px 12px 9px;
+  cursor: pointer;
+  transition: color .2s var(--lib-ease), border-color .2s var(--lib-ease);
+}
+.ed-seg button:hover { color: var(--ink); }
+.ed-seg button.is-active { color: var(--acc); border-bottom-color: var(--acc); }
+html[dir='rtl'] .ed-seg button { letter-spacing: 0; }
+.ed-seg--quiet { border-bottom: 0; gap: 2px; }
+.ed-seg--quiet button { padding: 5px 9px; font-size: 10.5px; }
+.ed-seg--quiet button.is-active { color: var(--ink); border-color: var(--line-strong); }
+
+/* ---------- tools ---------- */
+.lib-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.lib-search { position: relative; flex: 1 1 160px; min-width: 150px; }
+.lib-search-icon {
+  position: absolute;
+  inset-inline-start: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--faint);
+  pointer-events: none;
+}
+.ed-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px 0 30px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-app);
+  font-size: 13px;
+  outline: none;
+  transition: border-color .2s var(--lib-ease);
+}
+html[dir='rtl'] .ed-input { padding: 0 30px 0 10px; }
+.ed-input::placeholder { color: var(--faint); }
+.ed-input:focus { border-color: var(--acc); }
+
+/* ---------- cards: hairline-separated rows ---------- */
+.lib-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 0 !important;
+  border-top: 1px solid var(--line);
+}
+.lib-art.page-v14.page-v14 .lib-card {
+  min-height: 132px;
+  gap: 10px;
+  border: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-inline-end: 1px solid var(--line-soft) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 15px 16px 13px !important;
+  opacity: 0;
+  animation: libFade 460ms var(--lib-ease) both;
+}
+.lib-card:hover { background: var(--hover, transparent) !important; }
+.lib-card-top { color: var(--dim); }
+.lib-art.page-v14.page-v14 .lib-kind { font-size: 10.5px !important; letter-spacing: .14em !important; }
+html[dir='rtl'] .lib-art.page-v14.page-v14 .lib-kind { letter-spacing: 0 !important; }
+.lib-art.page-v14.page-v14 .lib-title {
+  font-family: var(--font-display-serif, Georgia, serif);
+  font-size: 19px !important;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-top: 4px;
+}
+html[dir='rtl'] .lib-art.page-v14.page-v14 .lib-title {
+  font-family: var(--font-display-ar, var(--font-app-ar, Cairo, sans-serif));
+  font-size: 18px !important;
+  font-weight: 700;
+}
+.lib-art.page-v14.page-v14 .lib-meta,
+.lib-art.page-v14.page-v14 .lib-size { font-size: 11px !important; color: var(--faint) !important; }
+.lib-card.is-image .lib-kind { color: var(--acc); }
+.lib-card.is-document .lib-kind,
+.lib-card.is-export .lib-kind { color: var(--acc2, var(--acc)); }
+.lib-actions { margin-top: auto; padding-top: 8px; gap: 5px; }
+.lib-actions .ed-icon { width: 26px; height: 26px; }
+
+/* ---------- empty ---------- */
+.lib-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 26px 18px;
+  color: var(--faint);
+  font-size: 13px;
+  line-height: 1.7;
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- motion guards ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .lib-draw { animation: none !important; stroke-dashoffset: 0 !important; }
+  .lib-bay,
+  .lib-art.page-v14.page-v14 .lib-card { animation: none !important; opacity: 1 !important; }
+  .ed-icon,
+  .ed-seg button,
+  .ed-input { transition: none !important; }
+}
+html.reduce-motion .lib-draw { animation: none !important; stroke-dashoffset: 0 !important; }
+html.reduce-motion .lib-bay,
+html.reduce-motion .lib-art.page-v14.page-v14 .lib-card { animation: none !important; opacity: 1 !important; }
+html.reduce-motion .ed-icon,
+html.reduce-motion .ed-seg button,
+html.reduce-motion .ed-input { transition: none !important; }

@@ -1,0 +1,163 @@
+/* ============================================================
+   SADEEM v11.36 — CHILD SESSION (جلسة جوا الجلسة)
+   ------------------------------------------------------------
+   The "inside the agent" surface: a parent breadcrumb + the REAL
+   per-tool-call transcript. Same hairline/orbital grammar as the
+   subagent page the founder praised: a single 1px logical rail,
+   no radius, no fill, no shadow, no second ring. Bigger, calmer
+   reading size (D13) so a tool call's input/output is legible.
+
+   Every colour is an existing theme token or a token color-mix.
+   Motion is short, one-shot, and fully off under either reduced-
+   motion signal. Fully logical (inset-inline-*) for RTL mirroring.
+   ============================================================ */
+
+/* ---------------- parent breadcrumb — back to MAIN session ---------------- */
+.sad-breadcrumb {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 15px;
+  border-block-end: 1px solid var(--line);
+  min-width: 0;
+}
+.sad-crumb {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-width: 0; max-width: 100%;
+  border: 0; border-radius: 0; background: none; box-shadow: none;
+  padding: 0 0 2px;
+  cursor: pointer;
+  border-block-end: 1px solid color-mix(in srgb, var(--agent) 38%, transparent);
+  transition: color .15s ease, border-color .15s ease;
+}
+.sad-crumb:hover { color: var(--ink); border-block-end-color: var(--agent); }
+.sad-crumb:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.sad-crumb-label {
+  font: 600 9px/1 var(--font-mono2, var(--font-mono, monospace));
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--dim); white-space: nowrap;
+}
+.sad-crumb-arrow { color: var(--faint); transition: transform .16s ease; }
+.sad-crumb:hover .sad-crumb-arrow { transform: translateY(-1px); }
+.sad-crumb-id {
+  font: 600 10px/1.25 var(--font-mono-x, var(--font-mono2, monospace));
+  color: var(--agent);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding-inline-start: 3px;
+}
+.sad-crumb-hint {
+  margin-inline-start: auto;
+  font: 600 8.5px/1 var(--font-mono2, var(--font-mono, monospace));
+  letter-spacing: .13em; text-transform: uppercase;
+  color: var(--faint); white-space: nowrap;
+}
+html[dir='rtl'] .sad-crumb-arrow { transform: scaleX(-1); }
+html[dir='rtl'] .sad-crumb:hover .sad-crumb-arrow { transform: scaleX(-1) translateY(-1px); }
+
+/* ---------------- REAL tool-call transcript ---------------- */
+.jc-section { min-width: 0; }
+.jc-timeline {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column;
+}
+.jc-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 8px;
+  padding-block: 7px;
+  padding-inline-start: 4px;
+  min-width: 0;
+  animation: jc-row-in calc(320ms / var(--motion-scale, 1)) var(--ease-out) both;
+}
+/* ONE hairline rail — the only frame. No box, no radius, no fill. */
+.jc-row::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 10px; inset-block-end: -3px;
+  width: 1px;
+  background: color-mix(in srgb, var(--line-strong) 68%, transparent);
+  pointer-events: none;
+}
+.jc-row:last-child::before { inset-block-end: 60%; }
+.jc-row.is-running::before { background: var(--agent); opacity: .85; }
+.jc-row.is-error::before { background: var(--warn); opacity: .9; }
+@keyframes jc-row-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.jc-seq {
+  font: 600 9.5px/1.55 var(--font-mono-x, var(--font-mono2, monospace));
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.jc-body { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.jc-head { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.jc-name {
+  font: 600 13px/1.5 var(--font-mono2, var(--font-mono, monospace));
+  letter-spacing: .01em;
+  color: var(--ink);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.jc-status {
+  flex: 0 0 auto;
+  font: 700 8.5px/1 var(--font-mono2, var(--font-mono, monospace));
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--dim);
+  padding-block-end: 2px;
+  border-block-end: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+}
+.jc-status.is-running { color: var(--agent); }
+.jc-status.is-done { color: var(--ok); }
+.jc-status.is-error { color: var(--warn); }
+.jc-time {
+  margin-inline-start: auto; flex: 0 0 auto;
+  font: 9.5px/1 var(--font-mono-x, var(--font-mono2, monospace));
+  color: var(--faint); font-variant-numeric: tabular-nums;
+}
+
+/* Input / output are REAL engine values. Hairline-underlined, frameless:
+   no bordered <pre> card — the underline is the whole delineation. */
+.jc-field { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+.jc-k {
+  flex: 0 0 54px;
+  font: 600 8.5px/1.7 var(--font-mono2, var(--font-mono, monospace));
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--faint);
+}
+.jc-v {
+  margin: 0; min-width: 0; flex: 1 1 auto;
+  font: 12px/1.65 var(--font-mono2, var(--font-mono, monospace));
+  color: var(--dim);
+  white-space: pre-wrap; word-break: break-word;
+  border-block-end: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+  padding-block-end: 4px;
+  max-height: 168px; overflow: auto;
+}
+.jc-row.is-error .jc-v { color: var(--warn); }
+.jc-empty {
+  padding-block: 8px 4px;
+  padding-inline-start: 4px;
+  font-size: 11.5px; color: var(--faint);
+}
+
+/* D13 — bigger, clearer reading size inside the child session (the modal's
+   prompt / output / timeline) without touching the compact inline card. */
+.sad-modal .sad-prompt,
+.sad-modal .sad-output {
+  font-size: 12px;
+  line-height: 1.75;
+}
+.sad-modal .sad-event { font-size: 11.5px; }
+.sad-modal .sad-desc { font-size: 11.5px; }
+
+/* ---------------- motion guard (OS + in-app toggle) ---------------- */
+@media (prefers-reduced-motion: reduce) {
+  .jc-row { animation: none !important; }
+  .jc-row.is-running::before { opacity: .8 !important; }
+  .sad-crumb, .sad-crumb-arrow { animation: none !important; transition: none !important; }
+}
+html.reduce-motion .jc-row { animation: none !important; }
+html.reduce-motion .jc-row.is-running::before { opacity: .8 !important; }
+html.reduce-motion .sad-crumb,
+html.reduce-motion .sad-crumb-arrow { animation: none !important; transition: none !important; }

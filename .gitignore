@@ -1,0 +1,47 @@
+# SADEEM — what must never be pushed to GitHub.
+# Generated binaries, installers, caches and local state are rebuilt by CI / downloaded from the site.
+
+# dependencies
+node_modules/
+**/node_modules/
+website/node_modules/
+
+# build output
+dist/
+dist-cli/
+dist-electron/
+build/
+release/
+website/.next/
+website/out/
+*.tsbuildinfo
+
+# release binaries & downloaded chunks (served from https://sadeem-ai.com/download)
+*.exe
+*.msi
+*.zip
+*.blockmap
+website/public/dl/
+
+# local secrets / environment (NEVER commit)
+.env
+.env.*
+!.env.example
+.vercel/
+**/.vercel/
+*.local
+
+# runtime state, checkpoints, private memory / logs
+.surnia/
+checkpoints/
+*.log
+npm-debug.log*
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Vercel CLI link cache (project ids) is intentionally excluded
+.vercel

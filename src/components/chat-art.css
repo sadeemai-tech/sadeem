@@ -1,0 +1,699 @@
+/* ============================================================
+   SADEEM — chat-art.css  (STABLE, version-free)
+   The "instrument plate" art language for the chat surface.
+   Imported from console.css (after stream-motion.css).
+
+   Presentation ONLY: no store cadence changes, no new capabilities,
+   no new palette. Every hue is color-mix() of an existing token; every
+   continuous effect is guarded by BOTH prefers-reduced-motion and
+   html.reduce-motion, with a static end state so nothing is half-drawn.
+   The reading base (14px/1.65) and the 16px composer are untouched —
+   every size below is a meta/instrumentation size.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · INSTRUMENT PLATE — DE-DUPED, STALE GUTTER HOOKS INERT.
+   The old PlateOrnament (the registration CROSSHAIR in the row gutter,
+   its drawing top rule and the descending vertical mono serial) is GONE:
+   the enlarged, crafted spinning circle owns that position now —
+     · per message:  .sc-think-orbit / .sc-think-orb (console.css §13b)
+     · primary live: .cp-live-glyph / .cp-live-panel (console.css §13)
+   The legacy hook class names are kept in the renderer for compatibility,
+   but they are deliberately inert here: NO crosshair, NO descending rule,
+   NO mono serial and NO logo glyph (including pseudo-element art) may paint
+   behind the new circle. The renderer's own live animations stay intact.
+   Rows still need a positioning context for their hover action bar AND for
+   the absolutely-placed orbit, so .kb-ai-msg remains positioned.
+   ------------------------------------------------------------ */
+.chat-panel-root .kb-ai-msg,
+.chat-panel-root .sc-msgrow.sc-user-row {
+  position: relative;
+}
+/* retired decorative hooks — keep the class, draw NOTHING stale. */
+.chat-panel-root :is(.sc-plate-cross, .sc-plate-rule, .sc-plate-index),
+.chat-panel-root :is(.sc-plate-cross, .sc-plate-rule, .sc-plate-index)::before,
+.chat-panel-root :is(.sc-plate-cross, .sc-plate-rule, .sc-plate-index)::after,
+.chat-panel-root .sc-think-mark::before,
+.chat-panel-root .sc-think-mark::after {
+  content: none !important;
+  display: none !important;
+}
+/* The two APPROVED circles own their gutter outright: no square, no plate,
+   no border/background frame may wrap the reasoning-head or the compact row
+   glyph. Flat, token-only, transform/opacity — never a framed stamp. */
+.chat-panel-root :is(.sc-reason-glyph, .sc-think-mark, .sc-think-orbit, .sc-think-orb, .sc-think-orbit-svg) {
+  border: 0;
+  background: none;
+}
+
+/* ------------------------------------------------------------
+   2 · THINKING READOUT — the retired engraving (needle + 24 ticks) no
+   longer draws: the renderer's precision orbit owns the head. Only the
+   mono elapsed label survives here — token-coloured, fixed-width, no art.
+   ------------------------------------------------------------ */
+.chat-panel-root .sc-think-clock-label {
+  margin-inline-end: 2px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  opacity: 0.62;
+}
+
+/* ------------------------------------------------------------
+   3 · TOOL CARDS — two-stage draw (top rule on start via .tv-draw-rule,
+   left rule on completion via .tv-complete-rule). Monospaced chips share
+   one strict baseline; power tools carry their existing lucide glyph
+   engraved inside the family chip.
+   ------------------------------------------------------------ */
+.chat-panel-root .tv-complete-rule {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--verb-c, var(--acc)) 58%, transparent);
+  transform-origin: block-start;
+  transform: scaleY(0);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.chat-panel-root .tl2-card[data-status='done'] .tv-complete-rule,
+.chat-panel-root .tl2-card[data-status='error'] .tv-complete-rule,
+.chat-panel-root .tl2-card[data-status='denied'] .tv-complete-rule {
+  animation: sc-left-draw 420ms var(--ease-out) both;
+}
+@keyframes sc-left-draw {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 0.62; }
+}
+.chat-panel-root .tl2-card .tl2-head > * {
+  align-self: center;
+}
+.chat-panel-root .tl2-card .tv-chip,
+.chat-panel-root .tl2-card .tv-stack,
+.chat-panel-root .tl2-card .tv-badge,
+.chat-panel-root .tl2-card .tv-exit,
+.chat-panel-root .tl2-card .tl2-pill,
+.chat-panel-root .tl2-card .tl2-diff > b {
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.chat-panel-root .tl2-card .tv-chip {
+  gap: 4px;
+}
+.chat-panel-root .tl2-card .tv-chip-glyph {
+  flex: 0 0 auto;
+  color: color-mix(in srgb, var(--verb-c, var(--dim)) 78%, var(--ink));
+  opacity: 0.82;
+}
+
+/* ------------------------------------------------------------
+   4 · MONOGRAM STAMPS — FRAMELESS. The former 1px-bordered square and
+   its tiny engraved corner notch are RETIRED: the THINK band wears one
+   circle and nothing boxes it. Only the caps word remains, in the
+   editorial display serif with a Cairo guard for RTL so Arabic never
+   falls back to a Latin display face.
+   ------------------------------------------------------------ */
+.chat-panel-root .sc-monogram-stamp {
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.chat-panel-root .sc-notice-mode-ico,
+.chat-panel-root .sc18-phase-mark {
+  position: relative;
+}
+/* retired corner-notch art — keep the hooks, draw nothing. */
+.chat-panel-root .sc-notice-mode-ico::after,
+.chat-panel-root .sc18-phase-mark::after {
+  content: none !important;
+  display: none !important;
+}
+.chat-panel-root .sc-notice.sc-notice-mode .sc-notice-tag,
+.chat-panel-root .sc18-band-head .sc18-band-word {
+  font-family: var(--font-display-serif, Georgia, serif);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+html[lang='ar'] .chat-panel-root .sc-notice.sc-notice-mode .sc-notice-tag,
+html[dir='rtl'] .chat-panel-root .sc-notice.sc-notice-mode .sc-notice-tag,
+.chat-panel-root [dir='rtl'] .sc-notice.sc-notice-mode .sc-notice-tag,
+html[lang='ar'] .chat-panel-root .sc18-band-head .sc18-band-word,
+html[dir='rtl'] .chat-panel-root .sc18-band-head .sc18-band-word,
+.chat-panel-root [dir='rtl'] .sc18-band-head .sc18-band-word {
+  font-family: var(--font-arabic, 'Cairo', sans-serif);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* ------------------------------------------------------------
+   5 · CONTINUITY — a calm broken line with two registration dots on
+   compaction / heartbeat / steering notices. No travel, no flash.
+   ------------------------------------------------------------ */
+.chat-panel-root .sc-continuity-mark {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 0;
+  margin-inline-end: 2px;
+  /* a flat, broken 1px hairline — hard-stopped by `dashed`, no gradient */
+  border-block-start: 1px dashed color-mix(in srgb, var(--v-read, var(--acc)) 48%, var(--line-strong));
+  opacity: 0.72;
+  pointer-events: none;
+}
+.chat-panel-root .sc-continuity-mark::before,
+.chat-panel-root .sc-continuity-mark::after {
+  content: '';
+  width: 3px;
+  height: 3px;
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, var(--v-read, var(--acc)) 62%, transparent);
+  border-radius: 50%;
+  background: var(--bg1);
+}
+html[dir='rtl'] .chat-panel-root .sc-continuity-mark {
+  transform: scaleX(-1);
+}
+
+/* ------------------------------------------------------------
+   6 · EMPTY STATE — an original engraved plate around the existing
+   logo mark: a fine dashed orbit with a satellite dot and a nib tracing
+   a growing path. The serif display title + mono sub-label use the
+   containers ChatPanel already renders (no new layout system).
+   ------------------------------------------------------------ */
+.chat-panel-root .chat-empty .chat-empty-mark {
+  width: 96px;
+  height: 96px;
+  margin-bottom: 16px;
+}
+.chat-panel-root .chat-empty .chat-empty-mark::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px dashed color-mix(in srgb, var(--acc) 38%, var(--line-strong));
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 2px,
+    color-mix(in srgb, var(--acc) 78%, transparent) 0 2px,
+    transparent 2.5px
+  );
+  opacity: 0.85;
+  animation: art-orbit 26s linear infinite;
+}
+.chat-panel-root .chat-empty .chat-empty-mark::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  width: 44px;
+  height: 1px;
+  background:
+    /* hard-stopped 1.7px nib tip — a flat dot, not a glow */
+    radial-gradient(
+      circle at calc(100% - 2px) 50%,
+      color-mix(in srgb, var(--acc) 76%, transparent) 0 1.7px,
+      transparent 2.2px
+    ),
+    /* flat token hairline; the fade is carried by opacity, never a gradient */
+    color-mix(in srgb, var(--acc) 46%, var(--line-soft));
+  transform-origin: inline-start center;
+  transform: rotate(-18deg) scaleX(0.15);
+  opacity: 0.78;
+  animation: sc-path-grow 900ms var(--ease-out) 120ms both;
+}
+@keyframes sc-path-grow {
+  from { transform: rotate(-18deg) scaleX(0.15); opacity: 0; }
+  to   { transform: rotate(-18deg) scaleX(1); opacity: 0.78; }
+}
+.chat-panel-root .chat-empty .chat-empty-title {
+  font-family: var(--font-display-serif, Georgia, serif);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.chat-panel-root .chat-empty .chat-empty-sub {
+  font-family: var(--font-mono-x);
+  letter-spacing: 0.03em;
+}
+html[lang='ar'] .chat-panel-root .chat-empty .chat-empty-title,
+html[dir='rtl'] .chat-panel-root .chat-empty .chat-empty-title,
+.chat-panel-root [dir='rtl'] .chat-empty .chat-empty-title {
+  font-family: var(--font-arabic, 'Cairo', sans-serif);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+html[lang='ar'] .chat-panel-root .chat-empty .chat-empty-sub,
+html[dir='rtl'] .chat-panel-root .chat-empty .chat-empty-sub,
+.chat-panel-root [dir='rtl'] .chat-empty .chat-empty-sub {
+  font-family: var(--font-arabic, 'Cairo', sans-serif);
+  letter-spacing: 0;
+}
+
+/* ------------------------------------------------------------
+   7 · MOTION SCALE + GUARDS — continuous effects follow --motion-scale
+   when present; BOTH reduced-motion signals freeze everything with a
+   static end state (no half-drawn rules, no parked-off-screen needle).
+   ------------------------------------------------------------ */
+[data-motion] .chat-panel-root .chat-empty .chat-empty-mark::before {
+  animation-duration: calc(26s / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .tl2-card[data-status] .tv-complete-rule,
+  .chat-panel-root .chat-empty .chat-empty-mark::before,
+  .chat-panel-root .chat-empty .chat-empty-mark::after {
+    animation: none !important;
+  }
+  .chat-panel-root .tl2-card[data-status='done'] .tv-complete-rule,
+  .chat-panel-root .tl2-card[data-status='error'] .tv-complete-rule,
+  .chat-panel-root .tl2-card[data-status='denied'] .tv-complete-rule {
+    transform: none !important;
+    opacity: 0.62 !important;
+  }
+  .chat-panel-root .chat-empty .chat-empty-mark::after {
+    transform: rotate(-18deg) scaleX(1) !important;
+    opacity: 0.78 !important;
+  }
+}
+html.reduce-motion .tl2-card[data-status] .tv-complete-rule,
+html.reduce-motion .chat-empty .chat-empty-mark::before,
+html.reduce-motion .chat-empty .chat-empty-mark::after {
+  animation: none !important;
+}
+html.reduce-motion .tl2-card[data-status='done'] .tv-complete-rule,
+html.reduce-motion .tl2-card[data-status='error'] .tv-complete-rule,
+html.reduce-motion .tl2-card[data-status='denied'] .tv-complete-rule {
+  transform: none !important;
+  opacity: 0.62 !important;
+}
+html.reduce-motion .chat-empty .chat-empty-mark::after {
+  transform: rotate(-18deg) scaleX(1) !important;
+  opacity: 0.78 !important;
+}
+
+/* ============================================================
+    8 · AMBIENT CRAFT · ADDITIVE
+    Two quiet, original marks on the chat surface: an animated
+    1px ink grid behind the empty state and the thinking block,
+    and a slow ink-flow hairline down the gutter while running.
+    The old four-point corner crosshair is RETIRED — no decorative
+    crosshair/serial art survives anywhere in the panel.
+    Every line is 1px / token-derived, opacity never exceeds 0.04
+    on the texture, and BOTH reduced-motion signals freeze it.
+    ============================================================ */
+
+/* 8a · ink grid. `isolation: isolate` keeps the -1 layer behind the
+    content yet above the panel's own background. */
+.chat-panel-root .chat-empty,
+.chat-panel-root .kb-think.reason-rail {
+  position: relative;
+  isolation: isolate;
+}
+.chat-panel-root .chat-empty::before,
+.chat-panel-root .kb-think.reason-rail::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  z-index: -1;
+  pointer-events: none;
+  color: var(--line-strong);
+  opacity: 0.035;
+  background-image:
+    repeating-linear-gradient(to right, currentColor 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(to bottom, currentColor 0 1px, transparent 1px 26px);
+  background-size: 26px 26px;
+  animation: art-grid-drift 26s linear infinite;
+}
+@keyframes art-grid-drift {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(26px, 26px); }
+}
+
+/* 8c · ink-flow hairline along the inline-start gutter, only while the run
+    is live (the head carries .is-running). A static rail + one travelling
+    1px segment — deliberately gradient-free. */
+.chat-panel-root .chat-head.is-running ~ .chat-stream.chat-stream-v13 {
+  position: relative;
+}
+.chat-panel-root .chat-head.is-running ~ .chat-stream.chat-stream-v13::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 5px;
+  width: 1px;
+  background: var(--line);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.chat-panel-root .chat-head.is-running ~ .chat-stream.chat-stream-v13::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 5px;
+  width: 1px;
+  height: 38px;
+  background: var(--acc);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: art-ink-flow 6.5s linear infinite;
+}
+@keyframes art-ink-flow {
+  from { transform: translateY(-40px); }
+  to   { transform: translateY(100vh); }
+}
+
+/* motion scale */
+[data-motion] .chat-panel-root .chat-empty::before,
+[data-motion] .chat-panel-root .kb-think.reason-rail::after {
+  animation-duration: calc(26s / var(--motion-scale, 1));
+}
+[data-motion] .chat-panel-root .chat-head.is-running ~ .chat-stream.chat-stream-v13::after {
+  animation-duration: calc(6.5s / var(--motion-scale, 1));
+}
+
+/* BOTH reduced-motion signals — static end states. */
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .chat-empty::before,
+  .chat-panel-root .kb-think.reason-rail::after,
+  .chat-panel-root .chat-head.is-running ~ .chat-stream.chat-stream-v13::after {
+    animation: none !important;
+  }
+  /* texture: a fixed, barely-there grid (no drift) */
+  .chat-panel-root .chat-empty::before,
+  .chat-panel-root .kb-think.reason-rail::after { transform: none !important; opacity: 0.035 !important; }
+  /* the travelling ink segment has no static look — hide it, keep the rail */
+  .chat-panel-root .chat-head.is-running ~ .chat-stream.chat-stream-v13::after { display: none !important; }
+}
+html.reduce-motion .chat-empty::before,
+html.reduce-motion .kb-think.reason-rail::after,
+html.reduce-motion .chat-head.is-running ~ .chat-stream.chat-stream-v13::after {
+  animation: none !important;
+}
+html.reduce-motion .chat-empty::before,
+html.reduce-motion .kb-think.reason-rail::after { transform: none !important; opacity: 0.035 !important; }
+html.reduce-motion .chat-head.is-running ~ .chat-stream.chat-stream-v13::after { display: none !important; }
+
+/* ============================================================
+    9 · INSTRUMENT CALIBRATION · ADDITIVE, FRAME-FREE
+    A single 1px calibration tick draws once under every tool header
+    (except the command family, whose own travelling stroke lives in
+    tool-story.css). A finished write/read card cools its receipt
+    hairline to the verified hue — a static, calm end state, not a
+    badge or a pill. Token-derived, one-shot, both gates honoured.
+    ============================================================ */
+.chat-panel-root .tl2-card .tl2-head {
+  position: relative;
+}
+.chat-panel-root .tl2-card:not(.tv-bash) .tl2-head::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 6px;
+  inset-block-end: 2px;
+  width: 10px;
+  height: 1px;
+  background: color-mix(in srgb, var(--verb-c, var(--acc)) 44%, transparent);
+  transform: scaleX(0);
+  transform-origin: inline-end;
+  opacity: 0;
+  pointer-events: none;
+  animation: art-calibration 2.2s var(--ease-out) both;
+}
+@keyframes art-calibration {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 0.7; }
+}
+/* settled build / proof: the receipt hairline cools to the verified hue */
+.chat-panel-root .tl2-card.tv-write[data-status='done'] .tv-chip,
+.chat-panel-root .tl2-card.tv-edit[data-status='done'] .tv-chip,
+.chat-panel-root .tl2-card.tv-read[data-status='done'] .tv-chip {
+  border-block-end-color: color-mix(in srgb, var(--ok) 46%, var(--line-soft));
+}
+
+[data-motion] .chat-panel-root .tl2-card:not(.tv-bash) .tl2-head::after {
+  animation-duration: calc(2.2s / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .tl2-card:not(.tv-bash) .tl2-head::after { animation: none !important; }
+  .chat-panel-root .tl2-card:not(.tv-bash) .tl2-head::after {
+    transform: scaleX(1) !important;
+    opacity: 0.7 !important;
+  }
+}
+html.reduce-motion .tl2-card:not(.tv-bash) .tl2-head::after { animation: none !important; }
+html.reduce-motion .tl2-card:not(.tv-bash) .tl2-head::after {
+  transform: scaleX(1) !important;
+  opacity: 0.7 !important;
+}
+
+/* ============================================================
+    10 · SCROLL-DRAWN TRANSCRIPT EDGE · ADDITIVE, FRAME-FREE
+    While the run is idle, ONE 1px hairline on the inline-start
+    transcript edge draws itself with the scroll position (a CSS scroll
+    timeline, progressively enhanced). When the run goes live the
+    existing §8c travelling ink segment owns that same edge — the two
+    selectors never overlap. The base state is the fully drawn rail, so
+    browsers without scroll timelines see a calm, finished hairline.
+    Token colour only, no box, no fill, no glow. BOTH reduced-motion
+    signals freeze it at the drawn end state.
+    ============================================================ */
+.chat-panel-root .chat-head:not(.is-running) ~ .chat-stream.chat-stream-v13 {
+  position: relative;
+}
+.chat-panel-root .chat-head:not(.is-running) ~ .chat-stream.chat-stream-v13::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 5px;
+  width: 1px;
+  border: 0;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--acc) 40%, var(--line));
+  transform-origin: block-start;
+  transform: none;
+  opacity: 0.34;
+  pointer-events: none;
+}
+@supports (animation-timeline: scroll()) {
+  .chat-panel-root .chat-head:not(.is-running) ~ .chat-stream.chat-stream-v13::before {
+    animation: art-scroll-ink linear both;
+    animation-timeline: scroll(self block);
+    animation-range: 0% 100%;
+  }
+}
+@keyframes art-scroll-ink {
+  from { transform: scaleY(0); opacity: 0.12; }
+  to   { transform: scaleY(1); opacity: 0.42; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .chat-head:not(.is-running) ~ .chat-stream.chat-stream-v13::before {
+    animation: none !important;
+    animation-timeline: auto !important;
+    transform: none !important;
+    opacity: 0.34 !important;
+  }
+}
+html.reduce-motion .chat-head:not(.is-running) ~ .chat-stream.chat-stream-v13::before {
+  animation: none !important;
+  animation-timeline: auto !important;
+  transform: none !important;
+  opacity: 0.34 !important;
+}
+
+/* ============================================================
+   11 · ERROR RESULT ROW · FRAME-FREE, ADDITIVE
+   The founder's screenshot showed failed tool output sitting inside
+   tinted boxes. This layer strips that reading: a single 1px rail in
+   the verdict hue, a 1px underline that draws itself once under the
+   mono head, and calm end-aligned tabular figures. No border box, no
+   radius, no fill, no glow. BOTH reduced-motion signals settle at
+   full ink.
+   ============================================================ */
+.chat-panel-root .sc18-res.is-bad {
+  border: 0;
+  border-inline-start: 1px solid color-mix(in srgb, var(--bad) 62%, var(--line));
+  background: none;
+  padding-inline-start: 10px;
+}
+.chat-panel-root .sc18-res.is-bad .sc18-res-head {
+  position: relative;
+  font-family: var(--font-mono-x);
+  font-variant-numeric: tabular-nums;
+}
+.chat-panel-root .sc18-res.is-bad .sc18-res-head::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--bad) 48%, var(--line-soft));
+  transform-origin: inline-start;
+  pointer-events: none;
+  animation: sc-error-underline 460ms var(--ease-out) both;
+}
+@keyframes sc-error-underline {
+  from { transform: scaleX(0); opacity: 0.85; }
+  to   { transform: scaleX(1); opacity: 0.4; }
+}
+[data-motion] .chat-panel-root .sc18-res.is-bad .sc18-res-head::after {
+  animation-duration: calc(460ms / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .sc18-res.is-bad .sc18-res-head::after {
+    animation: none !important;
+    transform: scaleX(1) !important;
+    opacity: 0.4 !important;
+  }
+}
+html.reduce-motion .sc18-res.is-bad .sc18-res-head::after {
+  animation: none !important;
+  transform: scaleX(1) !important;
+  opacity: 0.4 !important;
+}
+
+/* ============================================================
+    12 · INSTRUMENT READOUT · REGISTRATION DETAIL (additive)
+    The result is the instrument's readout, not a raw dump. It gets one
+    1px baseline drawn once under its mono head, a 1px registration notch
+    on the completion rule, and one tabular rhythm for every figure. No
+    fill, no box, no green event button. Token hues, logical insets, and
+    BOTH reduced-motion gates settle at full ink.
+    ============================================================ */
+.chat-panel-root .sc18-res.is-ok .sc18-res-head {
+  position: relative;
+}
+.chat-panel-root .sc18-res.is-ok .sc18-res-head::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: -1px;
+  height: 1px;
+  background: color-mix(in srgb, var(--ok) 32%, var(--line-soft));
+  transform: scaleX(0);
+  transform-origin: inline-start;
+  pointer-events: none;
+  animation: art-readout-base 2.2s var(--ease-out) 80ms both;
+}
+@keyframes art-readout-base {
+  0%   { transform: scaleX(0); opacity: 0.8; }
+  16%  { transform: scaleX(1); opacity: 0.34; }
+  100% { transform: scaleX(1); opacity: 0.34; }
+}
+/* a 1px registration notch where the completion rule meets the head */
+.chat-panel-root .tv-complete-rule::after {
+  content: '';
+  position: absolute;
+  inset-block-start: -1px;
+  inset-inline-start: 0;
+  width: 3px;
+  height: 3px;
+  border-inline-start: 1px solid color-mix(in srgb, var(--verb-c, var(--ok)) 60%, transparent);
+  border-block-start: 1px solid color-mix(in srgb, var(--verb-c, var(--ok)) 60%, transparent);
+  pointer-events: none;
+}
+.chat-panel-root .sc18-res {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+[data-motion] .chat-panel-root .sc18-res.is-ok .sc18-res-head::after {
+  animation-duration: calc(2.2s / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .sc18-res.is-ok .sc18-res-head::after { animation: none !important; }
+  .chat-panel-root .sc18-res.is-ok .sc18-res-head::after { transform: scaleX(1) !important; opacity: 0.34 !important; }
+}
+html.reduce-motion .sc18-res.is-ok .sc18-res-head::after { animation: none !important; }
+html.reduce-motion .sc18-res.is-ok .sc18-res-head::after { transform: scaleX(1) !important; opacity: 0.34 !important; }
+
+/* ============================================================
+    13 · EMPTY-STATE TITLE CALIBRATION · ADDITIVE, FRAME-FREE
+    The serif empty-state title gets the same single calibrated hairline
+    as the shell heroes: drawn once from the reading start, resting faint,
+    with generous block spacing. Token ink, opacity depth only, and BOTH
+    reduced-motion signals settle at the fully-inked state.
+    ============================================================ */
+.chat-panel-root .chat-empty .chat-empty-title::after {
+  content: '';
+  display: block;
+  inline-size: 36px;
+  block-size: 1px;
+  margin-block-start: 12px;
+  background: var(--line-strong);
+  transform: scaleX(0);
+  transform-origin: inline-start;
+  pointer-events: none;
+  animation: art-empty-calibrate 2.6s var(--ease-out, ease) 160ms both;
+}
+html[dir='rtl'] .chat-panel-root .chat-empty .chat-empty-title::after {
+  transform-origin: inline-end;
+}
+@keyframes art-empty-calibrate {
+  0%   { transform: scaleX(0); opacity: 0.85; }
+  16%  { transform: scaleX(1); opacity: 0.5; }
+  100% { transform: scaleX(1); opacity: 0.5; }
+}
+[data-motion] .chat-panel-root .chat-empty .chat-empty-title::after {
+  animation-duration: calc(2.6s / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .chat-empty .chat-empty-title::after {
+    animation: none !important;
+    transform: scaleX(1) !important;
+    opacity: 0.5 !important;
+  }
+}
+html.reduce-motion .chat-empty .chat-empty-title::after {
+  animation: none !important;
+  transform: scaleX(1) !important;
+  opacity: 0.5 !important;
+}
+
+/* ============================================================
+     14 · EMPTY-STATE LEDGER RULE · v1142 additive
+     The mono sub-label gains one calibrated 1px hairline above it —
+     an instrument reading mark drawn once from the reading start.
+     Token ink, logical insets, no box. BOTH reduced-motion signals
+     and the data-art kill switch settle it at full ink.
+     ============================================================ */
+.chat-panel-root .chat-empty .chat-empty-sub {
+  position: relative;
+  padding-block-start: 10px;
+}
+.chat-panel-root .chat-empty .chat-empty-sub::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 42px;
+  block-size: 1px;
+  background: var(--line-strong);
+  transform-origin: inline-start;
+  pointer-events: none;
+  animation: v1142-chat-ledger 2.2s var(--ease-out, ease) 120ms both;
+}
+html[dir='rtl'] .chat-panel-root .chat-empty .chat-empty-sub::before {
+  transform-origin: inline-end;
+}
+@keyframes v1142-chat-ledger {
+  0%   { transform: scaleX(0); opacity: 0.85; }
+  16%  { transform: scaleX(1); opacity: 0.5; }
+  100% { transform: scaleX(1); opacity: 0.5; }
+}
+[data-motion] .chat-panel-root .chat-empty .chat-empty-sub::before {
+  animation-duration: calc(2.2s / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .chat-empty .chat-empty-sub::before {
+    animation: none !important;
+    transform: scaleX(1) !important;
+    opacity: 0.5 !important;
+  }
+}
+html.reduce-motion .chat-empty .chat-empty-sub::before {
+  animation: none !important;
+  transform: scaleX(1) !important;
+  opacity: 0.5 !important;
+}
+html[data-art='off'] .chat-empty .chat-empty-sub::before { animation: none !important; }

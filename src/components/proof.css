@@ -1,0 +1,826 @@
+/* ============================================================
+   SADEEM — proof.css  (STABLE, version-free)
+   v11.17 — the evidence strip is now ONE SMALL "PROOF" chip. The
+   real evidence (ink check, tallies, chips, honest gate ledger)
+   lives in an ABSOLUTE overlay panel that opens on click and never
+   shifts the chat layout. Palette UNCHANGED — only var(--…) /
+   currentColor, tints via color-mix(). No gradients, no glow, no
+   rounded SaaS cards. Motion is guarded by BOTH reduced-motion
+   signals (prefers-reduced-motion + html.reduce-motion).
+
+   v11.27 — the founder removed the panel entirely: the ONLY rendered
+   surface is the ~22px / 1px / mono PROOF button (now enabled and wired
+   to copy an evidence summary). The pip rules below are now LIVE — the
+   TSX keys `.pr-toggle-dot` on `pulseGen` and adds `.is-pulsing` on the
+   rising edge of new evidence, so each `animation … 1 both` fires once.
+   The legacy panel/ledger rules remain only as harmless dead CSS; they
+   match no rendered element and mount no popover, tally or gate row.
+   ============================================================ */
+
+.chat-panel-root {
+  --pr-radius: 2px;
+  --pr-rail-glyph: 15px;
+  --pr-rail-dot: 6px;
+  --pr-rail-gap: 8px;
+}
+
+/* ------------------------------------------------------------
+   0 · COLLAPSED WRAPPER — only the chip is visible.
+   `proof-ribbon` class is kept for stream-motion's ink-check draw
+   selector; `.pr-anchor` neutralises the old strip layout so the
+   collapsed surface is a single ~22px control with no extra chrome.
+   ------------------------------------------------------------ */
+.chat-panel-root .proof-ribbon.pr-anchor {
+  display: block;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  flex-wrap: nowrap;
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+}
+
+/* The compact SSR / AT hooks are visually hidden but remain focusable and
+   reachable by screen readers; they are NEVER part of the visible chip. */
+.chat-panel-root .pr-hooks {
+  /* tailwind `sr-only` already clips; this only guards older builds */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------
+   1 · THE PROOF CHIP — 1px-bordered, mono caps, tiny dot, ~22px tall
+   ------------------------------------------------------------ */
+.chat-panel-root button.pr-proof-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 22px;
+  min-width: 60px;
+  max-width: 84px;
+  padding: 0 7px;
+  /* EXACTLY 1px on every side — box-sizing keeps the 22px control honest. */
+  border: 1px solid var(--line-strong, var(--line));
+  border-radius: var(--pr-radius);
+  background: transparent;
+  color: var(--dim);
+  /* Mono uppercase caps in Latin; Arabic switches to the display face with
+     no fake caps (see the html[lang='ar'] rule below). */
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
+}
+.chat-panel-root button.pr-proof-toggle:hover {
+  color: var(--ink);
+  border-color: var(--acc);
+  background: var(--hover);
+}
+.chat-panel-root button.pr-proof-toggle:focus-visible {
+  outline: 1px solid var(--acc);
+  outline-offset: 1px;
+}
+.chat-panel-root button.pr-proof-toggle[aria-expanded='true'] {
+  color: var(--ink);
+  border-color: var(--acc);
+}
+.chat-panel-root button.pr-proof-toggle.is-proven { color: var(--ok); }
+.chat-panel-root button.pr-proof-toggle.is-failed { color: var(--bad); }
+
+/* the small leading accent pip — a token-coloured 5px dot.
+   It is STATIC by default; `is-pulsing` is added only when a real gate
+   verdict lands (keyed remount in the TSX replays the one-shot draw). */
+.chat-panel-root .pr-toggle-dot {
+  position: relative;
+  flex: 0 0 auto;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--acc);
+  opacity: 1;
+}
+/* A 1px hairline ring unfurls once, then vanishes — never a continuous
+   heartbeat. Both animations have iteration count 1; the TSX drives a keyed
+   remount ONLY on the rising edge of proofVisible (one new evidence episode),
+   so there is no loop and no per-gate flicker. */
+.chat-panel-root .pr-toggle-dot::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--acc);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+.chat-panel-root .pr-toggle-dot.is-pulsing {
+  animation: pr-pip-core 560ms var(--ease-out, ease) 1 both;
+}
+.chat-panel-root .pr-toggle-dot.is-pulsing::after {
+  animation: pr-pip-ring 560ms var(--ease-out, ease) 1 both;
+}
+@keyframes pr-pip-core {
+  0%, 100% { transform: scale(1); }
+  45%      { transform: scale(1.35); }
+}
+@keyframes pr-pip-ring {
+  0%   { opacity: 0.85; transform: scale(1); }
+  100% { opacity: 0;    transform: scale(2.6); }
+}
+/* the visible bilingual word: no inner chip/border — the toggle IS the chip */
+.chat-panel-root button.pr-proof-toggle .pr-tag {
+  flex: 0 0 auto;
+  display: inline;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  white-space: nowrap;
+}
+/* DEAD RULE REMOVED: `.pr-toggle-chevron` belonged to the popover that was
+   retired in v11.27. ProofRibbon.tsx renders no chevron, so the rule painted
+   nothing and only inflated the cascade. */
+html[lang='ar'] .chat-panel-root button.pr-proof-toggle,
+html[dir='rtl'] .chat-panel-root button.pr-proof-toggle {
+  font-family: var(--font-display-ar, var(--font-display-serif));
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 10px;
+}
+
+/* ------------------------------------------------------------
+   2 · OPENED PANEL — absolute overlay, no layout shift, RTL-safe
+   ------------------------------------------------------------ */
+.chat-panel-root .pr-pop {
+  position: absolute;
+  /* Above every transcript/composer layer so its BUTTONS are clickable. */
+  z-index: 70;
+  /* BELOW the chip, never overlapping it and never stretched over the chat.
+     chat.css's bare `.pr-pop` sets `bottom: calc(100% + 2px)` (ABOVE) and
+     `inset-inline: 12px` (both sides). Those longhands lose to this 2-class
+     rule, but we also neutralise them explicitly so a source-order change in
+     chat.css cannot silently flip the panel back over the chip. */
+  inset-block-start: calc(100% + 6px);
+  inset-block-end: auto;
+  inset-inline-start: 0; /* RTL-safe: anchors on the reading (start) side */
+  inset-inline-end: auto;
+  top: calc(100% + 6px); /* physical fallback, same value as block-start */
+  bottom: auto;          /* kills chat.css's above-the-chip anchor */
+  /* A bounded panel: it opens just under the small chip and scrolls its own
+     ledger instead of covering the transcript or the composer. */
+  width: min(360px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: min(52vh, 460px);
+  overflow: auto;
+  padding: 10px 11px 8px;
+  border: 1px solid var(--line-strong, var(--line));
+  border-radius: var(--pr-radius);
+  background: var(--panel);
+  box-shadow: none;
+  animation: pr-pop-in 160ms var(--ease-out, ease) both;
+  overscroll-behavior: contain;
+}
+/* Explicit RTL/LTR mirroring — the panel always opens on the start side of
+   the chip (left in LTR, right in RTL) and never straddles the transcript. */
+html[dir='rtl'] .chat-panel-root .pr-pop,
+html[lang='ar'] .chat-panel-root .pr-pop {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+}
+
+/* status art row — the inked check / quiet cross only ever appears here */
+.pr-pop-art {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-bottom: 7px;
+}
+.chat-panel-root .pr-pop-art .pr-ink-check { width: 15px; height: 15px; }
+.chat-panel-root .pr-pop-art .pr-quiet-cross { width: 14px; height: 14px; }
+.chat-panel-root .pr-pop-art .pr-stamp { height: 16px; padding: 0 6px; }
+
+/* v11.18 — tiny evidence mark that inks itself on when the panel mounts.
+   Its own class avoids stream-motion's `:has(.pr-stamp.is-ok)` selector so the
+   draw is guaranteed on every open. Dash maths are pinned by pathLength=34. */
+.chat-panel-root .pr-evidence-mark-slot {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+}
+.chat-panel-root .pr-evidence-mark { display: block; width: 14px; height: 14px; }
+.chat-panel-root .pr-evidence-mark path {
+  fill: none;
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 34;   /* = INK_CHECK_LENGTH / pathLength */
+  stroke-dashoffset: 34;  /* fully hidden, then inked to 0 on open */
+  animation: pr-evidence-draw 520ms var(--ease-out, ease) 90ms both;
+}
+@keyframes pr-evidence-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+.pr-pop-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.pr-pop-wordmark {
+  flex: 0 0 auto;
+  font-family: var(--font-display-serif, Georgia, serif);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--ink);
+  white-space: nowrap;
+}
+html[lang='ar'] .pr-pop-wordmark,
+html[dir='rtl'] .pr-pop-wordmark {
+  font-family: var(--font-display-ar, var(--font-display-serif));
+  font-weight: 700;
+}
+/* the ledger's one hairline draws exactly once from the reading start, then
+   rests at full ink — a calibrated registration rule, never a boxed header */
+.pr-pop-rule {
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--line);
+  transform: scaleX(0);
+  transform-origin: inline-start;
+  pointer-events: none;
+  animation: pr-rule-draw 2.4s var(--ease-out, ease) 60ms both;
+}
+html[dir='rtl'] .chat-panel-root .pr-pop-rule {
+  transform-origin: inline-end;
+}
+@keyframes pr-rule-draw {
+  0%   { transform: scaleX(0); opacity: 0.4; }
+  16%  { transform: scaleX(1); opacity: 0.4; }
+  100% { transform: scaleX(1); opacity: 1; }
+}
+[data-motion] .chat-panel-root .pr-pop-rule {
+  animation-duration: calc(2.4s / var(--motion-scale, 1));
+}
+.chat-panel-root button.pr-pop-close {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 2px;
+  border: 0;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+}
+.chat-panel-root button.pr-pop-close:hover { color: var(--ink); }
+/* v11.26 — the panel's COPY control: a real 1px button, same visual weight
+   as CLOSE. It writes the honest ledger to the clipboard (see the TSX). */
+.chat-panel-root button.pr-pop-copy {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: var(--pr-radius);
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
+}
+.chat-panel-root button.pr-pop-copy:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+.chat-panel-root button.pr-pop-copy:focus-visible {
+  outline: 1px solid var(--acc);
+  outline-offset: 1px;
+}
+/* Scoped so it deterministically outranks polish.css's tinted-card
+   `.pr-pop-explain` (same specificity, order-dependent). */
+.chat-panel-root .pr-pop-explain {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 8px 0 2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--faint);
+}
+.chat-panel-root .pr-pop-explain svg { flex: 0 0 auto; margin-top: 2px; }
+.pr-pop-def {
+  margin: 2px 0 8px;
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 13px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  color: var(--dim);
+}
+.pr-pop-tally {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 8px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--line);
+}
+.chat-panel-root .pr-pop-label { margin-top: 8px; margin-bottom: 4px; }
+
+/* clickable evidence chips inside the open panel */
+.chat-panel-root .pr-pop-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+/* per-check rows — a measured grid aligned on one rail:
+   [15px glyph] [8px] [6px dot] [8px] [body]. Every row's body starts at
+   the same x, so the ledger reads as one instrument. */
+.pr-check {
+  display: grid;
+  grid-template-columns: var(--pr-rail-glyph) var(--pr-rail-dot) minmax(0, 1fr);
+  column-gap: var(--pr-rail-gap);
+  align-items: start;
+  min-width: 0;
+  padding: 10px 0;
+  border-top: 1px solid var(--line-soft);
+  transition: background var(--dur-1) var(--ease-out);
+}
+.pr-check:hover { background: var(--hover); }
+.pr-pop-list > .pr-check:first-child { border-top-color: transparent; }
+.pr-check > div { min-width: 0; }
+.pr-check-glyph {
+  width: var(--pr-rail-glyph);
+  height: var(--pr-rail-glyph);
+}
+.pr-check-glyph svg { display: block; width: 100%; height: 100%; }
+.chat-panel-root .pr-check .pr-dot {
+  margin-top: 4px; /* (15 - 6) / 2 — dot centred on the glyph rail */
+  width: var(--pr-rail-dot);
+  height: var(--pr-rail-dot);
+  border-radius: 50%;
+}
+.pr-check-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; }
+.pr-check-name { font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--ink); }
+.pr-check-tone { font-size: 11px; color: var(--faint); }
+.pr-check-detail {
+  margin-top: 3px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--dim);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.pr-check-detail.is-empty { color: var(--ghost); font-style: italic; }
+.pr-check-inconcl { font-size: 11px; color: var(--warn); }
+/* Honest zero-evidence state (defensive; the chip itself never appears
+   without a gate). Quiet, unbordered, no promise of future proof. */
+.chat-panel-root .pr-pop-empty {
+  padding: 6px 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ghost);
+  font-style: italic;
+}
+.pr-pop-foot {
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ghost);
+}
+
+/* ------------------------------------------------------------
+   3 · MOTION — panel reveal + ink check draw + ledger rows.
+   One hairline draw only; both reduced-motion signals kill it all.
+   ------------------------------------------------------------ */
+@keyframes pr-pop-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes pr-check-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: none; }
+}
+.pr-pop-list > .pr-check { animation: pr-check-in 260ms var(--ease-out, ease) both; }
+.pr-pop-list > .pr-check:nth-child(1) { animation-delay: 45ms; }
+.pr-pop-list > .pr-check:nth-child(2) { animation-delay: 90ms; }
+.pr-pop-list > .pr-check:nth-child(3) { animation-delay: 135ms; }
+.pr-pop-list > .pr-check:nth-child(n + 4) { animation-delay: 180ms; }
+[data-motion] .pr-pop-list > .pr-check {
+  animation-duration: calc(260ms / var(--motion-scale, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .pr-pop { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .pr-pop-list > .pr-check { animation: none !important; transition: none !important; }
+  .pr-pop-list > .pr-check { opacity: 1 !important; transform: none !important; }
+  .chat-panel-root .pr-ink-check path {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+    opacity: 1 !important;
+  }
+  /* one-shot pip pulse + evidence draw: static end states only */
+  .chat-panel-root .pr-toggle-dot,
+  .chat-panel-root .pr-toggle-dot::after { animation: none !important; }
+  .chat-panel-root .pr-toggle-dot::after { display: none !important; }
+  .chat-panel-root .pr-evidence-mark path {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+    opacity: 1 !important;
+  }
+  /* ledger hairline: fully drawn at rest */
+  .chat-panel-root .pr-pop-rule {
+    animation: none !important;
+    transform: scaleX(1) !important;
+    opacity: 1 !important;
+  }
+}
+html.reduce-motion .chat-panel-root .pr-pop { animation: none !important; opacity: 1 !important; transform: none !important; }
+html.reduce-motion .pr-pop-list > .pr-check { animation: none !important; transition: none !important; }
+html.reduce-motion .pr-pop-list > .pr-check { opacity: 1 !important; transform: none !important; }
+html.reduce-motion .chat-panel-root .pr-ink-check path {
+  animation: none !important;
+  stroke-dashoffset: 0 !important;
+  opacity: 1 !important;
+}
+html.reduce-motion .chat-panel-root .pr-toggle-dot,
+html.reduce-motion .chat-panel-root .pr-toggle-dot::after { animation: none !important; }
+html.reduce-motion .chat-panel-root .pr-toggle-dot::after { display: none !important; }
+html.reduce-motion .chat-panel-root .pr-evidence-mark path {
+  animation: none !important;
+  stroke-dashoffset: 0 !important;
+  opacity: 1 !important;
+}
+html.reduce-motion .chat-panel-root .pr-pop-rule {
+  animation: none !important;
+  transform: scaleX(1) !important;
+  opacity: 1 !important;
+}
+
+/* ------------------------------------------------------------
+   4 · EVIDENCE CONTROL DETAILS — real <button> controls, 1px strokes.
+   The legacy tally/chip hooks live in the hidden compact container
+   and are reused (visibly) inside the open panel.
+   ------------------------------------------------------------ */
+.chat-panel-root button.pr-tally,
+.chat-panel-root button.pr-kind,
+.chat-panel-root button.pr-focus-clear {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.chat-panel-root button.pr-kind,
+.chat-panel-root .pr-pop-chips button.pr-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 5px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--dim);
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+}
+.chat-panel-root button.pr-kind:hover,
+.chat-panel-root button.pr-kind.is-active {
+  color: var(--ink);
+  border-color: var(--line-strong);
+  background: var(--hover);
+}
+.chat-panel-root button.pr-kind svg { width: 11px; height: 11px; }
+.chat-panel-root .pr-kind-n {
+  margin-inline-start: 1px;
+  color: var(--faint);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Every evidence mark is exactly 1px regardless of render size. */
+.chat-panel-root .pr-kind svg path,
+.chat-panel-root .pr-kind svg circle,
+.chat-panel-root .pr-check-glyph svg path,
+.chat-panel-root .pr-check-glyph svg circle,
+.chat-panel-root .pr-quiet-cross svg path {
+  fill: none;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.chat-panel-root .pr-quiet-cross { color: var(--bad); opacity: 0.72; }
+.chat-panel-root .pr-sep {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 10px;
+  background: var(--line-strong);
+}
+.chat-panel-root .pr-tally-pass { color: var(--ok); }
+.chat-panel-root .pr-tally-fail { color: var(--bad); }
+.chat-panel-root .pr-tally-warn { color: var(--warn); }
+.chat-panel-root .pr-count {
+  color: var(--faint);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+.chat-panel-root .pr-stamp {
+  height: 16px;
+  padding: 0 6px;
+  border-radius: var(--pr-radius);
+  background: transparent;
+}
+.chat-panel-root .pr-stamp.is-bad {
+  color: var(--bad);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--bad) 34%, transparent);
+}
+.chat-panel-root .pr-stamp.is-neutral { background: transparent; }
+
+.pr-pop-focus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 7px;
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--pr-radius);
+  background: var(--hover);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--dim);
+}
+.pr-focus-dot { flex: 0 0 auto; width: 6px; height: 6px; border-radius: 50%; background: var(--acc); }
+.chat-panel-root button.pr-focus-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-inline-start: auto;
+  font-size: 10px;
+  color: var(--acc);
+  white-space: nowrap;
+}
+.chat-panel-root button.pr-focus-clear:hover { text-decoration: underline; }
+.pr-pop-list > .pr-check.is-dimmed { opacity: 0.4; }
+.pr-pop-list > .pr-check.is-focused {
+  background: color-mix(in srgb, var(--acc) 6%, transparent);
+}
+
+/* narrow screens: the panel simply narrows with the viewport; RTL uses the
+   same inset-inline-start anchor so it opens toward the correct side. */
+@media (max-width: 620px) {
+  .chat-panel-root .pr-pop { width: calc(100vw - 24px); }
+}
+
+/* ============================================================
+   5 · PROOF CENTER rail page (v11.43) — .pc-* namespace.
+   A real, read-only ledger. Palette is var(--…)/currentColor only;
+   1px strokes, no gradients, no glow, no rounded SaaS cards.
+   Honest statuses: verified = --ok, failed = --bad,
+   unverified = --warn/faint. Motion is reduced-motion guarded.
+   ============================================================ */
+.pc-root {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  height: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 18px 18px 24px;
+  overflow: auto;
+  color: var(--ink);
+  overscroll-behavior: contain;
+}
+.pc-head { flex: 0 0 auto; }
+.pc-title {
+  font-family: var(--font-display-serif, Georgia, serif);
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+html[lang='ar'] .pc-title,
+html[dir='rtl'] .pc-title {
+  font-family: var(--font-display-ar, var(--font-display-serif));
+  font-weight: 700;
+}
+.pc-def {
+  margin-top: 5px;
+  max-width: 70ch;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--dim);
+}
+
+.pc-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 9px 0;
+  border-block: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--dim);
+}
+.pc-sum { display: inline-flex; align-items: baseline; gap: 5px; }
+.pc-sum b {
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+.pc-v { color: var(--ok); }
+.pc-f { color: var(--bad); }
+.pc-u { color: var(--warn); }
+.pc-verdict {
+  margin-inline-start: auto;
+  padding: 2px 7px;
+  border: 1px solid var(--line-strong, var(--line));
+  border-radius: var(--pr-radius, 2px);
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 10px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.pc-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.pc-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.pc-tools { display: inline-flex; align-items: center; gap: 6px; }
+.pc-root button.pc-chip,
+.pc-root button.pc-tool {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 23px;
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--pr-radius, 2px);
+  background: transparent;
+  color: var(--dim);
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 10px;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+}
+.pc-root button.pc-chip:hover,
+.pc-root button.pc-tool:hover { color: var(--ink); border-color: var(--line-strong, var(--line)); background: var(--hover); }
+.pc-root button.pc-chip:focus-visible,
+.pc-root button.pc-tool:focus-visible,
+.pc-search:focus-visible { outline: 1px solid var(--acc); outline-offset: 1px; }
+.pc-root button.pc-chip.is-on { color: var(--ink); border-color: var(--acc); background: var(--hover); }
+.pc-n { color: var(--faint); font-size: 9px; font-variant-numeric: tabular-nums; }
+.pc-search {
+  box-sizing: border-box;
+  min-width: 150px;
+  max-width: 260px;
+  height: 23px;
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--pr-radius, 2px);
+  background: transparent;
+  color: var(--ink);
+  font-size: 11px;
+}
+.pc-search::placeholder { color: var(--faint); }
+
+.pc-list { display: flex; flex-direction: column; min-width: 0; }
+.pc-row {
+  display: grid;
+  grid-template-columns: 6px 62px minmax(0, 1fr);
+  column-gap: 9px;
+  align-items: start;
+  padding: 9px 0;
+  border-top: 1px solid var(--line-soft, var(--line));
+  animation: pc-row-in 220ms var(--ease-out, ease) both;
+}
+.pc-list > .pc-row:first-child { border-top-color: transparent; }
+.pc-dot {
+  width: 6px;
+  height: 6px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--warn);
+}
+.pc-row.is-verified .pc-dot { background: var(--ok); }
+.pc-row.is-failed .pc-dot { background: var(--bad); }
+.pc-row.is-unverified .pc-dot { background: var(--warn); }
+.pc-time {
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 10px;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pc-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pc-claim { font-size: 12.5px; line-height: 1.4; color: var(--ink); overflow-wrap: anywhere; }
+.pc-badge {
+  margin-inline-start: 7px;
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 9px;
+  color: var(--faint);
+  white-space: nowrap;
+}
+.pc-evidence {
+  display: block;
+  max-width: 100%;
+  padding: 5px 7px;
+  border-inline-start: 1px solid var(--line-strong, var(--line));
+  background: var(--hover);
+  color: var(--dim);
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 10.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.pc-status {
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warn);
+}
+.pc-row.is-verified .pc-status { color: var(--ok); }
+.pc-row.is-failed .pc-status { color: var(--bad); }
+.pc-empty {
+  padding: 26px 4px;
+  border-block: 1px solid var(--line);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--faint);
+  font-style: italic;
+}
+.pc-foot {
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--ghost, var(--faint));
+}
+.pc-updated { font-family: var(--font-mono-x, var(--font-mono2)); }
+
+@keyframes pc-row-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pc-row { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+html.reduce-motion .pc-row { animation: none !important; opacity: 1 !important; transform: none !important; }
+
+@media (max-width: 620px) {
+  .pc-root { padding: 12px 10px 18px; }
+  .pc-row { grid-template-columns: 6px minmax(0, 1fr); }
+  .pc-time { grid-column: 2; }
+  .pc-body { grid-column: 2; }
+  .pc-search { min-width: 120px; }
+}

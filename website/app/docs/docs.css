@@ -1,0 +1,262 @@
+/* ============================================================
+   /docs — the field manual v2
+   Editorial, hairline-separated, vars only, square corners.
+   ============================================================ */
+
+.docs-page { padding-top: clamp(48px, 7vw, 90px); }
+
+.docs-progress {
+  position: fixed;
+  inset-inline: 0;
+  top: 70px;
+  height: 2px;
+  z-index: 40;
+  pointer-events: none;
+}
+.docs-progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width .12s linear;
+}
+
+.docs-layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: start;
+  padding-bottom: clamp(60px, 8vw, 100px);
+}
+
+/* sticky mono numbered index */
+.docs-index { position: sticky; top: 100px; }
+.docs-index-nav { margin-top: 18px; display: grid; }
+.docs-index-link {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 10px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-top: 1px solid var(--line-soft);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--dim);
+  transition: color .2s;
+}
+.docs-index-link .mono { font-size: 11px; color: var(--faint); }
+.docs-index-link:hover,
+.docs-index-link.active { color: var(--accent); }
+.docs-index-link.active .mono { color: var(--accent); }
+.docs-index-foot { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+.docs-index-foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--faint);
+  transition: color .2s;
+}
+.docs-index-foot a:hover { color: var(--accent); }
+html[lang='ar'] .docs-index-link { font-family: var(--arabic); letter-spacing: 0; }
+
+/* hero */
+.docs-hero { max-width: 820px; margin-bottom: clamp(36px, 5vw, 60px); }
+.docs-hero-actions { margin-top: 30px; }
+
+/* sections */
+.docs-section {
+  padding-block: clamp(34px, 4vw, 56px);
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 96px;
+}
+.docs-section .sec-head { margin-bottom: 0; }
+.docs-content { margin-top: 22px; }
+.docs-p {
+  color: var(--dim);
+  font-size: 15px;
+  line-height: 1.9;
+  margin: 0 0 16px;
+  max-width: 74ch;
+}
+.docs-list {
+  margin: 0 0 18px;
+  padding-inline-start: 20px;
+  color: var(--dim);
+  font-size: 14px;
+  line-height: 1.9;
+  max-width: 74ch;
+}
+.docs-list li { margin-bottom: 8px; }
+.docs-list li::marker { color: var(--accent); }
+
+/* code / terminal snippet */
+.doc-code.panel { margin: 4px 0 22px; padding: 0; overflow: hidden; }
+.doc-code pre {
+  margin: 0;
+  padding: 20px 34px 32px 22px; /* slack so the reveal never clips descenders */
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.85;
+  color: var(--ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  direction: ltr;
+  text-align: left;
+}
+
+/* note */
+.docs-note {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-inline-start: 2px solid var(--accent);
+  background: var(--paper);
+  color: var(--dim);
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 18px 0 4px;
+  max-width: 74ch;
+}
+.docs-note .label { color: var(--accent); }
+
+.docs-tags { display: flex; flex-wrap: wrap; gap: 7px; margin: 2px 0 20px; }
+.docs-cta { margin-top: 22px; }
+
+/* ending */
+.docs-end { padding-top: 44px; }
+.docs-end-row { justify-content: space-between; margin-top: 18px; }
+
+@media (max-width: 900px) {
+  .docs-layout { grid-template-columns: 1fr; gap: 20px; }
+  .docs-index {
+    position: sticky;
+    top: 70px;
+    z-index: 30;
+    margin-inline: calc(-1 * clamp(20px, 5vw, 64px));
+    padding: 10px clamp(20px, 5vw, 64px);
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(12px);
+    border-block: 1px solid var(--line);
+  }
+  .docs-index > .label,
+  .docs-index-foot { display: none; }
+  .docs-index-nav {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-top: 0;
+  }
+  .docs-index-nav::-webkit-scrollbar { display: none; }
+  .docs-index-link {
+    display: flex;
+    gap: 6px;
+    border-top: 0;
+    white-space: nowrap;
+    padding: 6px 0;
+  }
+}
+
+/* ---------- signature field manual ---------- */
+.docs-hero { max-width: 980px; }
+.docs-hero-grid { display: grid; gap: clamp(26px, 4vw, 56px); align-items: center; }
+@media (min-width: 900px) { .docs-hero-grid { grid-template-columns: 1.1fr .9fr; } }
+
+.docs-book { display: block; width: 100%; max-width: 420px; margin-inline: auto; color: var(--ink); overflow: visible; }
+.docs-book-page { fill: var(--paper); stroke: var(--ink); stroke-width: 1; }
+.docs-book-edge { fill: none; stroke: var(--line-strong); stroke-width: .9; }
+.docs-book-spine { fill: none; stroke: var(--accent); stroke-width: 1.4; }
+.docs-book-line { stroke: var(--faint); stroke-width: 1; transform-box: fill-box; transform-origin: left center; animation: doc-line .55s ease-out both; }
+.docs-book-mark { fill: none; stroke: var(--accent); stroke-width: 1; }
+@keyframes doc-line { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* the index number fills with ink once its section has been reached.
+   A scaling pseudo-layer gives the fill a crisp, directional leading edge
+   (from the inline-start side) instead of a soft fade. */
+.docs-index-link .mono {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 20px;
+  border: 1px solid var(--line-strong);
+  overflow: hidden;
+  color: var(--faint);
+  transition: color .3s ease, border-color .3s ease;
+}
+.docs-index-link .mono::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .35s cubic-bezier(.2,.7,.2,1);
+}
+html[lang='ar'] .docs-index-link .mono::before { transform-origin: right center; }
+.docs-index-link .mono > span { position: relative; z-index: 1; }
+.docs-index-link.seen .mono::before { transform: scaleX(1); }
+.docs-index-link.seen .mono { color: var(--bg); border-color: var(--ink); }
+.docs-index-link.active .mono::before { transform: scaleX(1); background: var(--accent); }
+.docs-index-link.active .mono { color: var(--paper); border-color: var(--accent); }
+
+/* code lines reveal as though typed when they enter view. The clip extends
+   beyond the box on the block axis, so descenders are never shaved. */
+.doc-code pre { clip-path: inset(-12px 100% -12px 0); }
+.doc-code.is-typed pre { animation: doc-type .9s cubic-bezier(.2,.7,.2,1) forwards; }
+@keyframes doc-type { from { clip-path: inset(-12px 100% -12px 0); } to { clip-path: inset(-12px 0 -12px 0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .docs-book-line { animation: none; transform: scaleX(1); }
+  .doc-code pre { clip-path: none; animation: none; }
+  .docs-index-link .mono,
+  .docs-index-link .mono::before { transition: none; }
+  .docs-progress span,
+  .docs-index-link,
+  .docs-index-foot a { transition: none; }
+}
+
+/* ============================================================
+   V1145 · DOCS — A MANUAL LEAF WITH LINES WRITING
+   ------------------------------------------------------------
+   The hero already owns the open book, so this is a DIFFERENT
+   original drawing: a single manual leaf with a folded corner,
+   a margin rule and six ruled lines that write top-to-bottom.
+   The leaf settles on the 11.2s film arc; the writing is a
+   precise 11.2s top-down wipe. It sits behind the hero copy,
+   never over it. Alpha masks painted by --ink / --art-lime.
+   ============================================================ */
+.docs-hero{position:relative}
+.docs-hero-grid{position:relative;z-index:1}
+.docs-hero::before,.docs-hero::after{
+  content:'';position:absolute;z-index:-1;pointer-events:none;
+  inset-inline-start:0;inset-block-end:-6%;
+  width:clamp(140px,22vw,290px);height:clamp(115px,18vw,235px);
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+}
+.docs-hero::before{
+  background-color:var(--ink);opacity:.42;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 180'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Cpath d='M18 12H176L206 42V168H18Z'/%3E%3Cpath d='M176 12V42H206M44 12V168'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 180'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Cpath d='M18 12H176L206 42V168H18Z'/%3E%3Cpath d='M176 12V42H206M44 12V168'/%3E%3C/g%3E%3C/svg%3E");
+}
+.docs-hero::after{
+  background-color:var(--art-lime);opacity:.62;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 180'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Cpath d='M58 44H150M58 66H188M58 88H120M58 110H170M58 132H96M58 154H142'/%3E%3Cpath d='M142 148l8 6-8 6'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 180'%3E%3Cg fill='none' stroke='white' stroke-width='1' vector-effect='non-scaling-stroke'%3E%3Cpath d='M58 44H150M58 66H188M58 88H120M58 110H170M58 132H96M58 154H142'/%3E%3Cpath d='M142 148l8 6-8 6'/%3E%3C/g%3E%3C/svg%3E");
+}
+html[data-js='1'] .docs-hero::before{animation:v1145-page-settle calc(var(--art-cadence) * 4) ease-in-out infinite}
+html[data-js='1'] .docs-hero::after{animation:v1145-wipe-y calc(var(--art-cadence) * 4) var(--ease-art) calc(var(--art-cadence) * .18) both}
+@media (prefers-reduced-motion: reduce){
+  .docs-hero::before,.docs-hero::after{animation:none!important;transform:none!important;clip-path:none!important;opacity:1!important}
+}
+html.reduce-motion :is(.docs-hero::before,.docs-hero::after),
+html[data-art='off'] :is(.docs-hero::before,.docs-hero::after){
+  animation:none!important;transform:none!important;clip-path:none!important;opacity:1!important
+}
+html[data-art='off'] :is(.docs-hero::before,.docs-hero::after){display:none!important}

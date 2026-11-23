@@ -1,0 +1,1396 @@
+/* ============================================================
+   SADEEM settings — full-page two-pane settings surface.
+   Owned by SettingsModal + the settings/* sections.
+   ------------------------------------------------------------
+   SADEEM v10 design contract (docs/SADEEM-STYLE-GUIDE.md):
+     · The overlay IS the page: fixed inset-0 canvas painted
+       var(--bg); the dialog fills the viewport (no card chrome).
+     · FLAT panels: solid var(--panel) fills, 1px var(--line)
+       hairlines, no top-light gradients, no glows, no glass.
+     · Accent (--acc) appears ONLY on: the active rail item,
+       primary controls (posture active / slider thumb / primary
+       buttons) and the focus ring. Everything else is ink/dim.
+     · Section numbers render .caps + .tnum in --faint.
+     · Logical properties everywhere (RTL mirrors via flex).
+   SCROLL FIX (the reported "nothing below the fold is reachable"
+   bug): .set-body is now flex-wrap:nowrap and BOTH scroll
+   columns (.set-rail / .set-content) carry overflow-y:auto +
+   min-height:0 so they shrink to the viewport instead of growing
+   to content height (previously scrollHeight === clientHeight).
+   Blocks preserved (functional, depended on elsewhere):
+   reduce-motion kill-switch, compact-ui rhythm, .set-slider,
+   .set-scroll, the .appx-* live appearance preview.
+   ============================================================ */
+
+/* ---- reduce-motion (toggled from Appearance → ui.reduceMotion) ----
+   Kills non-essential animation/transition time globally. */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
+
+/* ---- compact density (toggled from Appearance → ui.compact) ----
+   Tighter paddings/gaps across the app chrome. */
+html.compact-ui .card {
+  padding: 0.5rem;
+}
+html.compact-ui .btn {
+  height: 1.6rem;
+  padding-inline: 0.5rem;
+  font-size: 11px;
+}
+html.compact-ui .icon-btn {
+  width: 1.55rem;
+  height: 1.55rem;
+}
+html.compact-ui .chip {
+  font-size: 11px;
+  padding-inline: 0.35rem;
+}
+html.compact-ui .input {
+  height: 1.9rem;
+  font-size: 12px;
+}
+/* compact defrow + settings card rhythm */
+html.compact-ui .defrow {
+  padding-block: 6px;
+}
+html.compact-ui .set-card {
+  padding: 12px;
+  margin-bottom: 8px;
+}
+html.compact-ui .set-nav-item {
+  min-height: 40px;
+}
+html.compact-ui .set-nav-ds {
+  display: none;
+}
+
+/* ============================================================
+   1 · FULL-PAGE SHELL — the overlay IS the page
+   ============================================================ */
+.set-overlay {
+  position: fixed;
+  /* v11: start BELOW the app title bar — the window controls (min/max/close)
+     stay visible and usable while Settings is open (user-reported bug). */
+  top: 44px;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 75; /* modal rung of the z-ladder */
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 0;
+  background: var(--bg); /* real page canvas — not a scrim */
+}
+
+.set-modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  overflow: hidden;
+  background: var(--bg);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  animation: set-pop var(--dur-2) var(--ease-out);
+}
+@keyframes set-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .set-modal {
+    animation: none;
+  }
+}
+
+/* 2px focus ring for every interactive thing inside the shell */
+.set-modal button:focus-visible,
+.set-modal input:focus-visible,
+.set-modal textarea:focus-visible,
+.set-modal select:focus-visible,
+.set-modal [tabindex]:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+
+/* ---------- header row: title · search · close ---------- */
+.set-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  min-height: 62px;
+  padding-inline: 24px;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.set-head-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.set-head-tt {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.set-head-sub {
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--faint);
+  max-width: 52ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.set-search {
+  position: relative;
+  width: 380px;
+  max-width: 42vw;
+}
+.set-search-ic {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  inset-inline-start: 10px;
+  color: var(--faint);
+  pointer-events: none;
+}
+.set-search-input {
+  inline-size: 100%;
+  block-size: 36px;
+  padding-inline: 34px 12px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
+}
+.set-search-input::placeholder {
+  color: var(--faint);
+}
+.set-search-input:hover {
+  border-color: var(--line-strong);
+}
+.set-search-input:focus-visible,
+.set-search-input:focus {
+  outline: 2px solid var(--acc);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+/* ============================================================
+   2 · POSTURE STRIP — one segmented control for the 3 postures
+   ============================================================ */
+.set-posture {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.set-posture-label {
+  font-size: 11px;
+  color: var(--faint);
+  white-space: nowrap;
+}
+.set-posture-seg {
+  display: inline-flex;
+  gap: 3px;
+  padding: 3px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+}
+.set-posture-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  block-size: 30px;
+  padding-inline: 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dim);
+  cursor: pointer;
+  transition:
+    color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+.set-posture-btn:hover {
+  color: var(--ink);
+  background: var(--hover);
+}
+.set-posture-ic.is-safe {
+  color: var(--ok);
+}
+.set-posture-ic.is-balanced {
+  color: var(--dim);
+}
+.set-posture-ic.is-indy {
+  color: var(--warn);
+}
+/* active posture = primary control → the one accent moment here */
+.set-posture-btn.is-active {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--acc) 12%, transparent);
+  border-color: color-mix(in srgb, var(--acc) 45%, transparent);
+}
+.set-posture-btn.is-active .set-posture-ic {
+  color: var(--acc);
+}
+.set-posture-custom {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--dim);
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  border-radius: var(--radius-pill);
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+.set-posture-sub {
+  font-size: 10px;
+  color: var(--faint);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 160px;
+}
+@media (max-width: 900px) {
+  .set-posture-sub {
+    display: none;
+  }
+}
+
+/* ============================================================
+   3 · BODY — rail + content  ·  THE SCROLL FIX
+   ------------------------------------------------------------
+   flex-wrap:nowrap keeps both columns inside the viewport row;
+   min-height:0 lets them SHRINK below content size so their own
+   overflow-y:auto actually scrolls (the old wrap layout let
+   .set-content grow to its full 2900px content height while the
+   window clipped it — nothing below the fold was reachable).
+   ============================================================ */
+.set-body {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  padding: 18px 24px 0;
+}
+
+/* ---------- nav rail (scrolls independently) ----------
+   v11 COMPACT: single-line items (icon + number + title). The 20 items
+   now fit the viewport without scrolling (user-reported rail overscroll);
+   each item keeps its description as a native tooltip, and the ACTIVE
+   group's description opens the content column instead. */
+.set-rail {
+  flex-shrink: 0;
+  inline-size: 264px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  overflow-y: auto;
+  min-height: 0;
+  scroll-behavior: smooth;
+}
+@media (max-width: 759px) {
+  .set-rail {
+    display: none;
+  }
+}
+/* quiet section tally that caps the rail */
+.set-rail-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 10px 6px;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--ghost);
+}
+.set-rail-label .tnum {
+  color: var(--faint);
+}
+
+.set-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 6px 10px 6px 12px;
+  min-height: 42px;
+  text-align: start;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  color: var(--dim);
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out);
+}
+/* slim accent rail that eases in on the active section */
+.set-nav-item::before {
+  content: '';
+  position: absolute;
+  inset-block: 8px;
+  inset-inline-start: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--acc);
+  opacity: 0;
+  transform: scaleY(0.4);
+  transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+.set-nav-item:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+/* active item — the single accent moment in the rail (tint + rail marker) */
+.set-nav-item.is-active {
+  background: color-mix(in srgb, var(--acc) 10%, transparent);
+  border-color: color-mix(in srgb, var(--acc) 30%, transparent);
+  color: var(--ink);
+}
+.set-nav-item.is-active::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.set-nav-ic {
+  flex-shrink: 0;
+  inline-size: 34px;
+  block-size: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  color: var(--dim);
+  background: var(--bg1);
+  border: 1px solid var(--line-soft);
+  transition:
+    color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+.set-nav-item.is-active .set-nav-ic {
+  color: var(--acc);
+  background: color-mix(in srgb, var(--acc) 12%, transparent);
+  border-color: color-mix(in srgb, var(--acc) 36%, transparent);
+}
+.set-nav-tx {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.set-nav-tt {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: inherit;
+}
+.set-nav-item.is-active .set-nav-tt {
+  color: var(--ink);
+}
+.set-nav-ds {
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: var(--faint);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* section number — caps + tabular figures, quiet (not accent) */
+.set-no {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ghost);
+  flex-shrink: 0;
+}
+.set-nav-item.is-active .set-no {
+  color: var(--acc);
+}
+
+/* ---------- small-screen group bar (rail is hidden below 760px) ---------- */
+.set-groupbar {
+  display: none;
+}
+@media (max-width: 759px) {
+  .set-body {
+    flex-direction: column;
+    padding-inline: 14px;
+  }
+  .set-groupbar {
+    display: flex;
+    flex: 0 0 auto;
+    min-width: 0;
+    gap: 6px;
+    flex-shrink: 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+  }
+  .set-groupbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+.set-group-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  block-size: 32px;
+  padding-inline: 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--dim);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+.set-group-pill:hover {
+  color: var(--ink);
+}
+.set-group-pill.is-active {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--acc) 12%, transparent);
+  border-color: color-mix(in srgb, var(--acc) 45%, transparent);
+}
+
+/* ---------- content column (scrolls independently) ----------
+   v11: centered — the column floats in the middle of the available
+   width instead of hugging the rail and leaving one dead gutter. */
+.set-content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  max-width: 920px;
+  margin-inline: auto;
+  overflow-y: auto;
+  padding-block: 6px 44px;
+  padding-inline: 4px 14px;
+}
+@media (min-width: 760px) {
+  .set-content {
+    padding-inline: 4px 18px;
+  }
+}
+/* slim styled scrollbar on the content column (the .set-scroll
+   pattern, restated so the fix holds even without the class) */
+.set-content {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.set-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.set-content::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.set-content::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--dim) 45%, var(--line-strong));
+  background-clip: content-box;
+}
+.set-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* section + card rhythm — FLAT panels inside settings */
+.set-section {
+  margin-bottom: 34px;
+}
+.set-content .card,
+.set-content .aurora-panel,
+.set-card {
+  background: var(--panel);
+  box-shadow: none;
+}
+.set-card {
+  padding: 20px;
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.set-card-tt {
+  color: var(--faint);
+}
+
+/* section headers (SectionShell) — quiet numbers, ink titles */
+.set-content .sec-no {
+  color: var(--faint);
+}
+.set-content .sec-tt {
+  color: var(--ink);
+}
+
+/* recessed informational well (InfoNote) */
+.set-note {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg1);
+  padding: 9px 12px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--dim);
+}
+
+/* honest key/value ledger rows */
+.set-kvlist {
+  display: flex;
+  flex-direction: column;
+}
+.set-kv {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding-block: 6px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 12px;
+}
+.set-kv:last-child {
+  border-bottom: none;
+}
+.set-kv-k {
+  color: var(--faint);
+  flex-shrink: 0;
+}
+.set-kv-v {
+  color: var(--ink);
+  text-align: end;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* usage stat tiles — tabular figures */
+.set-stat {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg1);
+  padding: 12px 10px;
+  text-align: center;
+}
+.set-stat-v {
+  font-size: 17px;
+  font-weight: 650;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.set-stat-k {
+  font-size: 10px;
+  color: var(--faint);
+  margin-top: 3px;
+}
+
+/* local profile avatar tile — flat accent-tinted plate */
+.set-avatar {
+  flex-shrink: 0;
+  inline-size: 38px;
+  block-size: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  color: var(--acc);
+  font-size: 14px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--acc) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--acc) 32%, transparent);
+}
+
+/* license probe failure note (Retry — never a skeleton) */
+.set-probe-fail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--warn) 38%, transparent);
+  background: color-mix(in srgb, var(--warn) 8%, transparent);
+  color: var(--dim);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.set-probe-fail svg {
+  flex-shrink: 0;
+  color: var(--warn);
+}
+
+/* honest empty state (settings-wide): icon + one line + ONE action */
+.set-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  padding: 24px 16px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg1);
+  margin-bottom: 12px;
+}
+.set-empty svg {
+  color: var(--faint);
+}
+.set-empty-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dim);
+}
+.set-empty-hint {
+  font-size: 11px;
+  color: var(--faint);
+  line-height: 1.5;
+  max-width: 44ch;
+}
+
+/* stacked labelled field (providers, license) */
+.set-fieldlabel {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--faint);
+  margin-bottom: 5px;
+}
+
+/* textarea with the settings voice */
+.set-textarea {
+  inline-size: 100%;
+  min-height: 96px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+  transition: border-color var(--dur-1) var(--ease-out);
+}
+.set-textarea:hover {
+  border-color: var(--line-strong);
+}
+.set-textarea:focus {
+  border-color: color-mix(in srgb, var(--acc) 60%, transparent);
+  outline: none;
+}
+.set-textarea::placeholder {
+  color: var(--ghost);
+}
+
+/* ============================================================
+   4 · PROVIDER CARDS (Models & Providers group)
+   Flat hairline cards: header (name · protocol · state dot) and
+   an expanded body (masked key, base URL, verify, model rows).
+   ============================================================ */
+.prov {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--panel);
+  transition: border-color var(--dur-1) var(--ease-out);
+}
+.prov:hover {
+  border-color: var(--line-strong);
+}
+.prov.is-open {
+  border-color: var(--line-strong);
+}
+.prov-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  inline-size: 100%;
+  padding: 10px 12px;
+  text-align: start;
+  color: var(--ink);
+  cursor: pointer;
+}
+.prov-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.prov-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-inline-start: auto;
+  min-width: 0;
+}
+/* connection state: dot + short label (never color alone) */
+.prov-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  color: var(--faint);
+  white-space: nowrap;
+}
+.prov-dot {
+  inline-size: 7px;
+  block-size: 7px;
+  border-radius: var(--radius-pill);
+  background: var(--ghost);
+  flex-shrink: 0;
+}
+.prov-dot[data-state='ok'] {
+  background: var(--ok);
+}
+.prov-dot[data-state='bad'] {
+  background: var(--bad);
+}
+.prov-dot[data-state='saved'] {
+  background: var(--dim);
+}
+.prov-dot[data-state='keyless'] {
+  background: var(--faint);
+}
+.prov-dot[data-state='off'] {
+  background: var(--ghost);
+}
+.prov-body {
+  border-top: 1px solid var(--line-soft);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.prov-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prov-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+/* model list — code rows on a recessed well */
+.prov-models {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg1);
+}
+.prov-models-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.prov-models-list {
+  max-height: 176px;
+  overflow-y: auto;
+  padding: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.prov-models-list::-webkit-scrollbar {
+  width: 8px;
+}
+.prov-models-list::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.model-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  inline-size: 100%;
+  block-size: 28px;
+  padding-inline: 8px;
+  border-radius: var(--radius-sm);
+  text-align: start;
+  font-family: var(--font-mono-x);
+  font-size: 11.5px;
+  color: var(--dim);
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+.model-row:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.model-row.is-active {
+  background: var(--panel2);
+  color: var(--ink);
+}
+.model-row.is-active .model-row-check {
+  color: var(--acc);
+}
+
+/* ============================================================
+   5 · SCROLLBARS (slim, hairline thumb — .set-scroll pattern)
+   ============================================================ */
+.set-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.set-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.set-scroll::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.set-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--dim) 45%, var(--line-strong));
+  background-clip: content-box;
+}
+.set-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ============================================================
+   6 · RANGE SLIDER (matte track, accent thumb = primary control)
+   ============================================================ */
+input[type='range'].set-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--bg5);
+  border: 1px solid var(--line-soft);
+  outline: none;
+  cursor: pointer;
+}
+input[type='range'].set-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--acc);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--line-strong);
+  transition: background var(--dur-1) var(--ease-out);
+}
+input[type='range'].set-slider:hover::-webkit-slider-thumb {
+  background: var(--acc-hover);
+}
+input[type='range'].set-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--acc);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--line-strong);
+}
+input[type='range'].set-slider:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+input[type='range'].set-slider:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ============================================================
+   7 · SEARCH RESULTS (bilingual registry hits)
+   ============================================================ */
+.set-hit-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  padding-inline: 2px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out);
+}
+.set-hit-group:hover {
+  color: var(--ink);
+}
+.set-hit-no {
+  color: var(--ghost);
+}
+.set-hit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  block-size: 40px;
+  padding-inline: 12px;
+  text-align: start;
+  color: var(--ink);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
+}
+.set-hit:hover {
+  border-color: var(--line-strong);
+  background: var(--hover);
+}
+.set-hit:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 1px;
+}
+.set-hit-owner {
+  margin-inline-start: auto;
+  font-size: 10px;
+  color: var(--faint);
+  flex-shrink: 0;
+}
+
+/* ---------- danger zone (--bad tones, clearly separated) ---------- */
+.set-danger {
+  border: 1px solid color-mix(in srgb, var(--bad) 35%, var(--line)) !important;
+  background: color-mix(in srgb, var(--bad) 4%, var(--panel)) !important;
+  margin-top: 20px;
+}
+
+/* ============================================================
+   8 · APPEARANCE PREVIEW STRIP (owned by AppearanceSection)
+   ------------------------------------------------------------
+   .appx-* = a painted mini window (titlebar + card + buttons)
+   that consumes ONLY document-level CSS custom properties —
+     --glass-bg / --glass-blur / --glass-saturate / --glass-shadow
+       → follow html[data-glass] (off | soft | medium | strong)
+     --acc / --acc2 → follow html[data-theme] + html[data-accent]
+     --edge-hi      → specular token (follows data-specular)
+   …so the strip re-paints in real time with zero JS. Flat SADEEM
+   paint: no gradients, no colored glows. Keyframes are killed
+   globally by html.reduce-motion and prefers-reduced-motion.
+   ============================================================ */
+
+/* outer strip: recessed well with a caps header row */
+.appx-strip {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg1);
+  padding: 10px 12px 12px;
+  margin-bottom: 12px;
+}
+
+/* painted backdrop — dimmed (not removed) when ambient glow is
+   off; sits behind the opaque mock, kept subtle on purpose */
+.appx-stage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-2) var(--ease-out);
+}
+.appx-blob {
+  position: absolute;
+  border-radius: var(--radius-pill);
+  filter: blur(28px);
+  opacity: 0.35;
+}
+.appx-blob-a {
+  width: 46%;
+  height: 70%;
+  top: -18%;
+  inset-inline-start: 4%;
+  background: color-mix(in srgb, var(--acc) 30%, transparent);
+}
+.appx-blob-b {
+  width: 40%;
+  height: 62%;
+  bottom: -22%;
+  inset-inline-end: 8%;
+  background: color-mix(in srgb, var(--acc2) 26%, transparent);
+}
+
+/* header row: caps caption + LIVE badge */
+.appx-strip-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.appx-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--acc);
+  border: 1px solid color-mix(in srgb, var(--acc) 35%, var(--line));
+  border-radius: var(--radius-sm);
+  padding: 2px 5px;
+}
+.appx-live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--acc);
+}
+
+/* the mini window itself — REAL glass tokens, so data-glass /
+   data-accent / data-theme changes land here automatically */
+.appx-mock {
+  position: relative;
+  z-index: 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--glass-bg, var(--panel));
+  border: 1px solid var(--line);
+  box-shadow: var(--glass-shadow, none);
+}
+/* specular edge — top light-catcher, only when data-spec='on'
+   (flat 1px hairline, no gradient) */
+.appx-mock[data-spec='on']::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 1px;
+  background: var(--edge-hi, color-mix(in srgb, var(--ink) 16%, transparent));
+}
+.appx-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  background: var(--glass-chrome-bg, var(--bg2));
+  border-bottom: 1px solid var(--line-soft);
+}
+.appx-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.appx-tt {
+  height: 4px;
+  width: 34%;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--ink) 22%, transparent);
+  margin-inline-start: 6px;
+}
+.appx-body {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+}
+.appx-card {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-soft);
+  background: var(--bg1);
+  padding: 8px;
+}
+.appx-line {
+  height: 5px;
+  width: 92%;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+}
+.appx-line-hl {
+  width: 58%;
+  background: color-mix(in srgb, var(--acc) 55%, transparent);
+}
+.appx-line-short {
+  width: 40%;
+}
+.appx-side {
+  flex: 0 0 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: stretch;
+}
+.appx-btn {
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--acc);
+}
+.appx-btn-ghost {
+  background: transparent;
+  border: 1px solid var(--line-strong, var(--line));
+}
+.appx-chip {
+  height: 8px;
+  width: 60%;
+  margin-inline: auto 0;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--acc2) 45%, transparent);
+}
+
+/* theme-card mini preview — painted from THEME_META values */
+.thm-prev {
+  display: block;
+  inline-size: 100%;
+  block-size: 40px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  position: relative;
+}
+.thm-prev-side {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: 14px;
+  border-inline-end: 1px solid var(--thm-line, var(--line));
+}
+.thm-prev-bar {
+  position: absolute;
+  top: 5px;
+  inset-inline: 18px;
+  block-size: 4px;
+  border-radius: 1px;
+  background: var(--thm-acc, transparent);
+  opacity: 0.85;
+}
+.thm-prev-line {
+  position: absolute;
+  top: 14px;
+  inset-inline: 18px;
+  block-size: 3px;
+  border-radius: 1px;
+  background: var(--thm-ink, transparent);
+  opacity: 0.5;
+}
+.thm-prev-line2 {
+  top: 21px;
+  inset-inline-end: 34px;
+  background: var(--thm-dim, transparent);
+  opacity: 0.6;
+}
+.thm-prev-dot {
+  position: absolute;
+  bottom: 5px;
+  inset-inline-start: 18px;
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 2px;
+  background: var(--thm-acc2, transparent);
+}
+
+/* ============================================================
+   9 · KEYBOARD / MOTION COURTESIES
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .set-nav-item,
+  .set-group-pill,
+  .set-posture-btn,
+  .set-hit,
+  .prov,
+  .model-row {
+    transition: none;
+  }
+}
+
+/* ============================================================
+   AccountAuthCard (.acct-*) — v11.1: the card shipped with NO CSS
+   (raw browser controls). This block gives it the system look:
+   quiet segmented tabs, labeled fields, segmented strength meter,
+   honest error row. Flat fills + hairlines only, zero gradients,
+   zero colored side borders.
+   ============================================================ */
+.acct-auth {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.acct-tabs {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 2px;
+  justify-content: start;
+  padding: 2px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg1);
+  max-width: 100%;
+}
+.acct-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: transparent;
+  color: var(--dim);
+  font-family: var(--font-app);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+}
+.acct-tab:hover:not(:disabled) {
+  color: var(--ink);
+  background: var(--hover);
+}
+.acct-tab.is-active {
+  color: var(--ink);
+  background: var(--panel-2, var(--bg2, var(--hover)));
+}
+.acct-tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.acct-form {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.acct-field {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.acct-field > span:first-child {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dim);
+  letter-spacing: 0.03em;
+}
+.acct-field input {
+  width: 100%;
+}
+.acct-pw-eye {
+  position: absolute;
+  inset-inline-end: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  inline-size: 22px;
+  block-size: 22px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+}
+.acct-pw-eye:hover {
+  color: var(--ink);
+  background: var(--hover);
+}
+/* password strength — flat track + flat ink/acc fill, no gradients */
+.acct-strength {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.acct-strength-bar {
+  display: inline-block;
+  inline-size: 120px;
+  block-size: 4px;
+  border-radius: 2px;
+  background: var(--line-soft);
+  position: relative;
+  overflow: hidden;
+}
+.acct-strength-bar::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 20%;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: width var(--dur-2) var(--ease-out);
+}
+.acct-strength[data-score="0"] .acct-strength-bar::after { width: 20%; background: var(--faint); }
+.acct-strength[data-score="1"] .acct-strength-bar::after { width: 40%; }
+.acct-strength[data-score="2"] .acct-strength-bar::after { width: 60%; }
+.acct-strength[data-score="3"] .acct-strength-bar::after { width: 80%; background: var(--acc); }
+.acct-strength[data-score="4"] .acct-strength-bar::after { width: 100%; background: var(--acc); }
+.acct-error {
+  margin: 0;
+  padding: 8px 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--bad) 34%, transparent);
+  background: color-mix(in srgb, var(--bad) 7%, transparent);
+  color: var(--ink);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+.acct-note {
+  margin: 0;
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--faint);
+}
+
+/* v11.6 — guest pass block (skip affordance on the auth gate) */
+.acct-guest {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+}
+.acct-guest .acct-note {
+  text-align: center;
+}

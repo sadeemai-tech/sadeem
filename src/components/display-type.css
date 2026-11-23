@@ -1,0 +1,184 @@
+/* ============================================================
+   SADEEM — display-type.css  (v11.12b, "serif everywhere")
+   ------------------------------------------------------------
+   The editorial Instrument Serif voice, broadened beyond the right
+   panel to every genuine heading/title/display surface in the app.
+
+   TWO PARTS
+     1 · opt-in utilities — .display-type / .display-type-sm (plus
+         .display-type--ruled for a section-title hairline). Other
+         component agents can add these classes to a title without
+         touching this sheet.
+     2 · scoped rules — the known heading/title selectors across the
+         shell, pane, modal, billing and empty-state layers. Only the
+         FONT FAMILY (and a whisper of tracking) changes: every size,
+         weight, color and layout declaration stays in its owner sheet.
+
+   DELIBERATELY NOT SERIF
+     body copy, .bs-sub / descriptions, code + numerals (--font-mono-x),
+     .tnum, tool cards, chat messages, keyrows / dense list rows,
+     micro labels (uppercase + tracked chrome), inputs, buttons, chips
+     and the mono stat/clock/eyebrow faces. Global h1–h3 are NOT touched
+     (markdown in chat messages must stay sans).
+
+   RTL: every rule below has an explicit guard that resolves to
+   --font-display-ar (Cairo). tokens.css also resets tracking to normal
+   under Arabic with !important, and the Instrument Serif @font-face
+   carries a Latin-only unicode-range — so Arabic can never fall back
+   to a Latin serif.
+
+   v11.12c additions (found by reading the other, read-only sheets):
+     .pv-title · .pv-empty-title · .goal-title-serif (chat-final.css)
+     .fl-compare-title (flows.css)
+     .pf-drawer-head-title · .ft-empty-title (files.css)
+     .pm-empty-title (prompts.css)
+     .chat-title-v13 (console.css — needs a doubled-class !important to
+      beat that sheet's own `font-family: var(--font-app) !important`).
+   Each is a genuine page/drawer/empty-state/session TITLE, never body
+   copy, a tool chip or dense table text.
+   ============================================================ */
+
+/* ---------- 1 · reusable opt-in utilities ----------
+   .display-type       → display/hero headings (any size; no size set).
+   .display-type-sm    → 12–14px section/card titles; one notch less
+                         tracking so small serif stays legible. Both set
+                         family only — size/weight/color come from the
+                         owning component. */
+.display-type,
+.display-type-sm {
+  font-family: var(--font-display-serif);
+  letter-spacing: var(--display-tracking, -0.02em);
+  /* optical sizing keeps the Instrument Serif hairlines crisp at every
+     headline size; kerning + balanced wrap give the calm editorial rhythm */
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  text-wrap: balance;
+}
+.display-type-sm {
+  letter-spacing: -0.01em;
+}
+
+/* Section-title hairline: a 1px rule in the existing --line-soft ink.
+   OPT-IN only — most section headers already carry their own divider
+   (.sec-rule, .pv14-head / .rd-head / .set-head border-bottom), so this
+   is for the odd title that has none. No new color, no new token. */
+.display-type--ruled {
+  border-bottom: 1px solid var(--line-soft);
+  padding-block-end: 5px;
+}
+
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .display-type,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .display-type-sm {
+  font-family: var(--font-display-ar);
+  letter-spacing: 0;
+}
+
+/* ---------- 2 · broad scoped application ----------
+   Page/panel heroes · flows/schedule/settings/billing titles · section
+   titles · modal & empty-state headlines. Kept in one unlayered sheet so
+   it outranks the @layer components voice in styles.css; component sheets
+   don't declare a face on these selectors, so nothing is overridden. */
+
+/* page + panel hero titles */
+.pv14-title,
+.pv14-head h2,
+.pv14-head .fl-title,
+.rd-page-v13 h2,
+.rd-page-v13 .fl-title,
+.rd-page-v13 .ar-hero .caps,
+.rd-title,
+.right-dock-v13 > .rd-head .rd-title,
+.sidebar-overlay-v13 > .rd-head .sec-tt,
+.fl-title,
+.sch-title,
+.set-head-tt,
+.bx-hero-title,
+.bx-freeseason-title,
+.w18-title,
+.hm-title,
+.font-display,
+.display,
+.display-title,
+.caps-xl,
+
+/* empty-state / detail / modal headlines */
+.blank-state .bs-title,
+.chat-empty-title,
+.sad-title,
+.sch-empty-title,
+.set-empty-title,
+
+/* v11.12c — additional genuine titles found in the other sheets. Each
+   is a page/drawer/empty-state/session title, never body copy or a
+   mono chip. */
+.pv-title,
+.pv-empty-title,
+.goal-title-serif,
+.fl-compare-title,
+.pf-drawer-head-title,
+.ft-empty-title,
+.pm-empty-title,
+
+/* numbered section titles (the ones that carry dynamic text, not the
+   uppercase tracked .sec-head / .micro-label chrome) */
+.sec-titled .sec-tt {
+  font-family: var(--font-display-serif);
+  letter-spacing: var(--display-tracking, -0.02em);
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  text-wrap: balance;
+}
+
+/* Arabic / RTL guard — Cairo wins on every one of the surfaces above. */
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .pv14-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .pv14-head h2,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .pv14-head .fl-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .rd-page-v13 h2,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .rd-page-v13 .fl-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .rd-page-v13 .ar-hero .caps,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .rd-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .right-dock-v13 > .rd-head .rd-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .sidebar-overlay-v13 > .rd-head .sec-tt,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .fl-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .sch-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .set-head-tt,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .bx-hero-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .bx-freeseason-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .w18-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .hm-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .font-display,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .display,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .display-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .caps-xl,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .blank-state .bs-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .chat-empty-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .sad-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .sch-empty-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .set-empty-title,
+/* v11.12c additions — same Cairo guard for every new title above */
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .pv-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .pv-empty-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .goal-title-serif,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .fl-compare-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .pf-drawer-head-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .ft-empty-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .pm-empty-title,
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .sec-titled .sec-tt {
+  font-family: var(--font-display-ar);
+  letter-spacing: 0;
+}
+
+/* ---------- 3 · chat session title (console.css) ----------
+   console.css hardcodes `font-family: var(--font-app) !important` on the
+   session title. A doubled-class !important is required so the approved
+   Instrument Serif signature wins there too. This is the HEADER title —
+   never the 14px/1.65 chat message body, which stays untouched. */
+html .chat-title-v13.chat-title-v13 {
+  font-family: var(--font-display-serif) !important;
+  letter-spacing: var(--display-tracking, -0.02em) !important;
+}
+html[lang='ar'] .chat-title-v13.chat-title-v13,
+html[dir='rtl'] .chat-title-v13.chat-title-v13 {
+  font-family: var(--font-display-ar) !important;
+  letter-spacing: 0 !important;
+}

@@ -1,0 +1,1304 @@
+/* ============================================================
+   SADEEM — chat-final.css · FINAL LAUNCH POLISH (stable)
+   ------------------------------------------------------------
+   The last-mile editorial layer for the surfaces owned by the
+   launch-polish agents: the per-message phase line, the
+   composer run-progress strip, the
+   Live Preview editorial toolbar + ornament, the Terminal header
+   strip, the Goal banner and the Context Lens card.
+
+   LAW (identical to the rest of the design system):
+     · flat fills (--panel / --bg1), 1px hairlines (--line*)
+     · color rides currentColor / existing tokens only
+     · NO gradients, NO glows, NO rounded cards
+     · logical properties everywhere (RTL mirrors)
+     · every motion is gated by prefers-reduced-motion AND
+       html.reduce-motion (see section 0)
+
+   This sheet is additive: it never rewrites an owner sheet, it
+   only styles the new cf-/pv-/tm-/goal-/lens- class contract.
+   ============================================================ */
+
+/* ---------- 0 · MOTION (keyframes + the two mandatory gates) ---------- */
+@keyframes cf-breathe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.38; transform: scale(0.8); }
+}
+/* OS preference gate */
+@media (prefers-reduced-motion: reduce) {
+  .pv-led.is-loading,
+  .tm-led.is-pending,
+  .cf-run-progress-track i[data-state='active'],
+  .cf-phase-track i,
+  .goal-track i,
+  .pv-urlact {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+/* App preference gate (settings → reduce motion) */
+html.reduce-motion .pv-led.is-loading,
+html.reduce-motion .tm-led.is-pending,
+html.reduce-motion .cf-run-progress-track i[data-state='active'],
+html.reduce-motion .cf-phase-track i,
+html.reduce-motion .goal-track i,
+html.reduce-motion .pv-urlact {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* 1 · CHAT HEADER live indicator — RETIRED. The duplicate "working" ring
+   (.chat-live / .chat-live-ring / .chat-live-dot / .chat-live-label /
+   .chat-live-clock / .chat-live-tok) was REMOVED with its ChatPanel component;
+   its one keyframe (.chat-live-dot used cf-breathe) is kept for the three
+   surfaces that still breathe, and the unused cf-hairline keyframe is gone.
+   The single primary live circle is .cp-live-glyph in console.css §13. */
+
+/* ============================================================
+   2 · PER-MESSAGE PHASE LINE
+   thinking → tools → answering → verified, derived only from the
+   message's own state. The hairline draws up to the reached phase.
+   ============================================================ */
+.cf-phase-line {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-height: 14px;
+  margin: 0 0 5px;
+  font-family: var(--font-mono-x);
+  font-size: 12px;                                           /* v11.36: was 11px */
+  letter-spacing: 0.04em;
+  color: var(--ghost);
+  user-select: none;
+}
+.cf-phase {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-inline: 2px;
+  background: var(--bg1);
+  white-space: nowrap;
+}
+.cf-pip {
+  width: 5px;
+  height: 5px;
+  flex-shrink: 0;
+  border: 1px solid var(--line-strong);
+  background: var(--bg1);
+}
+.cf-phase.is-on { color: var(--dim); }
+.cf-phase.is-on .cf-pip { background: var(--acc); border-color: var(--acc); }
+.cf-phase.is-current { color: var(--ink); }
+.cf-phase-track {
+  position: absolute;
+  inset-inline: 3px;
+  top: 50%;
+  height: 1px;
+  background: var(--line-soft);
+}
+.cf-phase-track i {
+  display: block;
+  height: 1px;
+  width: 0;
+  background: var(--acc);
+  transition: width 0.7s var(--ease-out);
+}
+
+/* ============================================================
+   3 · COMPOSER — real run-progress strip (no fake percentages)
+   Five segments mirroring THINK·WORK·BUILD·RUN·PROVE, derived
+   from the live transcript; the mono tag shows a real count.
+   ============================================================ */
+.cf-run-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 18px;
+  margin-bottom: 6px;
+  font-family: var(--font-mono-x);
+  font-size: 12px;                                           /* v11.36: was 11px */
+  color: var(--faint);
+  user-select: none;
+}
+.cf-run-progress-eyebrow {
+  color: var(--acc);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.cf-run-progress-track {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.cf-run-progress-track i {
+  flex: 1;
+  height: 2px;
+  min-width: 0;
+  background: var(--line-strong);
+}
+.cf-run-progress-track i[data-state='done'] { background: var(--ok); }
+.cf-run-progress-track i[data-state='active'] {
+  background: var(--acc);
+  animation: cf-breathe 1.6s var(--ease-out) infinite;
+}
+.cf-run-progress-mono {
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* jump-to-latest — precise, flat, mono (the pill itself still only
+   mounts when the user has scrolled away — ChatPanel owns that gate) */
+.rp-jump {
+  border-radius: 3px;
+  box-shadow: none;
+  font-family: var(--font-mono-x);
+  font-size: 12px;
+}
+
+/* ============================================================
+   4 · LIVE PREVIEW — editorial toolbar + states + ornament
+   ============================================================ */
+.pv-toolbar {
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+.pv-editorial {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  flex-shrink: 0;
+  padding-inline-end: 10px;
+  border-inline-end: 1px solid var(--line);
+}
+.pv-eyebrow {
+  font-family: var(--font-mono-x);
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  white-space: nowrap;
+}
+.pv-title {
+  font-family: var(--font-display-serif);
+  font-size: 20px;
+  line-height: 1.15;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+:where(html[lang='ar'], html[dir='rtl']) .pv-title {
+  font-family: var(--font-display-ar);
+  letter-spacing: 0;
+}
+.pv-urlfield {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  padding-inline: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg1);
+}
+.pv-urlfield:focus-within { border-color: var(--line-accent); }
+.pv-urlinput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-family: var(--font-mono-x);
+  font-size: 13px;
+  color: var(--ink);
+}
+.pv-urlinput::placeholder { color: var(--faint); }
+.pv-led {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--dim);
+}
+.pv-led.is-ready { background: var(--ok); }
+.pv-led.is-loading { background: var(--warn); animation: cf-breathe 1.6s var(--ease-out) infinite; }
+.pv-led.is-error { background: var(--bad); }
+.pv-urlact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--dim);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
+}
+.pv-urlact:hover { color: var(--ink); border-color: var(--line); }
+.pv-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 8px;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  font-family: var(--font-mono-x);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+/* empty-state ornament (original, hairline, currentColor only) */
+.pv-ornament {
+  display: block;
+  width: 180px;
+  height: auto;
+  color: var(--line-strong);
+}
+.pv-empty-title {
+  font-family: var(--font-display-serif);
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.pv-empty-hint {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--dim);
+}
+:where(html[lang='ar'], html[dir='rtl']) .pv-empty-title {
+  font-family: var(--font-display-ar);
+  letter-spacing: 0;
+}
+/* real last-log-lines block inside the honest error card */
+.pv-error-log {
+  margin-top: 8px;
+  padding-top: 6px;
+  max-height: 64px;
+  overflow: auto;
+  border-top: 1px solid var(--line-soft);
+  font-family: var(--font-mono-x);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--faint);
+  scrollbar-width: thin;
+}
+
+/* ============================================================
+   5 · TERMINAL — refined header strip (xterm untouched)
+   ============================================================ */
+.tm-strip {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-shrink: 0;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+.tm-eyebrow {
+  font-family: var(--font-mono-x);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  flex-shrink: 0;
+}
+.tm-led {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--warn);
+}
+.tm-led.is-on { background: var(--ok); }
+.tm-led.is-pending { background: var(--warn); animation: cf-breathe 1.8s var(--ease-out) infinite; }
+.tm-title {
+  font-family: var(--font-mono-x);
+  font-size: 13px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.tm-path {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 7px;
+  max-width: 22ch;
+  border: 1px solid var(--line);
+  font-family: var(--font-mono-x);
+  font-size: 12px;
+  color: var(--dim);
+}
+.tm-path span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ============================================================
+   6 · GOAL — slim ruled banner with serif title + mono tag
+   ============================================================ */
+.goal-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin: 6px 12px 0;
+  padding: 5px 0;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+.goal-eyebrow {
+  font-family: var(--font-mono-x);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  flex-shrink: 0;
+}
+.goal-title-serif {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-display-serif);
+  font-size: 18px;
+  line-height: 1.25;
+  color: var(--ink);
+}
+:where(html[lang='ar'], html[dir='rtl']) .goal-title-serif {
+  font-family: var(--font-display-ar);
+  letter-spacing: 0;
+}
+.goal-tag {
+  padding: 1px 6px;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  font-family: var(--font-mono-x);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--acc);
+  white-space: nowrap;
+}
+.goal-state {
+  font-family: var(--font-mono-x);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+  flex-shrink: 0;
+}
+.goal-track {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 1px;
+  background: transparent;
+}
+.goal-track i {
+  display: block;
+  height: 1px;
+  width: 0;
+  background: var(--acc);
+  transition: width 0.6s var(--ease-out);
+}
+
+/* ============================================================
+   7 · CONTEXT LENS — quiet hairline card with mono stats
+   v11.24 polish — POPOVER ART ONLY: the orb's geometry and data are
+   untouched. Precise 1px hairlines, aligned tabular mono values, a
+   calm one-shot settle, RTL-safe logical layout. Tokens only —
+   NO gradients, NO glows, NO blur, NO shadows.
+   ============================================================ */
+.lens-haircard {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-end: 0; /* RTL-safe: follows the writing direction */
+  z-index: 70;
+  width: 280px;
+  padding: 10px;
+  border: 1px solid var(--line); /* exact 1px hairline */
+  border-radius: 2px;
+  background: var(--panel);
+  /* calm one-shot settle: opacity + 2px lift, transform/opacity only.
+     No box-shadow, no filter, no backdrop-filter, no gradient. */
+  animation: lens-settle 0.16s var(--ease-out, ease) both;
+}
+@keyframes lens-settle {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lens-haircard { animation: none; }
+}
+html.reduce-motion .lens-haircard { animation: none !important; }
+
+.lens-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line-soft); /* 1px hairline */
+}
+.lens-eyebrow {
+  font-family: var(--font-mono-x);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  flex-shrink: 0;
+}
+.lens-stats {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding-block: 6px;
+  font-family: var(--font-mono-x);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line-soft); /* 1px hairline */
+}
+.lens-stats small {
+  font-size: 11px;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+}
+/* Every mono figure in the card shares one tabular, end-aligned rhythm;
+   each value keeps dir="ltr" so digits stay stable in the Arabic UI. */
+.lens-haircard .bidi-num {
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+/* ============================================================
+    8 · MESSAGE VIEW ART · v11.24: only the one-shot tool bloom remains.
+    Fixed geometry (transform / opacity only), token hues only,
+    NO gradients, NO glows, NO large shadows.
+    ============================================================ */
+
+/* v11.24 — the live nib, orbiting spark, wave and five-bead rail were REMOVED
+   from MessageView (the founder saw them as trembling decoration). Their CSS
+   is deleted here too — no dead animation hooks survive in this sheet. The
+   one-shot tool bloom below is static-by-contract and stays. */
+
+/* a one-shot bloom — the plate settles in and a single 1px ring radiates. */
+.mv-tool-bloom {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  color: var(--acc);
+  animation: mv-bloom-in 440ms var(--ease-out) both;
+}
+.mv-tool-bloom::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: mv-bloom-ring 640ms var(--ease-out) both;
+}
+@keyframes mv-bloom-in {
+  0%   { opacity: 0; transform: scale(0.86); }
+  60%  { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes mv-bloom-ring {
+  from { opacity: 0.7; transform: scale(0.92); }
+  to   { opacity: 0; transform: scale(1.5); }
+}
+
+/* BOTH reduced-motion signals — the bloom settles to its static end state. */
+@media (prefers-reduced-motion: reduce) {
+  .mv-tool-bloom,
+  .mv-tool-bloom::after {
+    animation: none !important;
+  }
+  .mv-tool-bloom { opacity: 1 !important; transform: none !important; }
+  .mv-tool-bloom::after { display: none !important; }
+}
+html.reduce-motion .mv-tool-bloom,
+html.reduce-motion .mv-tool-bloom::after {
+  animation: none !important;
+}
+html.reduce-motion .mv-tool-bloom { opacity: 1 !important; transform: none !important; }
+html.reduce-motion .mv-tool-bloom::after { display: none !important; }
+
+/* ============================================================
+    9 · PREVIEW VIEWPORT CRAFT · ADDITIVE, FRAME-FREE
+    The empty-state ornament is already a hairline viewport with a
+    folded corner and dimension marks (PreviewArea.tsx). This layer
+    gives its page glyphs one quiet opacity breath and draws a 1px
+    inline stroke under the toolbar ONLY while a preview is loading
+    — the "built a page → preview" reading stays recognizable and
+    calm. Transform/opacity only, 2.2s cadence, BOTH gates with a
+    static end state. No gradient, glow, blur or shadow.
+    ============================================================ */
+.pv-ornament path[opacity='0.3'] {
+  animation: pv-page-breathe 2.2s var(--ease-out, ease) infinite;
+}
+@keyframes pv-page-breathe {
+  0%, 100% { opacity: 0.18; }
+  50%      { opacity: 0.42; }
+}
+.pv-toolbar {
+  position: relative;
+}
+.pv-toolbar:has(.pv-led.is-loading)::after {
+  content: '';
+  position: absolute;
+  inset-block-end: -1px;
+  inset-inline-start: 0;
+  width: 16%;
+  height: 1px;
+  background: var(--acc);
+  opacity: 0.55;
+  pointer-events: none;
+  transform: translateX(-120%);
+  animation: pv-scan 2.2s linear infinite;
+}
+@keyframes pv-scan {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(620%); }
+}
+[data-motion] .pv-ornament path[opacity='0.3'],
+[data-motion] .pv-toolbar:has(.pv-led.is-loading)::after {
+  animation-duration: calc(2.2s / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .pv-ornament path[opacity='0.3'],
+  .pv-toolbar:has(.pv-led.is-loading)::after { animation: none !important; }
+  .pv-ornament path[opacity='0.3'] { opacity: 0.3 !important; }
+  /* the loading scan is a transient stroke — no static line under RM */
+  .pv-toolbar:has(.pv-led.is-loading)::after { display: none !important; }
+}
+html.reduce-motion .pv-ornament path[opacity='0.3'],
+html.reduce-motion .pv-toolbar:has(.pv-led.is-loading)::after { animation: none !important; }
+html.reduce-motion .pv-ornament path[opacity='0.3'] { opacity: 0.3 !important; }
+html.reduce-motion .pv-toolbar:has(.pv-led.is-loading)::after { display: none !important; }
+
+/* ============================================================
+    10 · TOOL-RESULT BLOOM · PRECISION DETAIL (additive)
+    The founder's one-shot bloom in §8 is KEPT byte-for-byte — its
+    transform/opacity open and radiating 1px ring stay exactly as they
+    are. This layer inks its two SVG primitives on with exact geometric
+    dash lengths: the ring at r=5 (circumference 31.41592653589793),
+    the check one beat later (√13.52 + √54.16 ≈ 11.04). Only strokes
+    draw; the open is still transform/opacity. No new box, fill or
+    glow — every hue is the bloom's own currentColor. BOTH gates settle
+    at full ink. A defensive frame-free sweep strips any stray square
+    wrapper from the drawing hooks (the founder's "nothing in a frame").
+    ============================================================ */
+.chat-panel-root .mv-tool-bloom {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.chat-panel-root .mv-tool-bloom :is(.mv-bloom-ring, .mv-bloom-check) {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.chat-panel-root .mv-tool-bloom .mv-bloom-ring {
+  --mv-dash: 31.41592653589793; /* exact 2πr, r=5 */
+  stroke-dasharray: var(--mv-dash);
+  stroke-dashoffset: var(--mv-dash);
+  animation: mv-bloom-ink 440ms var(--ease-out) 40ms both;
+}
+.chat-panel-root .mv-tool-bloom .mv-bloom-check {
+  --mv-dash: 11.04; /* 2-segment check: √13.52 + √54.16 */
+  stroke-dasharray: var(--mv-dash);
+  stroke-dashoffset: var(--mv-dash);
+  animation: mv-bloom-ink 440ms var(--ease-out) 180ms both;
+}
+@keyframes mv-bloom-ink {
+  from { stroke-dashoffset: var(--mv-dash); opacity: 0.15; }
+  to   { stroke-dashoffset: 0; opacity: 1; }
+}
+[data-motion] .chat-panel-root .mv-tool-bloom :is(.mv-bloom-ring, .mv-bloom-check) {
+  animation-duration: calc(440ms / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .mv-tool-bloom :is(.mv-bloom-ring, .mv-bloom-check) {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+    opacity: 1 !important;
+  }
+}
+html.reduce-motion .mv-tool-bloom :is(.mv-bloom-ring, .mv-bloom-check) {
+  animation: none !important;
+  stroke-dashoffset: 0 !important;
+  opacity: 1 !important;
+}
+
+/* ============================================================
+   11 · NO-BOX LOCK + QUIET ERROR LINK · FINAL CASCADE
+   This sheet loads last, so it has the last word on the founder's
+   screenshot law: no rectangular box may wrap a tool card, a tool
+   result or a file header. The only frame is a single 1px rail; the
+   only error affordance is ONE quiet inline hairline link. All
+   geometry is logical (RTL mirrors), hues are tokens, and the two
+   reduced-motion signals are honoured.
+   ============================================================ */
+
+/* 11a · result rows: no fill, no enclosing rule */
+.chat-panel-root .sc18-res {
+  border-top: 0;
+  background: none;
+}
+.chat-panel-root .sc18-res.is-bad {
+  background: none;
+}
+
+/* 11b · blocked banner: a verdict rail, not a framed banner */
+.chat-panel-root .sc-blocked {
+  border: 0;
+  border-inline-start: 1px solid color-mix(in srgb, var(--bad) 62%, var(--line));
+  background: none;
+}
+.chat-panel-root .sc-blocked .fhdr,
+.chat-panel-root .sc-tl-out .fhdr {
+  height: auto;
+  min-height: 18px;
+  padding-block: 2px;
+  border: 0;
+  border-block-end: 1px solid var(--line-soft);
+  background: none;
+  font-family: var(--font-mono-x);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 11c · "Explain this error and fix it" — one quiet inline hairline link,
+   never a repeated green fill or a boxed button. A single 1px underline
+   is the only affordance; the glyph rides the same token hue. */
+.chat-panel-root .sc18-res-explain,
+.chat-panel-root .sc18-res-explain:hover,
+.chat-panel-root .sc18-res-explain:disabled {
+  display: inline-flex;
+  align-self: flex-start;
+  width: auto;
+  gap: 5px;
+  margin-block-start: 4px;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font-family: var(--font-mono-x);
+  font-size: 12px;                                           /* v11.36: was 11px */
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--dim);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--acc) 38%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color var(--dur-1) var(--ease-out), text-decoration-color var(--dur-1) var(--ease-out);
+}
+.chat-panel-root .sc18-res-explain:hover {
+  color: var(--ink);
+  text-decoration-color: var(--acc);
+}
+.chat-panel-root .sc18-res-explain:disabled { opacity: 0.45; }
+.chat-panel-root .sc18-res-explain svg {
+  color: var(--acc);
+  opacity: 0.8;
+}
+
+/* 11d · BOTH reduced-motion signals — the link's colour settle is optional */
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .sc18-res-explain { transition: none !important; }
+}
+html.reduce-motion .sc18-res-explain { transition: none !important; }
+
+/* ============================================================
+    12 · QUIET STATUS WORD · ONE DRAW ONCE UNDERLINE (additive)
+    The verdict pill is already frame-free (§11); this layer gives its
+    mono word one calibrated 1px underline drawn once, and a shared
+    tabular rhythm — a calm instrument readout, never a green button.
+    Logical insets, token hue, BOTH reduced-motion gates settle at ink.
+    ============================================================ */
+.chat-panel-root .tl2-card .tl2-pill {
+  position: relative;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+.chat-panel-root .tl2-card .tl2-pill::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: -1px;
+  height: 1px;
+  background: color-mix(in srgb, currentColor 36%, transparent);
+  transform: scaleX(0);
+  transform-origin: inline-start;
+  pointer-events: none;
+  animation: cf-status-rule 460ms var(--ease-out) 60ms both;
+}
+@keyframes cf-status-rule {
+  from { transform: scaleX(0); opacity: 0.8; }
+  to   { transform: scaleX(1); opacity: 0.36; }
+}
+[data-motion] .chat-panel-root .tl2-card .tl2-pill::after {
+  animation-duration: calc(460ms / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .tl2-card .tl2-pill::after { animation: none !important; }
+  .chat-panel-root .tl2-card .tl2-pill::after { transform: scaleX(1) !important; opacity: 0.36 !important; }
+}
+html.reduce-motion .tl2-card .tl2-pill::after { animation: none !important; }
+html.reduce-motion .tl2-card .tl2-pill::after { transform: scaleX(1) !important; opacity: 0.36 !important; }
+
+/* ============================================================
+    12 · IMAGE RESULTS · v11.34 (founder: "shows as code and numbers,
+    not as an image"). A real tool image renders as a BITMAP. The ONLY
+    frame is a 1px hairline on the pixels themselves — no boxy card,
+    no fill, no padding box, no radius, no shadow. The caption is a
+    single mono DATA line (filename · WxH · KB) so no EN+AR prose is
+    ever mixed. Clicking opens a real, closable lightbox. All geometry
+    is logical (RTL mirrors), hues are existing tokens; there is NO
+    animation here, so both reduced-motion signals are trivially honoured.
+    ============================================================ */
+.chat-panel-root .sc18-imgres {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px 12px;
+  margin-block-start: 2px;
+}
+.chat-panel-root .sc18-imgres-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  max-width: 320px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--dim);
+  font: inherit;
+  text-align: start;
+  cursor: zoom-in;
+}
+.chat-panel-root .sc18-imgres-glyph {
+  color: var(--acc);
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+.chat-panel-root .sc18-imgres-thumb {
+  display: block;
+  max-width: 320px;
+  max-height: 220px;
+  width: auto;
+  height: auto;
+  border: 1px solid var(--line);
+  background: var(--bg1);
+  object-fit: contain;
+}
+.chat-panel-root .sc18-imgres-item:hover .sc18-imgres-thumb,
+.chat-panel-root .sc18-imgres-item:focus-visible .sc18-imgres-thumb {
+  border-color: var(--line-accent, var(--acc));
+}
+.chat-panel-root .sc18-imgres-cap {
+  display: block;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono-x);
+  font-size: 11.5px;                                         /* v11.36: was 11px */
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.chat-panel-root .sc18-imgres-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  padding: 24px;
+  background: color-mix(in srgb, var(--bg1) 94%, transparent);
+  cursor: zoom-out;
+}
+.chat-panel-root .sc18-imgres-full {
+  display: block;
+  max-width: min(92vw, 1400px);
+  max-height: 84vh;
+  border: 1px solid var(--line);
+  object-fit: contain;
+  cursor: default;
+}
+.chat-panel-root .sc18-imgres-lbcap {
+  font-family: var(--font-mono-x);
+  font-size: 12.5px;                                         /* v11.36: was 12px */
+  font-variant-numeric: tabular-nums;
+  color: var(--dim);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.chat-panel-root .sc18-imgres-close {
+  position: absolute;
+  inset-block-start: 16px;
+  inset-inline-end: 16px;
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--panel);
+  color: var(--dim);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
+}
+.chat-panel-root .sc18-imgres-close:hover { color: var(--ink); border-color: var(--line-accent, var(--acc)); }
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .sc18-imgres-close { transition: none !important; }
+}
+html.reduce-motion .chat-panel-root .sc18-imgres-close { transition: none !important; }
+
+/* ============================================================
+   12 · V1137 — CHAT ATTACH MENU + EFFORT CONTROL
+   ------------------------------------------------------------
+   The founder asked to COLLECT the three chat-panel buttons
+   (attach image / prompt presets / rewind-to-checkpoint) behind one
+   "+" trigger, to ADD attach-document, and to put an EFFORT control
+   on the chat itself. Two tiny hairline popovers do the job.
+
+   LAW: 1px hairlines only — no boxy card, no shadow, no gradient,
+   no glow. Logical insets mirror in RTL. No keyframes are used, and
+   the two mandatory reduced-motion gates settle the tiny transitions.
+   ============================================================ */
+
+/* --- 12a · the single "+" trigger + its popover --- */
+.chat-panel-root .cf-attach {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.chat-panel-root .cf-attach-trigger {
+  /* inherits .sc-iconbtn geometry; only the glyph weight changes */
+  font-size: 15px;
+}
+.chat-panel-root .cf-attach-pop {
+  position: absolute;
+  inset-block-end: calc(100% + 8px);
+  inset-inline-start: 0;
+  z-index: 40;
+  min-width: 214px;
+  max-width: min(86vw, 300px);
+  padding: 5px;
+  border: 1px solid var(--line-soft);
+  border-radius: 0;
+  background: var(--panel);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  text-align: start;
+  color: var(--ink);
+}
+.chat-panel-root .cf-attach-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 3px 6px;
+  border-block-end: 1px solid var(--line-soft);
+}
+.chat-panel-root .cf-attach-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dim);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-panel-root .cf-attach-count {
+  font-family: var(--font-mono-x);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.chat-panel-root .cf-attach-x,
+.chat-panel-root .cf-effort-x {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  flex: 0 0 auto;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
+}
+.chat-panel-root .cf-attach-x:hover,
+.chat-panel-root .cf-effort-x:hover { color: var(--ink); border-color: var(--line-soft); }
+
+.chat-panel-root .cf-attach-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 32px;
+  padding: 5px 7px;
+  border: 0;
+  border-block-end: 1px solid var(--line-soft);
+  border-radius: 0;
+  background: none;
+  color: var(--dim);
+  font-size: 13.5px;
+  text-align: start;
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+}
+.chat-panel-root .cf-attach-row:last-child { border-block-end: 0; }
+.chat-panel-root .cf-attach-row:hover { color: var(--ink); background: var(--hover); }
+.chat-panel-root .cf-attach-row:disabled { opacity: 0.42; cursor: not-allowed; }
+.chat-panel-root .cf-attach-ico { color: var(--acc); }
+.chat-panel-root .cf-attach-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- 12c · v11.42 — "Commands" disclosure + the real slash submenu -------
+   EVERY advertised slash command now lives behind the ONE "+" trigger. This
+   is a hairline CONTINUATION of that popover, never a second boxy card: a
+   thin inline rule, a slim inline border, small-caps group captions, mono
+   command tokens and single-language descriptions. Logical insets mirror in
+   RTL; there is no animation at all, so reduced-motion holds by construction.
+   ------------------------------------------------------------------------ */
+.chat-panel-root .cf-attach-cmds {
+  border-block-start: 1px solid var(--line-soft);
+}
+.chat-panel-root .cf-attach-cmds-toggle {
+  color: var(--acc);
+}
+.chat-panel-root .cf-attach-cmds-caret {
+  flex: 0 0 auto;
+  font-family: var(--font-mono-x);
+  font-size: 12px;
+  line-height: 1;
+  color: var(--faint);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.chat-panel-root .cf-attach-sub {
+  display: flex;
+  flex-direction: column;
+  max-height: min(320px, 52vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-inline-start: 11px;
+  padding-inline-start: 8px;
+  padding-block-end: 3px;
+  border-inline-start: 1px solid var(--line-soft);
+}
+.chat-panel-root .cf-attach-subgroup {
+  padding: 6px 5px 2px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.chat-panel-root .cf-attach-subrow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  min-height: 25px;
+  padding: 3px 5px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--dim);
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: start;
+  cursor: pointer;
+}
+.chat-panel-root .cf-attach-subrow:hover { color: var(--ink); background: var(--hover); }
+.chat-panel-root .cf-attach-subrow:focus-visible { outline: 1px solid var(--acc); outline-offset: -1px; }
+.chat-panel-root .cf-attach-subcmd {
+  flex: 0 0 68px;
+  font-family: var(--font-mono-x);
+  font-size: 11.5px;
+  color: var(--acc);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.chat-panel-root .cf-attach-subdesc {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The ALWAYS-VISIBLE mono quick-hint row is retired — its commands are in the
+   "+" menu now. The source constant stays (v1126 pins it as a registry guard);
+   this rule removes only the visual clutter, and the lone "/" kbd pill that
+   used to introduce it. The contextual '/' typing menu is NOT touched. */
+.chat-panel-root .composer-keys .sc-slashhint,
+.chat-panel-root .composer-keys .kbd-hint[aria-hidden] { display: none; }
+
+/* --- 12d · v11.43 — "Mention file" disclosure + the REAL file submenu ------
+   The '@' suggestion list used to float over the middle of the chat panel.
+   It is now a hairline CONTINUATION of this same "+" popover, fed by the
+   composer's own capped workspace tree (MAX_MENTION_FILES). Same law as 12c:
+   one hairline rule, logical insets, no box/card, no blur, no keyframes — so
+   reduced-motion holds by construction and RTL mirrors automatically.
+   ------------------------------------------------------------------------ */
+.chat-panel-root .cf-attach-mentions {
+  border-block-start: 1px solid var(--line-soft);
+}
+.chat-panel-root .cf-attach-mentions-toggle {
+  color: var(--acc);
+}
+.chat-panel-root .cf-attach-mentions-sub {
+  max-height: min(300px, 46vh);
+  gap: 0;
+}
+.chat-panel-root .cf-attach-mentions-filter {
+  width: 100%;
+  min-width: 0;
+  min-height: 24px;
+  margin-block: 2px 3px;
+  padding: 2px 6px;
+  border: 1px solid var(--line-soft);
+  border-radius: 0;
+  background: var(--panel2);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  text-align: start;
+}
+.chat-panel-root .cf-attach-mentions-filter::placeholder { color: var(--faint); }
+.chat-panel-root .cf-attach-mentions-filter:focus-visible { outline: 1px solid var(--acc); outline-offset: -1px; }
+.chat-panel-root .cf-attach-mentions-count {
+  padding: 1px 5px 4px;
+  font-family: var(--font-mono-x);
+  font-size: 9.5px;
+  color: var(--faint);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.chat-panel-root .cf-attach-mentions-empty {
+  padding: 5px;
+  font-size: 12px;
+  color: var(--faint);
+}
+.chat-panel-root .cf-attach-mention-row {
+  align-items: center;
+  gap: 7px;
+}
+.chat-panel-root .cf-attach-mention-ico { color: var(--faint); }
+.chat-panel-root .cf-attach-mention-dir { color: var(--warn); }
+.chat-panel-root .cf-attach-mention-rel {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono-x);
+  font-size: 11.5px;
+}
+
+/* --- 12b · effort chip + its tiny slider popover --- */
+.chat-panel-root .cf-effort {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.chat-panel-root .cf-effort-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  max-width: 20ch;
+  padding: 0 7px;
+  border: 1px solid var(--line-soft);
+  border-radius: 0;
+  background: var(--bg1);
+  color: var(--dim);
+  font-size: 12.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
+}
+.chat-panel-root .cf-effort-trigger:hover { color: var(--ink); border-color: var(--line-strong); }
+.chat-panel-root .cf-effort-trigger.is-on { color: var(--acc); border-color: var(--acc); }
+.chat-panel-root .cf-effort-trigger .cf-effort-value {
+  color: var(--acc);
+  font-family: var(--font-mono-x);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-panel-root .cf-effort-pop {
+  position: absolute;
+  inset-block-end: calc(100% + 8px);
+  inset-inline-start: 0;
+  z-index: 40;
+  width: 268px;
+  max-width: min(88vw, 300px);
+  padding: 7px 8px 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 0;
+  background: var(--panel);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  color: var(--ink);
+  text-align: start;
+}
+.chat-panel-root .cf-effort-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-block-end: 6px;
+  border-block-end: 1px solid var(--line-soft);
+}
+.chat-panel-root .cf-effort-title { font-size: 13px; font-weight: 600; color: var(--dim); }
+.chat-panel-root .cf-effort-current {
+  margin-inline-start: auto;
+  font-family: var(--font-mono-x);
+  font-size: 11px;
+  color: var(--acc);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.chat-panel-root .cf-effort-hint {
+  margin-block-start: 6px;
+  padding-block-start: 6px;
+  border-block-start: 1px solid var(--line-soft);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--faint);
+}
+
+/* the draggable rail: two stops = the model's own standard/deep stages.
+   direction is pinned LTR so "low → high" never flips with the UI locale. */
+.chat-panel-root .cf-effort-rail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  direction: ltr;
+  padding-block: 7px 2px;
+}
+.chat-panel-root .cf-effort-stop {
+  flex: 0 0 auto;
+  min-width: 52px;
+  padding: 2px 4px;
+  border: 0;
+  border-block-end: 1px solid var(--line-soft);
+  border-radius: 0;
+  background: none;
+  color: var(--faint);
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
+}
+.chat-panel-root .cf-effort-stop:hover { color: var(--ink); }
+.chat-panel-root .cf-effort-stop.is-on { color: var(--acc); border-block-end-color: var(--acc); }
+.chat-panel-root .cf-effort-range {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1 1 auto;
+  min-width: 40px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.chat-panel-root .cf-effort-range::-webkit-slider-runnable-track {
+  height: 1px;
+  background: var(--line-strong);
+}
+.chat-panel-root .cf-effort-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  margin-block-start: -4.5px;
+  border: 1px solid var(--panel);
+  border-radius: 50%;
+  background: var(--acc);
+}
+.chat-panel-root .cf-effort-range::-moz-range-track { height: 1px; background: var(--line-strong); }
+.chat-panel-root .cf-effort-range::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--panel);
+  border-radius: 50%;
+  background: var(--acc);
+}
+.chat-panel-root .cf-effort-range:focus-visible { outline: 1px solid var(--acc); outline-offset: 2px; }
+
+/* BOTH reduced-motion signals — the hairline controls settle instantly. */
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel-root .cf-attach-x,
+  .chat-panel-root .cf-effort-x,
+  .chat-panel-root .cf-attach-row,
+  .chat-panel-root .cf-attach-mentions-filter,
+  .chat-panel-root .cf-attach-mention-row,
+  .chat-panel-root .cf-effort-trigger,
+  .chat-panel-root .cf-effort-stop {
+    transition: none !important;
+  }
+}
+html.reduce-motion .chat-panel-root .cf-attach-x,
+html.reduce-motion .chat-panel-root .cf-effort-x,
+html.reduce-motion .chat-panel-root .cf-attach-row,
+html.reduce-motion .chat-panel-root .cf-attach-mentions-filter,
+html.reduce-motion .chat-panel-root .cf-attach-mention-row,
+html.reduce-motion .chat-panel-root .cf-effort-trigger,
+html.reduce-motion .chat-panel-root .cf-effort-stop {
+  transition: none !important;
+}

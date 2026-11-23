@@ -1,0 +1,966 @@
+/* ============================================================
+   SADEEM — files.css (STABLE · v11.12 "PROJECT FILES")
+   ------------------------------------------------------------
+   Visual layer for the project-files experience:
+     · the "PROJECT FILES" section on the Workspace page
+     · the compact Files drawer opened from the rail
+     · the editor back-to-workspace navigation + chrome
+   Palette UNCHANGED: every colour is an existing semantic token
+   (color-mix for alpha only). Logical properties throughout (RTL-safe).
+   Motion is subtle and fully disabled under prefers-reduced-motion.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · PROJECT FILES SECTION
+   ------------------------------------------------------------ */
+.pf-root {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 12px;
+}
+
+/* breathing room inside the card (the .aurora-panel page skin adds padding;
+   the compact drawer needs its own) */
+.pf-root.is-compact {
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+}
+
+.pf-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.pf-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.pf-head-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  color: var(--acc);
+  background: color-mix(in srgb, var(--acc) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--acc) 28%, transparent);
+}
+
+/* title + count stack so a long count can never push the actions off-card */
+.pf-head-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pf-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  white-space: nowrap;
+}
+html[lang='ar'] .pf-title { letter-spacing: 0; text-transform: none; }
+
+.pf-count {
+  font-size: 11.5px;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.pf-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* breadcrumb of the folder currently being browsed */
+.pf-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 5px 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--bg1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pf-breadcrumb::-webkit-scrollbar { display: none; }
+
+.pf-crumb-sep {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--ghost);
+  flex-shrink: 0;
+}
+
+.pf-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  height: 22px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--dim);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+}
+.pf-crumb:hover { color: var(--ink); background: var(--hover); }
+.pf-crumb-root { color: var(--acc); }
+
+/* name filter */
+.pf-filter {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.pf-filter-icon {
+  position: absolute;
+  inset-inline-start: 11px;
+  color: var(--faint);
+  pointer-events: none;
+}
+.pf-filter-input {
+  width: 100%;
+  height: 34px;
+  padding-inline-start: 32px !important;
+  padding-inline-end: 34px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+}
+.pf-filter-clear {
+  position: absolute;
+  inset-inline-end: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+}
+.pf-filter-clear:hover { color: var(--ink); background: var(--hover-2); }
+.pf-filter-hint {
+  position: absolute;
+  inset-inline-end: 12px;
+  font-family: var(--font-mono-x);
+  font-size: 11px;
+  color: var(--ghost);
+  pointer-events: none;
+}
+
+/* inline create form */
+.pf-create {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pf-create-input {
+  flex: 1;
+  min-width: 0;
+  height: 32px !important;
+  font-size: 12px !important;
+}
+.pf-create-btn { height: 32px !important; flex-shrink: 0; }
+
+/* the tree viewport — the section gives it room to breathe */
+.pf-tree-wrap {
+  min-height: 170px;
+  max-height: 520px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid var(--line-soft);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--bg1) 70%, transparent);
+  padding-block: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+  transition: border-color var(--dur-1) var(--ease-out);
+}
+.pf-tree-wrap:hover { border-color: var(--line); }
+.pf-root.is-compact .pf-tree-wrap { max-height: none; flex: 1; }
+
+/* generous rows + calm hover + clear indentation guides */
+.pf-tree .tree-row {
+  height: 34px;
+  margin-inline: 5px;
+  gap: 8px;
+  padding-inline-end: 8px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--dim);
+}
+.pf-tree .tree-row:hover { background: var(--hover); color: var(--ink); }
+.pf-tree .tree-row.is-active { background: var(--bg5); color: var(--ink); }
+.pf-tree .tree-row > span[dir='ltr'] { font-size: 12.5px; }
+.pf-tree .ft-guide {
+  top: 4px;
+  bottom: 4px;
+  background: var(--line-strong);
+  opacity: 0.55;
+}
+.pf-tree .tree-row:hover .ft-guide { background: var(--acc); opacity: 0.35; }
+
+/* the shared page skin puts a hairline above every tree row — the first
+   row of each group must not show a stray line at the top of the well */
+.page-v14.page-v14 .pf-tree .tree-row:first-child { border-top-color: transparent !important; }
+
+/* row actions stay quiet until hover / keyboard focus */
+.pf-acts {
+  transition: opacity var(--dur-1) var(--ease-out);
+}
+.pf-tree .tree-row:focus-within .pf-acts { opacity: 1; }
+.pf-tree .pf-act { width: 22px; height: 22px; }
+
+/* reveal pulse — a brief hairline keyline, then calm.
+   PERF: the keyline is now a STATIC inset ring on a pointer-transparent
+   overlay pseudo, and only its OPACITY is animated (compositor-only). The
+   old rule animated box-shadow on the row itself, forcing a full repaint of
+   every tree row on each frame of a 1.5s sweep. `.tree-row` is already
+   `position: relative` in workspace.css, so the overlay is well-contained. */
+.pf-tree .tree-row.is-revealed::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 65%, transparent);
+  animation: pf-reveal 1.5s var(--ease-out) both;
+}
+@keyframes pf-reveal {
+  0%   { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+
+/* loading skeletons */
+.pf-skel { display: flex; flex-direction: column; gap: 6px; padding: 6px 10px; }
+.pf-skel-row {
+  height: 30px;
+  border-radius: 7px;
+  background: var(--hover-2);
+  animation: wsp-breathe 1.6s ease-in-out infinite;
+}
+.pf-skel-row:nth-child(2n) { width: 88%; }
+.pf-skel-row:nth-child(3n) { width: 74%; }
+
+.pf-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  font-size: 11.5px;
+  color: var(--faint);
+  line-height: 1.5;
+}
+.pf-foot-note { display: inline-flex; align-items: center; gap: 7px; min-width: 0; }
+.pf-foot-dot {
+  width: 4px;
+  height: 4px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: var(--acc);
+  opacity: 0.75;
+}
+.pf-rtl-note { font-size: 11px; color: var(--ghost); flex-shrink: 0; }
+
+/* ------------------------------------------------------------
+   2 · COMPACT FILES DRAWER (rail second access point)
+   ------------------------------------------------------------ */
+.pf-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: color-mix(in srgb, var(--bg0) 52%, transparent);
+  animation: pf-fade 160ms var(--ease-out) both;
+}
+.pf-drawer {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  z-index: 31;
+  width: min(360px, 92%);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg1);
+  border-inline-start: 1px solid var(--line);
+  box-shadow: var(--sh-float);
+  animation: pf-drawer-in 200ms var(--ease-out) both;
+}
+.pf-drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding-inline: 12px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.pf-drawer-head-title {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+.pf-drawer-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px;
+}
+@keyframes pf-drawer-in {
+  from { opacity: 0; transform: translateX(14px); }
+  to   { opacity: 1; transform: none; }
+}
+html[dir='rtl'] .pf-drawer { animation-name: pf-drawer-in-rtl; }
+@keyframes pf-drawer-in-rtl {
+  from { opacity: 0; transform: translateX(-14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes pf-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ------------------------------------------------------------
+   3 · EDITOR NAVIGATION + CHROME
+   ------------------------------------------------------------ */
+
+/* the always-visible escape hatch out of the editor */
+.ed-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 9px;
+  margin-inline-start: 4px;
+  flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--acc) 34%, var(--line));
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--acc) 9%, transparent);
+  color: var(--acc);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+.ed-back-btn:hover {
+  background: color-mix(in srgb, var(--acc) 16%, transparent);
+  border-color: color-mix(in srgb, var(--acc) 55%, transparent);
+  color: var(--ink);
+}
+.ed-back-btn:focus-visible { outline: 2px solid var(--acc); outline-offset: 1px; }
+.ed-back-btn .flip-rtl { flex-shrink: 0; }
+
+/* tab strip: a touch taller + roomier for readability */
+.etab-strip { min-height: 38px; }
+.pf-editor .etab {
+  height: 30px;
+  font-size: 11.5px;
+  gap: 7px;
+  padding-inline: 10px;
+}
+.pf-editor .etab .etab-name { max-width: 180px; }
+
+/* breadcrumb strip: calmer, readable, with a real root back control */
+.ed-crumb-bar {
+  min-height: 34px;
+  padding-inline: 12px;
+  gap: 6px;
+}
+.ed-crumb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 24ch;
+  height: 23px;
+  padding: 0 7px;
+  border-radius: 5px;
+  color: var(--dim);
+  font-size: 11px;
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+}
+.ed-crumb-btn:hover { color: var(--acc); background: var(--hover); }
+.ed-crumb-seg { font-size: 11px; }
+.ed-crumb-file {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.ed-crumb-bar .glass-pill { height: 22px !important; font-size: 10px !important; }
+
+/* readable editor well: roomier line numbers + comfortable line height are
+   applied through Monaco options in EditorArea (no CSS var leakage here). */
+
+/* ------------------------------------------------------------
+   4 · REDUCED MOTION
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .pf-crumb,
+  .pf-filter-clear,
+  .pf-acts,
+  .pf-tree .tree-row,
+  .pf-tree .tree-row.is-revealed::after,
+  .ed-back-btn,
+  .pf-scrim,
+  .pf-drawer {
+    animation: none !important;
+    transition: none !important;
+  }
+  /* the static keyline has no animation to park — hide it entirely */
+  .pf-tree .tree-row.is-revealed::after { display: none !important; }
+  .pf-skel-row { animation: none !important; }
+}
+html.reduce-motion .pf-crumb,
+html.reduce-motion .pf-filter-clear,
+html.reduce-motion .pf-acts,
+html.reduce-motion .pf-tree .tree-row,
+html.reduce-motion .pf-tree .tree-row.is-revealed::after,
+html.reduce-motion .ed-back-btn,
+html.reduce-motion .pf-scrim,
+html.reduce-motion .pf-drawer {
+  animation: none !important;
+  transition: none !important;
+}
+html.reduce-motion .pf-tree .tree-row.is-revealed::after { display: none !important; }
+html.reduce-motion .pf-skel-row { animation: none !important; }
+
+/* ------------------------------------------------------------
+    5 · WORKSPACE PAGE POLISH (stable layer — palette unchanged)
+     ------------------------------------------------------------ */
+
+/* 5a · shared action cluster — one framed group, not loose icons */
+.ws-actions-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--bg1);
+}
+.ws-actions-sep {
+  width: 1px;
+  height: 16px;
+  margin-inline: 2px;
+  background: var(--line);
+  flex-shrink: 0;
+}
+.pf-root .pf-actions.ws-actions-cluster { padding: 2px; }
+
+/* 5b · the centre-piece gets one quiet accent hairline (no chrome).
+   NOTE: the wrapper is now .ws-pf-section; the accent draws INSIDE the card
+   (inset-block-start: 0) so it can never paint over the stat strip above. */
+.page-v14 .ws-pf-section .pf-root.aurora-panel { position: relative; }
+.ws-pf-section .pf-root.aurora-panel::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 14px;
+  inline-size: 38px;
+  block-size: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--acc);
+  pointer-events: none;
+}
+
+/* 5c · stat tiles — identical geometry, one restrained hairline accent */
+.ws-stats .ws-stat { position: relative; }
+.ws-stats .ws-stat::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 26px;
+  block-size: 2px;
+  border-radius: 0 0 2px 0;
+  background: color-mix(in srgb, var(--acc) 60%, transparent);
+  pointer-events: none;
+}
+.page-v14 .ws-stats .ws-stat { transition: border-color var(--dur-2) var(--ease-out) !important; }
+.page-v14 .ws-stats .ws-stat:hover { border-color: var(--line-strong) !important; }
+
+/* 5d · quiet notes replace dead-looking bare text blocks */
+.ws-note {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 38px;
+  padding: 9px 13px;
+  border: 1px solid var(--line-soft);
+  border-inline-start: 2px solid var(--line-strong);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg1) 70%, transparent);
+  color: var(--faint);
+  line-height: 1.5;
+}
+.page-v14.page-v14 .ws-note { font-size: 12px !important; }
+
+/* file-types card keeps its legend aligned and calm */
+.ws-types-card { min-height: 62px; }
+
+/* 5e · architectural tree empty state — a framed drafting plate */
+.page-v14.page-v14 .pf-root .pf-tree-wrap .ft-empty {
+  margin: 8px;
+  padding: 30px 20px !important;
+  border: 1px dashed var(--line-strong) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  gap: 12px !important;
+}
+.ft-empty-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 50px;
+  margin-bottom: 4px;
+  color: var(--ghost);
+}
+.ft-empty-grid {
+  position: absolute;
+  inset: 6px 8px;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--line) 80%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--line) 80%, transparent) 1px, transparent 1px);
+  background-size: 12px 12px;
+  opacity: 0.55;
+}
+.ft-empty-corner {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  opacity: 0.6;
+  z-index: 1;
+}
+.ft-empty-corner-a { inset-block-start: 0; inset-inline-start: 0; border-block-start: 1px solid var(--acc); border-inline-start: 1px solid var(--acc); }
+.ft-empty-corner-b { inset-block-start: 0; inset-inline-end: 0; border-block-start: 1px solid var(--acc); border-inline-end: 1px solid var(--acc); }
+.ft-empty-corner-c { inset-block-end: 0; inset-inline-start: 0; border-block-end: 1px solid var(--acc); border-inline-start: 1px solid var(--acc); }
+.ft-empty-corner-d { inset-block-end: 0; inset-inline-end: 0; border-block-end: 1px solid var(--acc); border-inline-end: 1px solid var(--acc); }
+.ft-empty-glyph {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--bg1);
+  color: var(--acc);
+}
+.ft-empty-title { font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.ft-empty-hint { font-size: 12px; color: var(--faint); line-height: 1.6; max-width: 42ch; }
+.ft-empty-action { margin-top: 4px; }
+
+/* ------------------------------------------------------------
+   5f · small, guarded motion — mount stagger + quiet row reveal */
+@keyframes pf-stagger-in {
+  /* opacity only — a translate here paints child blocks over each other */
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.pf-stagger > * { animation: pf-stagger-in 320ms var(--ease-out) both; }
+.pf-stagger > *:nth-child(1) { animation-delay: 30ms; }
+.pf-stagger > *:nth-child(2) { animation-delay: 70ms; }
+.pf-stagger > *:nth-child(3) { animation-delay: 110ms; }
+.pf-stagger > *:nth-child(4) { animation-delay: 150ms; }
+.pf-stagger > *:nth-child(5) { animation-delay: 190ms; }
+.pf-stagger > *:nth-child(n + 6) { animation-delay: 230ms; }
+
+@keyframes pf-row-in {
+  /* opacity only — keeps generous tree rows from overlapping while they enter */
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.pf-tree .tree-row { animation: pf-row-in 220ms var(--ease-out) both; }
+.pf-tree .tree-row:nth-child(3n) { animation-delay: 16ms; }
+.pf-tree .tree-row:nth-child(3n + 1) { animation-delay: 32ms; }
+/* The reveal keyline is drawn by `.tree-row.is-revealed::after` above (opacity
+   only). The row keeps its own pf-row-in entrance — no box-shadow repaint. */
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-stagger > *,
+  .pf-tree .tree-row,
+  .pf-tree .tree-row.is-revealed::after,
+  .pf-tree-wrap,
+  .ws-actions-cluster,
+  .ws-note,
+  .ws-stats .ws-stat,
+  .ft-empty-art { animation: none !important; transition: none !important; }
+  .pf-tree .tree-row.is-revealed::after { display: none !important; }
+}
+html.reduce-motion .pf-stagger > *,
+html.reduce-motion .pf-tree .tree-row,
+html.reduce-motion .pf-tree .tree-row.is-revealed::after,
+html.reduce-motion .pf-tree-wrap,
+html.reduce-motion .ws-actions-cluster,
+html.reduce-motion .ws-note,
+html.reduce-motion .ws-stats .ws-stat,
+html.reduce-motion .ft-empty-art { animation: none !important; transition: none !important; }
+html.reduce-motion .pf-tree .tree-row.is-revealed::after { display: none !important; }
+
+/* ============================================================
+   6 · WORKSPACE — EDITORIAL DOCUMENT RE-ENGINEERING (v11.12)
+   ------------------------------------------------------------
+   The Workspace is now laid out as a printed page: masthead →
+   single-rule stat strip → numbered section boundary → PROJECT
+   FILES centrepiece → quiet hairline rows. Every rule below is
+   scoped, uses logical properties (RTL-safe), and only consumes
+   existing semantic tokens (alpha via color-mix).
+   ============================================================ */
+
+/* 6a · the site's display serif, scoped to these two roots.
+   Latin uses the editorial serif; Arabic uses Cairo. */
+.ws-doc,
+.pf-root {
+  --font-display-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+}
+html[lang='ar'] .ws-doc,
+html[lang='ar'] .pf-root {
+  --font-display-serif: 'Cairo', var(--font-app-ar, 'Inter', sans-serif);
+}
+
+/* 6b · masthead — serif display title, mono eyebrow, right-side actions */
+.ws-page-head { flex-shrink: 0; min-width: 0; }
+.page-v14.page-v14 .ws-page-head .pv14-head { padding: 2px 0 16px !important; }
+.page-v14.page-v14 .ws-page-head .pv14-head,
+.page-v14.page-v14 .ws-page-head .pv14-stagger > * {
+  animation: ws-fade 320ms var(--ease-out) both !important;
+}
+@keyframes ws-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.page-v14.page-v14 .ws-page-head .pv14-title {
+  font-family: var(--font-display-serif, Georgia, serif) !important;
+  font-size: 30px !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.1 !important;
+}
+html[lang='ar'] .page-v14.page-v14 .ws-page-head .pv14-title {
+  font-weight: 700 !important;
+  font-size: 24px !important;
+  letter-spacing: 0 !important;
+}
+.page-v14.page-v14 .ws-page-head .pv14-desc { max-width: 62ch !important; }
+
+/* 6c · STAT BAND — one bordered strip, equal cells, hairline dividers.
+   Replaces four floating .wscc-tile boxes that used to touch the card below. */
+.ws-statband {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  flex-shrink: 0;
+  min-width: 0;
+  margin: 16px 12px 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg1);
+  overflow: hidden;
+}
+.ws-stat-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 74px;
+  padding: 12px 16px;
+  border-inline-start: 1px solid var(--line-soft);
+}
+.ws-stat-cell:first-child { border-inline-start: 0; }
+.ws-stat-label {
+  font-family: var(--font-mono-x, monospace);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+html[lang='ar'] .ws-stat-label {
+  font-family: var(--font-app-ar, 'Cairo', sans-serif);
+  letter-spacing: 0;
+  font-size: 11px;
+}
+.ws-stat-value {
+  font-family: var(--font-display-serif, Georgia, serif);
+  font-size: 23px;
+  line-height: 1;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+html[lang='ar'] .ws-stat-value {
+  font-family: var(--font-app-ar, 'Cairo', sans-serif);
+  font-size: 19px;
+  font-weight: 700;
+}
+@media (max-width: 720px) {
+  .ws-statband { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ws-stat-cell:nth-child(3) {
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--line-soft);
+  }
+  .ws-stat-cell:nth-child(4) { border-block-start: 1px solid var(--line-soft); }
+}
+
+/* 6d · a real section boundary for PROJECT FILES — mono index + drawn rule */
+.ws-pf-section {
+  flex-shrink: 0;
+  min-width: 0;
+  margin: 20px 12px 0;
+}
+.ws-sec-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-block: 0 10px;
+}
+.ws-sec-index {
+  font-family: var(--font-mono-x, monospace);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--acc);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+html[lang='ar'] .ws-sec-index {
+  font-family: var(--font-app-ar, 'Cairo', sans-serif);
+  letter-spacing: 0;
+  font-size: 11px;
+}
+.ws-sec-hair {
+  flex: 1 1 auto;
+  min-width: 12px;
+  height: 1px;
+  background: var(--line);
+  transform-origin: left center;
+  animation: ws-draw 720ms var(--ease-out) both;
+}
+html[dir='rtl'] .ws-sec-hair { transform-origin: right center; }
+@keyframes ws-draw {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+.ws-sec-mark { color: var(--ghost); flex-shrink: 0; }
+
+/* 6e · PROJECT FILES card — one quiet frame, no overlapping accent */
+.page-v14.page-v14 .ws-pf-section .pf-root.aurora-panel {
+  position: relative;
+  padding: 14px !important;
+  gap: 10px;
+}
+/* art-corner crosshair — two hairlines + a registration square */
+.page-v14.page-v14 .ws-pf-section .pf-root.aurora-panel::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-end: 10px;
+  width: 9px;
+  height: 9px;
+  color: var(--line-strong);
+  background:
+    linear-gradient(currentColor, currentColor) center / 1px 9px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 9px 1px no-repeat;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* 6f · the header is ONE row: engraved mark + title + count + filter + actions.
+   Every group can shrink; the icon actions never do (EN/AR safe). */
+.pf-head { flex-wrap: wrap; row-gap: 8px; }
+.pf-heading { flex: 0 1 auto; gap: 8px; }
+.pf-heading .pf-count { margin-inline-start: 2px; }
+.pf-glyph { display: block; }
+.pf-head-filter {
+  flex: 1 1 170px;
+  min-width: 120px;
+  max-width: 360px;
+}
+/* pages.css wins the generic input !important fight — raise specificity so
+   the filter icon no longer sits on top of the typed text. */
+.page-v14.page-v14 .pf-filter-input {
+  height: 34px !important;
+  padding-inline-start: 32px !important;
+  padding-inline-end: 32px !important;
+}
+/* the drawing hairline under the header */
+.pf-draw-rule {
+  display: block;
+  height: 1px;
+  flex-shrink: 0;
+  background: var(--line);
+  transform-origin: left center;
+  animation: ws-draw 720ms var(--ease-out) 120ms both;
+}
+html[dir='rtl'] .pf-draw-rule { transform-origin: right center; }
+/* breadcrumb sits on its own quiet strip */
+.pf-breadcrumb { min-height: 30px; }
+
+/* generous, aligned tree rows with clear indent guides */
+.page-v14.page-v14 .pf-tree .tree-row {
+  min-height: 40px !important;
+  padding-block: 7px !important;
+  padding-inline-end: 10px !important;
+}
+.pf-tree .ft-guide { opacity: 0.45; }
+.page-v14.page-v14 .pf-tree .tree-row:hover .ft-guide { background: var(--acc); opacity: 0.3; }
+.pf-tree-wrap { position: relative; }
+/* a second, tiny crosshair in the tree well corner */
+.pf-tree-wrap::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 7px;
+  inset-inline-end: 7px;
+  width: 7px;
+  height: 7px;
+  z-index: 1;
+  color: var(--line-strong);
+  background:
+    linear-gradient(currentColor, currentColor) center / 1px 7px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 7px 1px no-repeat;
+  opacity: 0.5;
+  pointer-events: none;
+}
+/* quiet footer — closed with a rule instead of floating in space */
+.pf-foot {
+  padding-block-start: 8px;
+  border-block-start: 1px solid var(--line-soft);
+}
+
+/* 6g · lower sections as quiet hairline-separated rows, NOT floating cards */
+.page-v14.page-v14 .ws-quiet-list {
+  border: 0 !important;
+  border-block-start: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+.page-v14.page-v14 .ws-quiet-list > .keyrow {
+  border-block-start: 1px solid var(--line-soft) !important;
+}
+.page-v14.page-v14 .ws-quiet-list > .keyrow:first-child {
+  border-block-start-color: transparent !important;
+}
+.page-v14.page-v14 .ws-types-card.ws-quiet-list { padding: 12px 4px !important; }
+
+/* 6h · subtle ink texture in empty states — an engraved hatch under the art */
+.ft-empty-art::after {
+  content: '';
+  position: absolute;
+  inset: 8px 10px;
+  background: repeating-linear-gradient(
+    115deg,
+    transparent 0 5px,
+    color-mix(in srgb, var(--line) 60%, transparent) 5px 6px
+  );
+  opacity: 0.35;
+  -webkit-mask-image: radial-gradient(ellipse at center, black, transparent 72%);
+  mask-image: radial-gradient(ellipse at center, black, transparent 72%);
+  pointer-events: none;
+}
+
+/* 6i · motion guards — the drawn hairlines are the only movement on this page */
+@media (prefers-reduced-motion: reduce) {
+  .ws-sec-hair,
+  .pf-draw-rule { animation: none !important; transform: none !important; }
+}
+html.reduce-motion .ws-sec-hair,
+html.reduce-motion .pf-draw-rule { animation: none !important; transform: none !important; }
+
+/* ------------------------------------------------------------
+    7 · FINAL LAUNCH POLISH — centre-piece refinement
+    The PROJECT FILES card stays the unmistakable centre of the
+    Workspace. Palette unchanged; no translate animations here (a
+    translated scroll root previously collided with the stat band).
+    ------------------------------------------------------------ */
+/* Occupancy guard: .ws-scroll (the WorkspacePanel scroll root) and this tree
+   well must stay transform-free — a translate-based stagger used to collide
+   the PROJECT FILES card into the stat band. hgs-art.css pins .ws-scroll. */
+.pf-tree-wrap { min-height: 200px; max-height: 560px; transform: none; }
+.pf-root.is-compact .pf-tree-wrap { max-height: none; }
+
+/* breadcrumb: a correctly aligned, hairline-separated trail */
+.pf-breadcrumb { gap: 3px; }
+.pf-crumb-sep > svg { opacity: .7; }
+.pf-crumb-root { font-weight: 600; }
+
+/* generous rows + crisp 1px indent guides, every level aligned.
+   scroll-margin keeps a revealed row off the well's edge (the reveal action
+   calls scrollIntoView({block:'nearest'}) in FileTree.tsx). */
+.pf-tree .tree-row { min-height: 40px; scroll-margin-block: 6px; }
+.pf-tree .ft-guide { width: 1px; border-radius: 1px; }
+/* Active start-edge: drawn as a background stroke, NOT a border — a border
+   consumes 2px of layout and nudges the file name sideways when a row becomes
+   active. The legacy outside ::before bar is suppressed here so there is
+   exactly one indicator, and it never fights the reveal box-shadow pulse. */
+.pf-tree .tree-row.is-active {
+  border-inline-start: 0 !important;
+  background-image: linear-gradient(var(--acc), var(--acc));
+  background-repeat: no-repeat;
+  background-size: 2px calc(100% - 12px);
+  background-position: left center;
+}
+html[dir='rtl'] .pf-tree .tree-row.is-active { background-position: right center; }
+.pf-tree .tree-row.is-active::before { display: none; }
+
+/* the engraved folder glyph in the header */
+.pf-head-icon svg [stroke] { vector-effect: non-scaling-stroke; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-tree-wrap, .pf-crumb, .pf-tree .tree-row { animation: none !important; transform: none !important; }
+}
+html.reduce-motion .pf-tree-wrap,
+html.reduce-motion .pf-crumb,
+html.reduce-motion .pf-tree .tree-row { animation: none !important; transform: none !important; }

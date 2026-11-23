@@ -1,0 +1,48 @@
+{
+  "at": "2026-11-22T20:55:23.739Z",
+  "bundleError": null,
+  "results": [
+    {
+      "id": "toolExecution",
+      "pass": true,
+      "detail": "file=true content=true tool_start=1 tool_result_ok=true",
+      "gap": ""
+    },
+    {
+      "id": "falseDoneNudge",
+      "pass": true,
+      "detail": "main provider requests=3 (a corrective nudge re-calls the provider with corrective text)",
+      "gap": ""
+    },
+    {
+      "id": "errorLoop",
+      "pass": true,
+      "detail": "image_generate calls=2 (must be <=2), redirect=true, doom_loop_events=0",
+      "gap": ""
+    },
+    {
+      "id": "longRun",
+      "pass": true,
+      "detail": "run_command rounds=60/60, final text=\"60 rounds done.\", thrown=null",
+      "gap": ""
+    },
+    {
+      "id": "webCommand",
+      "pass": true,
+      "detail": "web_fetch_ok=true web_sentinel_in_model=true run_command_ok=true cmd_sentinel_in_model=true",
+      "gap": ""
+    },
+    {
+      "id": "mcpOptIn",
+      "pass": true,
+      "detail": "advertised=true toolsDiag={\"keys\":[\"model\",\"messages\",\"stream\",\"cache_control\",\"stream_options\",\"max_tokens\",\"tools\",\"tool_choice\"],\"toolCount\":146,\"tools\":[\"mcp__v1132probe__unprompted_probe\"]} mcp_tool_start=1 mcp_tool_result=1 executed=true mcp_approval_requests=1 gate_notices=1 notices=[\"Starting…\",\"\\n[MCP opt-in] An MCP tool (v1132probe → unprompted_probe) was invoked without an explicit \"]",
+      "gap": ""
+    },
+    {
+      "id": "promptDesignArabic",
+      "pass": true,
+      "detail": "{\"arabic\":true,\"design\":true,\"noBoxes\":true,\"language\":true,\"toolMandate\":true,\"mcpOptIn\":true,\"noLoops\":true}",
+      "gap": ""
+    }
+  ]
+}

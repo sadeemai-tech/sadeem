@@ -1,0 +1,1076 @@
+/* ============================================================
+   SADEEM — sections.css  (STABLE, version-free)
+   The section/page skin for every stage rail. Consolidated from:
+     · the section/page rules of v13-design.css  (loaded first: the
+       authoritative !important base the later layers override)
+     · right-dock.css
+     · pages-v13.css                         (loaded last: final word)
+   That internal order is deliberate — it preserves the original
+   cascade (v13-design → right-dock → pages-v13). Palette untouched.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   BASE · flat hairline section header / canvas (from v13-design)
+   ------------------------------------------------------------ */
+.rd-head {
+  height: 46px !important;
+  min-height: 46px !important;
+  padding-inline: 16px !important;
+  background: var(--bg1) !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+.rd-no {
+  font-size: 10px !important;
+  padding: 2px 6px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--faint) !important;
+}
+.rd-title { font-size: 13px !important; font-weight: 600 !important; }
+.rd-title-wrap::after { display: none !important; } /* remove eyebrow */
+.rd-head-btn { width: 24px; height: 24px; }
+
+.rd-content {
+  max-width: none !important;
+  padding: 14px 16px 32px !important;
+  gap: 10px !important;
+}
+
+.rd-content .aurora-panel,
+.rd-content .card,
+.right-dock-sidebar .aurora-panel,
+.right-dock-sidebar .card {
+  border: 1px solid var(--line-soft) !important;
+  border-radius: 8px !important;
+  background: var(--panel) !important;
+  box-shadow: none !important;
+  padding: 12px !important;
+  transition: border-color 120ms var(--ease-out) !important;
+  animation: none !important;
+}
+.rd-content .aurora-panel:hover,
+.rd-content .card:hover,
+.right-dock-sidebar .aurora-panel:hover,
+.right-dock-sidebar .card:hover {
+  border-color: var(--line-strong) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+.rd-content .aurora-panel-lg {
+  border-radius: 10px !important;
+  padding: 16px !important;
+  background: var(--panel) !important;
+}
+
+.rd-content .blank-state,
+.rd-content .hero-grid {
+  border: 1px dashed var(--line) !important;
+  border-radius: 10px !important;
+  background: var(--panel) !important;
+  padding: 28px 20px !important;
+  text-align: center;
+}
+.rd-content .blank-state::before { display: none !important; }
+.rd-content .bs-title { font-size: 14px !important; }
+.rd-content .bs-sub { font-size: 12px !important; }
+
+.rd-content [class*='grid'] { gap: 10px !important; }
+.rd-content button:not(.aurora-panel):not(.card):hover { transform: none !important; }
+
+.rd-back { height: 34px !important; background: var(--bg1) !important; border-top: 1px solid var(--line) !important; }
+
+.rd-body::-webkit-scrollbar { width: 8px; }
+.rd-body::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; border: 2px solid var(--bg1); }
+
+/* ------------------------------------------------------------
+   DOCK · ONE flush, full-height column (from right-dock)
+   ------------------------------------------------------------ */
+.work-slot-v12 {
+  /* the right work slot is a true column: rail + one flush section surface */
+  background: var(--bg1);
+}
+.right-dock-sidebar {
+  border-inline-start: 1px solid var(--line);
+  border-inline-end: 0;
+  background: var(--bg1);
+  min-height: 0;
+}
+.right-dock-v13 {
+  border-inline-start: 1px solid var(--line);
+  background: var(--bg1);
+}
+
+.rd-no {
+  font-family: var(--font-mono-x);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+.rd-title-wrap { min-width: 0; }
+.rd-title {
+  margin: 0;
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  line-height: 1.25;
+}
+html[lang='ar'] .rd-title { letter-spacing: 0; }
+.rd-head-btn { width: 28px; height: 28px; border-radius: var(--radius-sm); color: var(--dim); }
+.rd-head-btn:hover { color: var(--ink); background: var(--hover); }
+
+.rd-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.rd-content {
+  width: 100%;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+}
+.rd-content > * { min-width: 0; }
+
+.rd-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  color: var(--dim);
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 140ms var(--ease-out), background 140ms var(--ease-out);
+}
+.rd-back:hover { color: var(--acc); background: var(--hover); }
+
+.right-dock-v13 > .rd-body > .rd-content > * {
+  animation: rd-section-in 320ms var(--ease-out) both;
+}
+.right-dock-v13 > .rd-body > .rd-content > *:nth-child(2) { animation-delay: 30ms; }
+.right-dock-v13 > .rd-body > .rd-content > *:nth-child(3) { animation-delay: 60ms; }
+@keyframes rd-section-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Loads after the base layer above, so this !important wins for the
+   non-paged dock; the paged (.rd-page-v13) skin overrides it later. */
+.rd-content .aurora-panel,
+.rd-content .aurora-panel-lg {
+  border-radius: var(--radius-md) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .right-dock-v13 > .rd-body > .rd-content > * { animation: none !important; }
+}
+html.reduce-motion .right-dock-v13 > .rd-body > .rd-content > * { animation: none !important; }
+
+/* ------------------------------------------------------------
+   PAGES · "quiet instrument" section-page skin (from pages-v13)
+   A premium skin for every stage rail (Usage · Library ·
+   DNA · Sessions · Git · MCP · Skills · Flows · Artifacts ·
+   Prompts · Workspace · Wiki). Palette UNCHANGED — every colour
+   comes from an existing token; alpha via color-mix() only.
+   NO drop shadows, NO gradients, NO glow, NO hover-lift.
+   Scoped under .rd-page-v13 + shared dock header classes.
+   ------------------------------------------------------------ */
+
+/* 0 · scoped type / spacing scale (the new page rhythm) */
+.rd-page-v13 {
+  --vp-h1: 18px;        /* page / panel titles                */
+  --vp-h2: 12.5px;      /* section titles                     */
+  --vp-body: 12px;      /* default reading size               */
+  --vp-label: 9.5px;    /* eyebrows, mono meta                */
+  --vp-mono: 11px;      /* numerical / technical data         */
+  --vp-radius: 10px;    /* the ONE card radius                */
+  --vp-gap: 18px;       /* vertical rhythm between sections   */
+  --vp-pad: 16px;       /* card inner padding                 */
+
+  position: relative;
+  max-width: 1200px !important;
+  margin-inline: auto;
+  padding: 22px 22px 48px !important;
+  gap: var(--vp-gap) !important;
+  font-size: var(--vp-body);
+  line-height: 1.55;
+  color: var(--dim);
+  background: var(--bg1);
+}
+/* signature hairline accent — the one piece of "brand" on a page */
+.rd-page-v13::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 22px;
+  inline-size: 44px;
+  block-size: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--acc);
+  pointer-events: none;
+}
+/* every panel root fills the canvas cleanly; the canvas owns the gutter */
+.rd-page-v13 > * {
+  min-width: 0;
+  padding: 0 !important;
+}
+
+/* 1 · section header (shared dock header — both mounts) */
+.right-dock-v13 > .rd-head,
+.sidebar-overlay-v13 > .rd-head {
+  position: relative;
+  block-size: 56px !important;
+  min-block-size: 56px !important;
+  padding-inline: 20px !important;
+  gap: 12px !important;
+  background: var(--bg1) !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+/* a quiet accent rule along the very top of the header */
+.right-dock-v13 > .rd-head::before,
+.sidebar-overlay-v13 > .rd-head::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: 2px;
+  background: var(--line-accent);
+  pointer-events: none;
+}
+/* the rail index becomes a bordered square marker */
+.right-dock-v13 > .rd-head .rd-no,
+.sidebar-overlay-v13 > .rd-head .sec-no {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  inline-size: 24px !important;
+  block-size: 24px !important;
+  padding: 0 !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  color: var(--acc) !important;
+  font-family: var(--font-mono-x) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  flex-shrink: 0;
+}
+.right-dock-v13 > .rd-head .rd-title,
+.sidebar-overlay-v13 > .rd-head .sec-tt {
+  font-family: var(--font-display) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.2 !important;
+  color: var(--ink) !important;
+}
+html[lang='ar'] .right-dock-v13 > .rd-head .rd-title,
+html[lang='ar'] .sidebar-overlay-v13 > .rd-head .sec-tt {
+  letter-spacing: 0 !important;
+}
+.right-dock-v13 > .rd-head .rd-head-btn,
+.sidebar-overlay-v13 > .rd-head .ibtn {
+  inline-size: 28px !important;
+  block-size: 28px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 7px !important;
+}
+
+/* 2 · typographic ladder — headings & section markers */
+.rd-page-v13 h2,
+.rd-page-v13 .fl-title,
+.rd-page-v13 .ar-hero .caps {
+  font-family: var(--font-display) !important;
+  font-size: var(--vp-h1) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.25 !important;
+  color: var(--ink) !important;
+}
+html[lang='ar'] .rd-page-v13 h2,
+html[lang='ar'] .rd-page-v13 .fl-title,
+html[lang='ar'] .rd-page-v13 .ar-hero .caps {
+  letter-spacing: 0 !important;
+}
+/* the leading accent tick on page-level titles */
+.rd-page-v13 h2::before {
+  content: '';
+  display: inline-block;
+  inline-size: 3px;
+  block-size: 14px;
+  margin-inline-end: 10px;
+  border-radius: 2px;
+  background: var(--acc);
+  vertical-align: -2px;
+}
+.rd-page-v13 .sec-titled {
+  align-items: center !important;
+  gap: 10px !important;
+  margin-bottom: 12px !important;
+}
+.rd-page-v13 .sec-titled .sec-no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 22px;
+  block-size: 22px;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  background: var(--bg1);
+  color: var(--acc) !important;
+  font-family: var(--font-mono-x);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  transform: none !important;
+  flex-shrink: 0;
+}
+.rd-page-v13 .sec-titled .sec-tt {
+  font-size: var(--vp-h2) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--ink) !important;
+}
+html[lang='ar'] .rd-page-v13 .sec-titled .sec-tt { letter-spacing: 0 !important; }
+.rd-page-v13 .sec-titled .sec-rule {
+  background: var(--line) !important;
+  transform: none !important;
+}
+/* small static labels keep a deliberate, tracked voice */
+.rd-page-v13 .micro-label {
+  font-size: var(--vp-label) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em !important;
+  color: var(--faint) !important;
+}
+
+/* 3 · flat hairline card system (no shadows · no gradients) */
+.rd-page-v13 .aurora-panel,
+.rd-page-v13 .aurora-panel-lg,
+.rd-page-v13 .card,
+.rd-page-v13 .lib-card,
+.rd-page-v13 .ar-card,
+.rd-page-v13 .fl-card,
+.rd-page-v13 .fl-editor {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--vp-radius) !important;
+  background: var(--panel) !important;
+  box-shadow: none !important;
+  padding: var(--vp-pad) !important;
+  transform: none !important;
+  animation: none !important;
+  transition: border-color 140ms var(--ease-out) !important;
+}
+.rd-page-v13 .aurora-panel-lg {
+  padding: 20px !important;
+}
+.rd-page-v13 .aurora-panel:hover,
+.rd-page-v13 .aurora-panel-lg:hover,
+.rd-page-v13 .card:hover,
+.rd-page-v13 .lib-card:hover,
+.rd-page-v13 .ar-card:hover,
+.rd-page-v13 .fl-card:hover,
+.rd-page-v13 .fl-editor:hover {
+  border-color: var(--line-strong) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+/* list-container cards keep their inset hairline grammar */
+.rd-page-v13 .aurora-panel.keyrow-list,
+.rd-page-v13 .aurora-panel.overflow-hidden {
+  padding: 4px 0 !important;
+}
+
+/* 4 · stat / score displays — big calm numerals */
+.rd-page-v13 .wscc-tile,
+.rd-page-v13 .ar-disc {
+  border-radius: var(--vp-radius) !important;
+  background: var(--bg1) !important;
+  box-shadow: none !important;
+}
+.rd-page-v13 .wscc-tile {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-block-size: 76px;
+  padding: 14px !important;
+  border: 1px solid var(--line) !important;
+}
+.rd-page-v13 .wscc-tile-label {
+  font-size: var(--vp-label) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase;
+  color: var(--faint) !important;
+}
+.rd-page-v13 .wscc-tile-value {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  color: var(--ink) !important;
+}
+/* score disc */
+.rd-page-v13 .ar-disc {
+  inline-size: 46px !important;
+  block-size: 46px !important;
+  border-width: 1px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+/* podium board */
+.rd-page-v13 .ar-board-row {
+  min-block-size: 40px !important;
+  padding: 10px 12px !important;
+  gap: 10px !important;
+}
+.rd-page-v13 .ar-rank { font-size: 11px !important; }
+.rd-page-v13 .ar-bar {
+  inline-size: 84px !important;
+  block-size: 5px !important;
+  border-radius: var(--radius-pill) !important;
+}
+.rd-page-v13 .ar-bar-fill,
+.rd-page-v13 .ar-meter-fill {
+  border-radius: var(--radius-pill) !important;
+  transition: width 320ms var(--ease-out) !important;
+}
+.rd-page-v13 .ar-meter-track {
+  block-size: 4px !important;
+  border-radius: var(--radius-pill) !important;
+}
+.rd-page-v13 .ar-meter-lbl,
+.rd-page-v13 .ar-meter-val { font-size: 10px !important; }
+.rd-page-v13 .ar-chip {
+  border-radius: 6px !important;
+  font-size: 10px !important;
+  padding-inline: 8px !important;
+  block-size: 20px !important;
+}
+/* streaks / big numerals in usage & artifacts */
+.rd-page-v13 .aurora-panel .tnum.text-\[13px\],
+.rd-page-v13 b.tnum.text-\[18px\] {
+  font-size: 20px !important;
+  letter-spacing: -0.02em !important;
+  color: var(--ink) !important;
+}
+
+/* 5 · list rows — roomier, hairline-separated */
+.rd-page-v13 .keyrow {
+  min-block-size: 42px !important;
+  gap: 12px !important;
+  padding: 10px 12px !important;
+  border-top-color: var(--line-soft) !important;
+  transition: background 130ms var(--ease-out) !important;
+}
+.rd-page-v13 .keyrow .key-title {
+  font-size: var(--vp-body) !important;
+  font-weight: 600 !important;
+}
+.rd-page-v13 .keyrow .key-sub {
+  font-size: 10.5px !important;
+  color: var(--faint) !important;
+}
+.rd-page-v13 .keyrow:hover {
+  background: var(--hover) !important;
+}
+.rd-page-v13 .finding,
+.rd-page-v13 .tree-row {
+  border-radius: 6px !important;
+}
+.rd-page-v13 .finding {
+  padding: 10px 12px !important;
+  border-top: 1px solid var(--line-soft) !important;
+}
+
+/* 6 · tabs / segmented controls */
+.rd-page-v13 .stamp-seg,
+.rd-page-v13 .mcp-tabs,
+.rd-page-v13 .fl-seg {
+  padding: 3px !important;
+  gap: 3px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 9px !important;
+  background: var(--bg1) !important;
+}
+.rd-page-v13 .stamp-seg > button,
+.rd-page-v13 .mcp-tabs > button,
+.rd-page-v13 .fl-seg-btn {
+  position: relative;
+  block-size: 28px !important;
+  padding-inline: 12px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: var(--faint) !important;
+  box-shadow: none !important;
+}
+.rd-page-v13 .stamp-seg > button:hover,
+.rd-page-v13 .mcp-tabs > button:hover,
+.rd-page-v13 .fl-seg-btn:hover {
+  color: var(--ink) !important;
+  background: var(--hover) !important;
+}
+.rd-page-v13 .stamp-seg > button.is-active,
+.rd-page-v13 .stamp-seg.is-plain > button.is-active,
+.rd-page-v13 .mcp-tabs > button.is-active,
+.rd-page-v13 .fl-seg-btn.is-on {
+  background: var(--bg3) !important;
+  color: var(--acc) !important;
+  box-shadow: none !important;
+}
+/* keyline is a pseudo-element, never a shadow */
+.rd-page-v13 .stamp-seg > button.is-active::after,
+.rd-page-v13 .mcp-tabs > button.is-active::after,
+.rd-page-v13 .fl-seg-btn.is-on::after {
+  content: '';
+  position: absolute;
+  inset-inline: 10px;
+  inset-block-end: 2px;
+  block-size: 2px;
+  border-radius: 2px;
+  background: var(--acc);
+}
+.rd-page-v13 .mcp-tab-count {
+  font-size: 9.5px !important;
+}
+
+/* 7 · badges — flat, mono, hairline (tones left intact) */
+.rd-page-v13 .stamp {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  block-size: 18px !important;
+  padding-inline: 7px !important;
+  border: 1px solid var(--line) !important;
+  border-style: solid !important;
+  border-radius: 5px !important;
+  background-clip: padding-box !important;
+  font-family: var(--font-mono-x) !important;
+  font-size: 9.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase;
+  box-shadow: none !important;
+}
+.rd-page-v13 .glass-pill {
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  block-size: 22px !important;
+  font-size: 10px !important;
+}
+
+/* 8 · empty states — architectural, not decorative */
+.rd-page-v13 .blank-state,
+.rd-page-v13 .hero-grid,
+.rd-page-v13 .set-note {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--vp-radius) !important;
+  background: var(--panel) !important;
+  box-shadow: none !important;
+  padding: 36px 24px !important;
+  gap: 12px !important;
+  text-align: center;
+}
+/* the old hero grid used gradients + a radial mask — gone */
+.rd-page-v13 .hero-grid {
+  background-image: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+.rd-page-v13 .blank-state::before,
+.rd-page-v13 .hero-grid::before {
+  display: none !important;
+}
+.rd-page-v13 .bs-title {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+}
+.rd-page-v13 .bs-sub {
+  font-size: 12px !important;
+  color: var(--faint) !important;
+  line-height: 1.65 !important;
+}
+.rd-page-v13 .ill-img {
+  inline-size: 164px !important;
+  block-size: auto !important;
+  border-radius: var(--vp-radius) !important;
+  opacity: 0.82 !important;
+}
+.rd-page-v13 .bs-hint,
+.rd-page-v13 .kbd {
+  font-size: 10px !important;
+  border-radius: 5px !important;
+}
+
+/* 9 · grids — roomier columns, consistent gutters */
+.rd-page-v13 .grid,
+.rd-page-v13 [class*='grid-cols'],
+.rd-page-v13 [class*='grid'] {
+  gap: 14px !important;
+}
+.rd-page-v13 .lib-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+  gap: 14px !important;
+}
+.rd-page-v13 .ar-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  gap: 14px !important;
+}
+/* library cards */
+.rd-page-v13 .lib-card {
+  gap: 8px !important;
+  min-block-size: 118px;
+}
+.rd-page-v13 .lib-card-top { color: var(--dim); }
+.rd-page-v13 .lib-kind {
+  font-size: 9.5px !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+.rd-page-v13 .lib-title {
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+}
+.rd-page-v13 .lib-meta { font-size: 10px !important; color: var(--faint) !important; }
+.rd-page-v13 .lib-size { font-size: 10px !important; }
+/* flow cards / editor */
+.rd-page-v13 .fl-card {
+  gap: 8px !important;
+  min-block-size: 94px;
+}
+.rd-page-v13 .fl-name { font-size: var(--vp-body) !important; }
+.rd-page-v13 .fl-prompt { font-size: 11.5px !important; }
+.rd-page-v13 .fl-meta { font-size: 10px !important; }
+.rd-page-v13 .fl-btn {
+  block-size: 26px !important;
+  font-size: 11px !important;
+  border-radius: 6px !important;
+}
+.rd-page-v13 .fl-editor {
+  gap: 8px !important;
+}
+.rd-page-v13 .fl-label {
+  font-size: 9.5px !important;
+  letter-spacing: 0.12em !important;
+}
+.rd-page-v13 .fl-desc { font-size: 12px !important; }
+/* attempt cards */
+.rd-page-v13 .ar-card { gap: 4px !important; }
+.rd-page-v13 .ar-steps { gap: 8px !important; }
+.rd-page-v13 .ar-step {
+  border-radius: 6px !important;
+  font-size: 10px !important;
+}
+.rd-page-v13 .ar-task {
+  border-radius: 8px !important;
+  min-block-size: 88px !important;
+  padding: 12px !important;
+  font-size: 12px !important;
+}
+.rd-page-v13 .ar-alert { border-radius: 8px !important; }
+.rd-page-v13 .ar-judge { border-radius: 6px !important; }
+
+/* 10 · DNA specifics */
+.rd-page-v13 .dna-panel { gap: 16px !important; }
+.rd-page-v13 .dna-chip {
+  border-radius: 6px !important;
+  font-size: 11.5px !important;
+  padding-block: 3px !important;
+  padding-inline: 6px 8px !important;
+}
+.rd-page-v13 .dna-add {
+  border-radius: 6px !important;
+  font-size: 11.5px !important;
+}
+.rd-page-v13 .dna-how {
+  margin-top: 16px !important;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.rd-page-v13 .dna-how-list { gap: 9px !important; font-size: 12px !important; }
+.rd-page-v13 .dna-how-no { font-size: 11px !important; }
+
+/* 11 · inputs & buttons — consistent, flat controls */
+.rd-page-v13 input:not([type='checkbox']):not([type='radio']),
+.rd-page-v13 textarea,
+.rd-page-v13 select {
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  background: var(--bg1) !important;
+  color: var(--ink) !important;
+  font-size: 12px !important;
+  padding-block: 8px !important;
+  padding-inline-end: 10px !important;
+  box-shadow: none !important;
+}
+.rd-page-v13 input:focus,
+.rd-page-v13 textarea:focus,
+.rd-page-v13 select:focus {
+  border-color: var(--line-accent) !important;
+  outline: none !important;
+}
+.rd-page-v13 input::placeholder,
+.rd-page-v13 textarea::placeholder {
+  color: var(--ghost) !important;
+}
+.rd-page-v13 .btn {
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  font-size: 11.5px !important;
+  transition: background 130ms var(--ease-out), border-color 130ms var(--ease-out) !important;
+}
+.rd-page-v13 .btn:hover { box-shadow: none !important; transform: none !important; }
+.rd-page-v13 .ibtn,
+.rd-page-v13 .press {
+  border-radius: 6px !important;
+}
+.rd-page-v13 button:not(.aurora-panel):not(.card):hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+/* preformatted / code wells stay flat */
+.rd-page-v13 pre,
+.rd-page-v13 .mcp-resource-pre {
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  background: var(--bg1) !important;
+  line-height: 1.6 !important;
+}
+.rd-page-v13 .mcp-quarantine {
+  border-radius: 8px !important;
+  border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent) !important;
+}
+
+/* 12 · subtle staggered entrances (with reduced-motion guards) */
+@keyframes vp-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+/* the panel roots enter in sequence */
+.rd-page-v13.rd-content > * {
+  animation: vp-rise 380ms var(--ease-out) both !important;
+}
+.rd-page-v13.rd-content > *:nth-child(1) { animation-delay: 0ms !important; }
+.rd-page-v13.rd-content > *:nth-child(2) { animation-delay: 45ms !important; }
+.rd-page-v13.rd-content > *:nth-child(3) { animation-delay: 90ms !important; }
+.rd-page-v13.rd-content > *:nth-child(4) { animation-delay: 135ms !important; }
+.rd-page-v13.rd-content > *:nth-child(5) { animation-delay: 180ms !important; }
+.rd-page-v13.rd-content > *:nth-child(6) { animation-delay: 225ms !important; }
+.rd-page-v13.rd-content > *:nth-child(7) { animation-delay: 270ms !important; }
+.rd-page-v13.rd-content > *:nth-child(n + 8) { animation-delay: 300ms !important; }
+/* cards inside a stagger container rise gently in order */
+.rd-page-v13 .anim-stagger > * {
+  animation: vp-rise 340ms var(--ease-out) both !important;
+}
+.rd-page-v13 .anim-stagger > *:nth-child(1) { animation-delay: 40ms !important; }
+.rd-page-v13 .anim-stagger > *:nth-child(2) { animation-delay: 80ms !important; }
+.rd-page-v13 .anim-stagger > *:nth-child(3) { animation-delay: 120ms !important; }
+.rd-page-v13 .anim-stagger > *:nth-child(4) { animation-delay: 160ms !important; }
+.rd-page-v13 .anim-stagger > *:nth-child(5) { animation-delay: 200ms !important; }
+.rd-page-v13 .anim-stagger > *:nth-child(6) { animation-delay: 240ms !important; }
+.rd-page-v13 .anim-stagger > *:nth-child(7) { animation-delay: 280ms !important; }
+.rd-page-v13 .anim-stagger > *:nth-child(8) { animation-delay: 320ms !important; }
+.rd-page-v13 .anim-stagger > *:nth-child(n + 9) { animation-delay: 360ms !important; }
+.rd-page-v13 .anim-in { animation: vp-rise 320ms var(--ease-out) both !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-page-v13.rd-content > *,
+  .rd-page-v13 .anim-stagger > *,
+  .rd-page-v13 .anim-in,
+  .rd-page-v13 .ar-live-dot,
+  .rd-page-v13 .ar-bar-fill,
+  .rd-page-v13 .ar-meter-fill {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+html.reduce-motion .rd-page-v13.rd-content > *,
+html.reduce-motion .rd-page-v13 .anim-stagger > *,
+html.reduce-motion .rd-page-v13 .anim-in,
+html.reduce-motion .rd-page-v13 .ar-live-dot,
+html.reduce-motion .rd-page-v13 .ar-bar-fill,
+html.reduce-motion .rd-page-v13 .ar-meter-fill {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* ============================================================
+   v11.12 (STABLE) — Living Playbook + Subagent dashboard
+   Palette untouched: every color is an existing semantic token.
+   ============================================================ */
+
+/* ---- Living Playbook (embedded in DnaPanel) ---- */
+.pb-learned {
+  border-left: 2px solid var(--agent);
+  background: color-mix(in srgb, var(--agent) 8%, transparent);
+  padding: 6px 8px;
+  border-radius: 0 6px 6px 0;
+}
+.pb-learned-tag {
+  color: var(--agent);
+  font-weight: 600;
+}
+.pb-version {
+  color: var(--acc);
+  font-variant-numeric: tabular-nums;
+}
+.pb-timeline {
+  position: relative;
+  margin: 6px 0 0 3px;
+  padding-left: 12px;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pb-rev {
+  position: relative;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--hover-2) 35%, transparent);
+}
+.pb-rev::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--agent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--agent) 22%, transparent);
+}
+.pb-rev-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+.pb-rev-summary {
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.pb-change {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--dim);
+  padding: 1px 0;
+}
+.pb-change-sign {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  min-width: 10px;
+}
+.pb-change.add .pb-change-sign { color: var(--ok); }
+.pb-change.reinforced .pb-change-sign { color: var(--acc); }
+.pb-change.removed .pb-change-sign { color: var(--bad); }
+.pb-empty { color: var(--faint); font-size: 10.5px; }
+
+/* ---- Subagent dashboard ---- */
+.sa-root { display: flex; flex-direction: column; gap: 12px; }
+.sa-toolbar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.sa-stat {
+  display: flex; flex-direction: column; min-width: 74px;
+  padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: color-mix(in srgb, var(--hover-2) 30%, transparent);
+}
+.sa-stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); }
+.sa-stat-value { font-size: 16px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.sa-card {
+  border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px;
+  background: var(--panel, color-mix(in srgb, var(--hover-2) 22%, transparent));
+  transition: border-color .15s ease, background .15s ease;
+}
+.sa-card:hover { border-color: color-mix(in srgb, var(--agent) 35%, var(--line)); }
+.sa-card.running { border-left: 2px solid var(--agent); }
+.sa-card.done { border-left: 2px solid var(--ok); }
+.sa-card.error { border-left: 2px solid var(--bad); }
+.sa-card.aborted { border-left: 2px solid var(--warn); }
+.sa-card-head { display: flex; align-items: center; gap: 8px; }
+.sa-role {
+  font-size: 9px; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--acc); border: 1px solid color-mix(in srgb, var(--acc) 40%, transparent);
+  border-radius: 4px; padding: 1px 5px;
+}
+.sa-title { font-size: 12px; font-weight: 600; color: var(--ink); min-width: 0; }
+.sa-desc { font-size: 10.5px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sa-status {
+  margin-left: auto; font-size: 9px; font-weight: 700; letter-spacing: .05em;
+  text-transform: uppercase; white-space: nowrap;
+}
+.sa-status.running { color: var(--agent); }
+.sa-status.done { color: var(--ok); }
+.sa-status.error { color: var(--bad); }
+.sa-status.aborted { color: var(--warn); }
+.sa-track {
+  height: 4px; border-radius: 3px; margin-top: 8px;
+  background: color-mix(in srgb, var(--line) 70%, transparent); overflow: hidden;
+}
+.sa-fill { height: 100%; border-radius: 3px; background: var(--agent); transition: width .3s ease; }
+.sa-card.done .sa-fill { background: var(--ok); }
+.sa-card.error .sa-fill { background: var(--bad); }
+.sa-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 7px; font-size: 9.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.sa-summary {
+  margin-top: 7px; padding: 6px 8px; border-radius: 6px;
+  border: 1px solid var(--line); background: color-mix(in srgb, var(--hover-2) 28%, transparent);
+  font-size: 10.5px; color: var(--dim); line-height: 1.5;
+  max-height: 76px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+}
+.sa-error { color: var(--bad); }
+.sa-live {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--agent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--agent) 20%, transparent);
+  animation: sa-pulse 1.4s ease-in-out infinite;
+}
+@keyframes sa-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+html.reduce-motion .sa-live { animation: none; }
+
+/* ============================================================
+   v1142 · PANEL LINE-ART (additive)
+   ------------------------------------------------------------
+   Two original hairline drawings for the schedule and workspace
+   surfaces, styled from the app's own engraving language:
+     · an orbit clock on the schedule title whose 1px hand advances
+       ONE step per cadence (12 steps / 12s = the panel's 1s tick);
+     · a folder/file tree glyph on the project-files header whose
+       trunk + branch draw ONCE, echoed by the real indent guides.
+   Token ink only, physical-side-free, transform/opacity motion,
+   frozen by BOTH reduced-motion signals and the data-art kill switch.
+   ============================================================ */
+
+/* ---- 1 · SCHEDULE ORBIT CLOCK -------------------------------- */
+.sch-root .sch-title {
+  position: relative;
+  padding-inline-end: 28px;
+}
+.sch-root .sch-title::before,
+.sch-root .sch-title::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block-start: 50%;
+  pointer-events: none;
+}
+/* the orbit ring */
+.sch-root .sch-title::before {
+  inline-size: 18px;
+  block-size: 18px;
+  margin-block-start: -9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+}
+/* the 1px hand — steps one twelfth of a turn per second */
+.sch-root .sch-title::after {
+  inset-inline-end: 8px;
+  inline-size: 1px;
+  block-size: 7px;
+  margin-block-start: -7px;
+  transform-origin: 50% 100%;
+  background: var(--acc);
+  animation: v1142-sched-tick 12s steps(12, end) infinite;
+}
+@keyframes v1142-sched-tick {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ---- 2 · WORKSPACE FOLDER / FILE TREE ------------------------ */
+.ws-sec-head .ws-sec-index {
+  position: relative;
+  padding-inline-start: 20px;
+}
+/* trunk */
+.ws-sec-head .ws-sec-index::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 1px;
+  inline-size: 1px;
+  block-size: 13px;
+  background: var(--line-strong);
+  transform-origin: 50% 0;
+  pointer-events: none;
+  animation: v1142-tree-trunk 720ms var(--ease-out, ease-out) both;
+}
+/* one branch off the trunk */
+.ws-sec-head .ws-sec-index::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 7px;
+  inline-size: 9px;
+  block-size: 1px;
+  background: var(--line-strong);
+  transform-origin: 0 50%;
+  pointer-events: none;
+  animation: v1142-tree-branch 720ms var(--ease-out, ease-out) 120ms both;
+}
+html[dir='rtl'] .ws-sec-head .ws-sec-index::after { transform-origin: 100% 50%; }
+@keyframes v1142-tree-trunk {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+@keyframes v1142-tree-branch {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+/* the app's real file-tree draw their indent branches once, too */
+.hgs-pf-spine {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: v1142-ink-draw 900ms var(--ease-out, ease-out) both;
+}
+.pf-tree .ft-guide {
+  animation: v1142-guide-in 700ms var(--ease-out, ease-out) both;
+}
+@keyframes v1142-ink-draw { to { stroke-dashoffset: 0; } }
+@keyframes v1142-guide-in {
+  from { opacity: 0; }
+  to   { opacity: 0.55; }
+}
+
+/* motion scale + BOTH reduced-motion signals + the art kill switch */
+[data-motion] .sch-root .sch-title::after {
+  animation-duration: calc(12s / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .sch-root .sch-title::after,
+  .ws-sec-head .ws-sec-index::before,
+  .ws-sec-head .ws-sec-index::after,
+  .hgs-pf-spine,
+  .pf-tree .ft-guide { animation: none !important; }
+  .ws-sec-head .ws-sec-index::before,
+  .ws-sec-head .ws-sec-index::after { transform: none !important; opacity: 1 !important; }
+  .hgs-pf-spine { stroke-dashoffset: 0 !important; }
+  .pf-tree .ft-guide { opacity: 0.55 !important; }
+}
+html.reduce-motion .sch-root .sch-title::after,
+html.reduce-motion .ws-sec-head .ws-sec-index::before,
+html.reduce-motion .ws-sec-head .ws-sec-index::after,
+html.reduce-motion .hgs-pf-spine,
+html.reduce-motion .pf-tree .ft-guide { animation: none !important; }
+html.reduce-motion .ws-sec-head .ws-sec-index::before,
+html.reduce-motion .ws-sec-head .ws-sec-index::after { transform: none !important; opacity: 1 !important; }
+html.reduce-motion .hgs-pf-spine { stroke-dashoffset: 0 !important; }
+html.reduce-motion .pf-tree .ft-guide { opacity: 0.55 !important; }
+html[data-art='off'] .sch-root .sch-title::after,
+html[data-art='off'] .ws-sec-head .ws-sec-index::before,
+html[data-art='off'] .ws-sec-head .ws-sec-index::after,
+html[data-art='off'] .hgs-pf-spine,
+html[data-art='off'] .pf-tree .ft-guide { animation: none !important; }

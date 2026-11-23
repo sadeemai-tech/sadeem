@@ -1,0 +1,417 @@
+/* ============================================================
+   SADEEM — shell.css  (STABLE, version-free)
+   The application shell: physical main row, the full-width
+   horizontal icon rail + "More" flyout, and the file-tree
+   overlay drawer. Consolidated from:
+     · layout-v12.css
+     · the shell / rail / overlay rules of v13-design.css
+   Palette tokens untouched; all active visual rules preserved.
+   ============================================================ */
+
+/* ---------- physical main row (language-independent) ----------
+   Physical order, in BOTH LTR and RTL:
+     [ full-width horizontal icon bar ]   <- under the TitleBar
+     [ chat ] [ work area: editor / section pages ]  <- flex row
+   The icon bar spans the whole window directly above the main row.
+   Its main axis is forced LTR, so the primary group sits at the same
+   physical left and the utilities at the same physical right in EN
+   and AR. Text direction inside panels is untouched. */
+.app-main-row-v12 {
+  position: relative;
+  min-width: 0;
+  isolation: isolate;
+  direction: ltr; /* physical main-axis left→right in every language */
+}
+/* Re-assert text direction on children so RTL internals keep working. */
+html[dir='rtl'] .app-main-row-v12 > * { direction: rtl; }
+
+/* 0) Horizontal icon bar — full width, above the main row (see App.tsx).
+   Physical, language-independent: LTR main axis in EN and AR alike. */
+.app-rail-bar-v13 {
+  position: relative;
+  z-index: 5;
+  flex: 0 0 auto;
+  width: 100%;
+  direction: ltr;
+  border-bottom: 1px solid var(--line);
+  animation: v13-shell-in 420ms var(--ease-out) both;
+}
+html[dir='rtl'] .app-rail-bar-v13 { direction: ltr; }
+
+/* 1) Chat — first column of the main row */
+.app-main-row-v12 > .chat-slot-v12 {
+  order: 1;
+  flex: 0 0 auto;
+  animation: v13-shell-in 460ms var(--ease-out) 40ms both;
+}
+
+/* 2) Work area — editor / section pages on the right */
+.app-main-row-v12 > .work-slot-v12 {
+  order: 2;
+  flex: 1 1 auto;
+  min-width: 0;
+  animation: v13-shell-in 500ms var(--ease-out) 80ms both;
+}
+
+/* chat's right edge hairline (faces the work area) */
+.chat-slot-v12 > .chat-panel-root { border-inline-start: 0; border-inline-end: 1px solid var(--line); }
+
+/* ---- ZEN FOCUS: chat is the ONLY surface --------------------------------
+   App.tsx mirrors focusMode onto <html data-focus>. Focus mode changes NONE of
+   the chat's appearance: no reading measure, no centering, no gutters, no
+   frame, no border/radius/shadow, no margins, no backdrop. The chat keeps its
+   normal look and position (chat LEFT, rail TOP) and simply becomes the single
+   full-width flex item because the work slot and its resizer are hidden —
+   natural full size, never a shrunken framed column. Everything else is the
+   ordinary, non-focus CSS. */
+html[data-focus='on'] .app-main-row-v12 > .chat-slot-v12 {
+  flex: 1 1 auto !important;
+}
+html[data-focus='on'] .chat-resizer { display: none !important; }
+/* Defensive: if any work strip survived a stale render, hide it in focus. */
+html[data-focus='on'] .app-main-row-v12 > .work-slot-v12 { display: none !important; }
+
+/* ---- quiet, single entrance (no bounce) ---- */
+@keyframes v13-shell-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ---- stream reveal: subtle, no blur, no scale (Claude-Code calm) ---- */
+.chat-stream > * { animation: v13-row-in 260ms var(--ease-out) both; }
+@keyframes v13-row-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* phase dot: one soft pulse, no infinite halo */
+.phase-strip .ps-step.is-active .ps-dot { animation: v13-dot 1.8s ease-in-out infinite; }
+@keyframes v13-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+/* caret: steady blink */
+.kb-caret, .stream-caret, [class*='stream-caret'] { animation: v13-caret 1.2s steps(1) infinite !important; }
+@keyframes v13-caret { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+
+/* ---------- file-tree overlay drawer (no screen split) ---------- */
+.sidebar-scrim-v13 {
+  position: absolute;
+  inset: 0;
+  z-index: 39;
+  /* PERF: a 1px backdrop-blur on a viewport-sized scrim costs a full-surface
+     readback for an effect nobody can see. The translucent fill alone gives
+     the same separation — blur removed, opacity-only fade kept. */
+  background: color-mix(in srgb, var(--bg0) 46%, transparent);
+  animation: v13-fade 160ms var(--ease-out) both;
+}
+@keyframes v13-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.sidebar-overlay-v13 {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  inset-inline-end: 10px; /* physical right corner of the work area */
+  z-index: 40;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: var(--sh-float);
+  overflow: hidden;
+  animation: v13-drawer-in 200ms var(--ease-out) both;
+}
+@keyframes v13-drawer-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: none; }
+}
+/* its resize strip is now on the drawer's inner (left) edge */
+.sidebar-overlay-v13 [role='separator'] { left: -5px !important; }
+
+/* ---------- horizontal icon bar — full width, 44px, directly under TitleBar ----------
+   Physical, language-independent: the LTR main axis put the primary group at
+   the physical left and the utility group at the physical right in EN and AR.
+   Flat, hairline separator only. No gradients, no glow, no palette changes. */
+.app-rail-bar-v13 {
+  height: 44px !important;
+  min-height: 44px !important;
+  width: 100% !important;
+  padding: 0 8px !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-top: 0 !important;
+  border-inline-start: 0 !important;
+  border-inline-end: 0 !important;
+  background: var(--bg1) !important;
+  box-sizing: border-box !important;
+  overflow: visible;
+}
+/* RTL must NOT mirror the bar's physical position or group order. */
+html[dir='rtl'] .app-rail-bar-v13 {
+  direction: ltr !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-top: 0 !important;
+  border-inline-start: 0 !important;
+  border-inline-end: 0 !important;
+}
+
+/* scroll row: one line, scrolls horizontally on overflow, scrollbar hidden */
+.rail-bar-scroll {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+  width: 100%;
+  direction: ltr;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.rail-bar-scroll::-webkit-scrollbar { display: none; }
+html[dir='rtl'] .rail-bar-scroll { direction: ltr; }
+
+.rail-bar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+.rail-bar-spacer { flex: 1 1 auto; min-width: 8px; height: 100%; }
+.rail-bar-right { margin-inline-start: auto; }
+
+.rail-bar-btn {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--dim);
+}
+.rail-bar-btn.text-acc { background: var(--hover-2) !important; }
+.rail-bar-btn:hover { background: var(--hover) !important; }
+.rail-bar-btn svg { width: 18px; height: 18px; }
+
+/* git-dirty / open-surface marker — neutral dot, no glow */
+.rail-bar-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--warn);
+  box-shadow: 0 0 0 2px var(--bg1);
+}
+.rail-bar-btn.text-acc .rail-bar-dot { background: var(--acc); }
+
+/* ---------- "More" flyout (opens below the bar button) ---------- */
+.rail-flyout-v12 {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-start: 0;
+  z-index: 80;
+  width: 260px;
+  padding: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--sh-float);
+  animation: v13-fade 140ms var(--ease-out) both;
+}
+.rail-fly-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px 8px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.rail-fly-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+.rail-fly-item,
+.rail-fly-util {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dim);
+  font-size: 12px;
+  text-align: start;
+  cursor: pointer;
+  transition: background 120ms var(--ease-out), color 120ms var(--ease-out);
+}
+.rail-fly-item:hover,
+.rail-fly-util:hover,
+.rail-fly-item.is-active {
+  background: var(--hover);
+  color: var(--ink);
+}
+.rail-fly-no {
+  font-family: var(--font-mono2);
+  font-size: 10px;
+  color: var(--faint);
+}
+.rail-fly-foot {
+  display: flex;
+  gap: 2px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+.rail-fly-foot .rail-fly-util { flex: 1 1 0; justify-content: center; padding: 0 4px; font-size: 11px; }
+
+/* utility cluster (shortcuts · plans · security · files) — same 2-col grammar
+   as the views grid, separated by a hairline + quiet caps label */
+.rail-fly-utils { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); }
+.rail-fly-label {
+  display: block;
+  padding: 2px 6px 5px;
+  font-size: 9.5px;
+  letter-spacing: .09em;
+  color: var(--faint);
+}
+.rail-fly-utils-grid .rail-fly-util { height: 28px; font-size: 11.5px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .app-rail-bar-v13, .app-main-row-v12 > *, .chat-stream > *, .phase-strip .ps-step.is-active .ps-dot,
+  .kb-caret, .stream-caret, [class*='stream-caret'],
+  .plan-toggle, .plan-chev { animation: none !important; transition: none !important; }
+}
+
+/* ============================================================
+   DIFF DELETIONS — founder fix: removed lines must be visibly RED
+   ("a red shallow/removed indicator is missing / hard to see").
+   chat.css (.diffv-*) and workspace.css (.sc-diff-pre .dline-*)
+   own the base diff grammar; these stable overrides only repoint
+   the DELETION tone to --diff-del-red (tokens.css) so every theme
+   keeps a readable red. Additions stay lime, hunk headers / file
+   meta stay quiet, and no non-diff rule is touched.
+
+   NOTE ON SPECIFICITY: shell.css is imported before chat.css and
+   workspace.css, so equal-specificity selectors would lose the
+   cascade. Each override below is deliberately one level more
+   specific than its base rule; no !important is needed.
+   ============================================================ */
+
+/* chat-stream DiffView.tsx — unified/split rows + word-level spans */
+.diffv .diffv-del {
+  background: color-mix(in srgb, var(--diff-del-red) 13%, transparent);
+}
+.diffv .diffv-del .diffv-sign,
+.diffv .diffv-del .diffv-code {
+  color: var(--diff-del-red);
+}
+/* whole removed lines in the chat diff carry a red strike so "removed"
+   reads at a glance; word-level replacements keep their own strike below */
+.diffv .diffv-del .diffv-code {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--diff-del-red) 55%, transparent);
+}
+.diffv .diffv-wdel {
+  background: color-mix(in srgb, var(--diff-del-red) 22%, transparent);
+  text-decoration-color: var(--diff-del-red);
+}
+
+/* modal patch viewer DiffModal.tsx — .sc-diff-pre .dline-del rows */
+.sc-diff-pre .dline-del.dline-del {
+  background: color-mix(in srgb, var(--diff-del-red) 11%, transparent);
+}
+.sc-diff-pre .dline-del.dline-del .dl-sign,
+.sc-diff-pre .dline-del.dline-del .dl-text {
+  color: var(--diff-del-red);
+}
+
+/* In-app reduce-motion: park the two v13-fade entrances at their visible end
+   state (base opacity is 1). The OS-preference guard already freezes them. */
+html.reduce-motion .sidebar-scrim-v13,
+html.reduce-motion .rail-flyout-v12,
+html.reduce-motion .plan-toggle,
+html.reduce-motion .plan-chev {
+  animation: none !important;
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+/* ============================================================
+   v11.34 — UPDATE-PLAN STRIP → PRECISE HAIRLINE BUTTON
+   The always-open todo card used to eat a full-width strip of the chat.
+   It is now a compact, boxless BUTTON: one hairline rule, the bilingual
+   "Update plan" label, a tabular done/total count and a 2px progress
+   hairline. The expanded panel reuses the same hairline grammar — no
+   background box, no shadow, no gradient. Every todo stays reachable.
+   ============================================================ */
+.plan-dock {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.plan-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-height: 22px;
+  padding: 2px 2px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--dim);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--chat-meta, 13px);
+  line-height: 1.3;
+  text-align: start;
+  transition: color 120ms var(--ease-out), border-color 120ms var(--ease-out);
+}
+.plan-toggle:hover { color: var(--ink); border-bottom-color: var(--acc); }
+.plan-toggle:focus-visible { outline: 1px solid var(--acc); outline-offset: 2px; }
+.plan-toggle-label {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+html[dir='rtl'] .plan-toggle-label,
+html[lang='ar'] .plan-toggle-label { text-transform: none; letter-spacing: 0; }
+.plan-toggle-count {
+  font-family: var(--font-mono2, var(--font-mono-x, monospace));
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--ink);
+}
+.plan-toggle-meter {
+  display: block;
+  width: 32px;
+  height: 2px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--hover-2);
+  overflow: hidden;
+}
+.plan-toggle-meter > span { display: block; height: 100%; background: var(--acc); }
+.plan-chev { flex: 0 0 auto; transition: transform 140ms var(--ease-out); }
+.plan-chev.is-open { transform: rotate(180deg); }
+.plan-detail {
+  padding: 6px 2px 2px;
+  border-bottom: 1px solid var(--line);
+}
+.plan-detail-meter {
+  height: 2px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--hover-2);
+  overflow: hidden;
+}
+.plan-detail-meter > div { height: 100%; background: var(--acc); }
+
+/* keyboard-accessible resize separator: a visible focus treatment while the
+   hairline stays 1px and boxless. */
+.chat-resizer:focus-visible {
+  outline: 1px solid var(--acc);
+  outline-offset: -1px;
+  background: color-mix(in srgb, var(--acc) 40%, transparent);
+}

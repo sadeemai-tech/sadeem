@@ -1,0 +1,192 @@
+/* ==================================================================
+   VISUALS — self-contained styles for the reusable art components.
+   Every colour comes from the design tokens in app/globals.css, so the
+   pieces stay at home in light + dark. Decorative only (aria-hidden).
+   No heavy blur, no gradients that fight the ink-on-paper identity.
+   All motion obeys the same kill switches as the shared art layer:
+     @media (prefers-reduced-motion: reduce), html.reduce-motion,
+     html[data-art='off']  (and data-cursor='off' for the halo).
+   Imported by the component modules so it is drop-in from any page.
+   ================================================================== */
+
+/* ------------------------------------------------------------------
+   1 — OrbitConstellation: 1px orbital rings + golden-angle nodes.
+   A slow scroll-linked spin and a fine pointer parallax. All movement
+   is transform/opacity; SVG geometry is resolution independent, so
+   there is no device-pixel-ratio canvas work to cap.
+   ------------------------------------------------------------------ */
+.oc{display:block;overflow:visible;color:var(--faint);contain:layout paint}
+.oc-ring{fill:none;stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}
+.oc-ring:nth-child(even){stroke-dasharray:1 3;opacity:.7}
+.oc-chord{stroke:var(--line-soft);stroke-width:1;vector-effect:non-scaling-stroke}
+.oc-node{--pulse-lo:.32;fill:var(--faint);opacity:.55;
+  animation:oc-pulse 3.8s var(--ease-art) infinite;
+  animation-delay:calc(var(--i,0)*170ms);animation-play-state:paused}
+.oc-node--accent{--pulse-lo:.62;fill:var(--accent)}
+.oc[data-active='true'] .oc-node{animation-play-state:running}
+@keyframes oc-pulse{0%,100%{opacity:var(--pulse-lo)}50%{opacity:1}}
+.oc-core-ring{fill:none;stroke:var(--line-strong);stroke-width:1;vector-effect:non-scaling-stroke}
+.oc-core-cross{fill:none;stroke:var(--accent);stroke-width:1;vector-effect:non-scaling-stroke;opacity:.8}
+.oc-core-dot{fill:var(--accent)}
+.oc-label{font-family:var(--mono);font-size:3px;letter-spacing:.22em;fill:currentColor;opacity:.8}
+
+/* ------------------------------------------------------------------
+   2 — InkFlow: hairlines that trace themselves on scroll, plus one
+   restrained accent trickle that travels the primary path.
+   ------------------------------------------------------------------ */
+.if{display:block;width:100%;overflow:hidden;color:var(--faint);contain:layout paint}
+.if-path{fill:none;stroke:var(--line-strong);stroke-width:1;vector-effect:non-scaling-stroke;
+  stroke-dasharray:1;stroke-dashoffset:1;
+  transition:stroke-dashoffset var(--art-rule-dur) var(--ease-art) calc(var(--if-delay,0ms) + var(--i,0)*120ms)}
+.if[data-drawn='true'] .if-path{stroke-dashoffset:0}
+.if-path:nth-child(even){stroke:var(--line)}
+.if-flow{fill:none;stroke:var(--accent);stroke-width:1;vector-effect:non-scaling-stroke;
+  stroke-dasharray:.05 .95;stroke-dashoffset:0;opacity:0}
+.if[data-drawn='true'] .if-flow{opacity:.55;
+  animation:if-travel 7s linear infinite;animation-play-state:paused}
+.if[data-active='true'] .if-flow{animation-play-state:running}
+@keyframes if-travel{to{stroke-dashoffset:-1}}
+.if-node{opacity:0;transition:opacity .5s var(--ease-art) calc(var(--i,0)*150ms + 500ms)}
+.if[data-drawn='true'] .if-node{opacity:1}
+.if-node-halo{fill:none;stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}
+.if-node-dot{fill:var(--faint)}
+.if-node-dot--accent{fill:var(--accent)}
+.if-label{font-family:var(--mono);font-size:11px;letter-spacing:.18em;fill:currentColor;opacity:.75}
+
+/* ------------------------------------------------------------------
+   3 — PrecisionGrid: drafting grid + registration marks that draw in
+   on scroll, with a subtle scroll-linked vertical drift.
+   ------------------------------------------------------------------ */
+.pg{display:block;width:100%;overflow:hidden;color:var(--faint);contain:layout paint}
+.pg-line{stroke:var(--line-soft);stroke-width:1;vector-effect:non-scaling-stroke;
+  stroke-dasharray:1;stroke-dashoffset:1;
+  transition:stroke-dashoffset 1.1s var(--ease-art) calc(var(--i,0)*20ms)}
+.pg[data-drawn='true'] .pg-line{stroke-dashoffset:0}
+.pg-line--v:nth-child(5n+1),.pg-line--h:nth-child(5n+1){stroke:var(--line)}
+.pg-mark{opacity:0;transform:scale(.25);transform-box:fill-box;transform-origin:center;
+  transition:opacity .6s var(--ease-art) calc(var(--i,0)*130ms + 280ms),
+             transform .6s var(--ease-art) calc(var(--i,0)*130ms + 280ms)}
+.pg[data-drawn='true'] .pg-mark{opacity:1;transform:scale(1)}
+.pg-mark-h,.pg-mark-v{stroke:var(--line-strong);stroke-width:1;vector-effect:non-scaling-stroke}
+.pg-mark-dot{fill:var(--accent)}
+.pg-tick{stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke;opacity:0;
+  transition:opacity .5s var(--ease-art) 620ms}
+.pg[data-drawn='true'] .pg-tick{opacity:1}
+.pg-label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;fill:currentColor;opacity:.8}
+
+/* ------------------------------------------------------------------
+   InkReveal 'draw' — a fine crosshair frame that traces around the
+   content as it reveals. Purely additive; rise/clip are untouched.
+   ------------------------------------------------------------------ */
+.ink-reveal[data-variant='draw']{position:relative}
+.ir-frame{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:visible;color:var(--faint)}
+.ir-frame__line{fill:none;stroke:var(--line-strong);stroke-width:1;vector-effect:non-scaling-stroke;
+  stroke-dasharray:1;stroke-dashoffset:1;
+  transition:stroke-dashoffset var(--art-dur) var(--ease-art) calc(var(--ir-delay,0ms) + var(--i,0)*110ms)}
+.ink-reveal[data-variant='draw'][data-in='true'] .ir-frame__line{stroke-dashoffset:0}
+.ir-frame__cross{fill:none;stroke:var(--accent);stroke-width:1;vector-effect:non-scaling-stroke;
+  opacity:0;transform:scale(.4);transform-box:fill-box;transform-origin:center;
+  transition:opacity .5s var(--ease-art) 420ms,transform .5s var(--ease-art) 420ms}
+.ink-reveal[data-variant='draw'][data-in='true'] .ir-frame__cross{opacity:.85;transform:scale(1)}
+
+/* ------------------------------------------------------------------
+   CursorHalo — a second, slower registration ring that trails the
+   primary 8px ring. The primary ring is unchanged; this only adds.
+   ------------------------------------------------------------------ */
+.art-cursor__ring{position:absolute;top:50%;left:50%;width:22px;height:22px;
+  border:1px solid var(--line-soft);border-radius:50%;
+  transform:translate(-50%,-50%);pointer-events:none;opacity:.7;will-change:transform}
+
+/* ------------------------------------------------------------------
+   GlassLayer — calmer refraction. A double class raises specificity so
+   these overrides win regardless of stylesheet order, without editing
+   the shared system. Less saturation, a softer drop shadow, and the
+   same token-only inner highlight.
+   ------------------------------------------------------------------ */
+.glass-layer.glass-layer{--glass-sat:var(--glass-sat-local,1.08);
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow:inset 0 1px 0 var(--glass-highlight),
+             inset 0 0 0 1px color-mix(in srgb,var(--paper) 5%,transparent),
+             0 10px 30px -28px color-mix(in srgb,var(--ink) 45%,transparent)}
+.glass-layer.glass-layer[data-refraction='regular']{--glass-sat-local:1.3}
+/* fine specular hairline along the top edge — a hint of polished glass */
+.glass-layer__sheen{position:absolute;left:8%;right:8%;top:0;height:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--glass-highlight) 18%,var(--glass-highlight) 82%,transparent);
+  opacity:.5}
+html[data-theme='dark'] .glass-layer__sheen{opacity:.28}
+
+/* ------------------------------------------------------------------
+    8 — InstrumentDial: a centred engineering instrument. 1px graduated
+    rings, cardinal registration, one slow orbiting node with a light
+    trail, a counter-rotating dotted ring and a patient core pulse.
+    Transform / opacity only; paused offscreen or hidden; token-only.
+    ------------------------------------------------------------------ */
+.idial{display:block;overflow:hidden;color:var(--faint);pointer-events:none;contain:layout paint}
+.idial [stroke]{vector-effect:non-scaling-stroke}
+.id-ring{fill:none;stroke:var(--line);stroke-width:1}
+.id-ring--soft{stroke:var(--line-soft);stroke-dasharray:2 4}
+.id-ring--dotted{stroke:var(--line);stroke-width:1;stroke-dasharray:1 9;opacity:.7}
+.id-ring--dash{stroke:var(--line-soft);stroke-dasharray:10 6}
+.id-ring--strong{stroke:var(--line-strong)}
+.id-tick{stroke:var(--line);stroke-width:1}
+.id-tick--major{stroke:var(--line-strong)}
+.id-reg line{stroke:var(--line-strong);stroke-width:1}
+.id-satellites circle{fill:var(--accent);opacity:.4}
+.id-trail{fill:none;stroke:var(--accent);stroke-width:1.5;opacity:.12}
+.id-trail--bright{stroke-width:1;opacity:.6}
+.id-node-halo{fill:none;stroke:var(--accent);stroke-width:1;opacity:.35}
+.id-node-dot{fill:var(--accent)}
+.id-node-glint{fill:var(--paper)}
+.id-core-ring{fill:none;stroke:var(--line-strong);stroke-width:1}
+.id-core-cross{fill:none;stroke:var(--accent);stroke-width:1;opacity:.8}
+.id-core-dot{fill:var(--accent)}
+.id-label{font-family:var(--mono);font-size:4px;letter-spacing:.16em;fill:currentColor}
+.id-label--caption{opacity:.8}
+.id-label--readout{opacity:.65}
+
+/* motion — paused until the dial is on screen (data-active from the component) */
+.id-orbit,.id-spin-rev,.id-pulse{transform-box:view-box;transform-origin:100px 100px;
+  animation-play-state:paused;will-change:transform}
+.id-orbit{animation:id-orbit var(--id-orbit,26s) linear infinite}
+.id-spin-rev{animation:id-orbit calc(var(--id-orbit,26s) * 3) linear infinite reverse}
+.id-pulse{animation:id-pulse var(--id-pulse,4.8s) var(--ease-art) infinite;will-change:transform,opacity}
+.idial[data-active='true'] .id-orbit,
+.idial[data-active='true'] .id-spin-rev,
+.idial[data-active='true'] .id-pulse{animation-play-state:running}
+@keyframes id-orbit{to{transform:rotate(360deg)}}
+@keyframes id-pulse{0%,100%{opacity:.55;transform:scale(.97)}50%{opacity:1;transform:scale(1.03)}}
+
+/* kill switches: the dial resolves to a complete, static instrument */
+@media (prefers-reduced-motion:reduce){
+  .id-orbit,.id-spin-rev,.id-pulse{animation:none!important;opacity:1!important;transform:none!important}
+}
+html.reduce-motion .id-orbit,html.reduce-motion .id-spin-rev,html.reduce-motion .id-pulse,
+html[data-art='off'] .id-orbit,html[data-art='off'] .id-spin-rev,html[data-art='off'] .id-pulse{
+  animation:none!important;opacity:1!important;transform:none!important
+}
+@media (forced-colors:active){.idial{display:none}}
+
+/* ------------------------------------------------------------------
+   Reduced motion / kill switches — everything resolves to its final,
+   legible static state. No looping animation, no hidden geometry.
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion:reduce){
+  .oc-node,.if-flow{animation:none!important;opacity:.8}
+  .if-path,.pg-line,.pg-mark,.pg-tick,.ir-frame__line,.ir-frame__cross{
+    transition:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}
+  .if-flow{display:none}
+  .art-cursor__ring{display:none}
+  .glass-layer.glass-layer{transition:none!important}
+}
+html.reduce-motion .oc-node,html.reduce-motion .if-flow,
+html[data-art='off'] .oc-node,html[data-art='off'] .if-flow{animation:none!important;opacity:.8}
+html.reduce-motion .if-path,html.reduce-motion .pg-line,html.reduce-motion .pg-mark,
+html.reduce-motion .pg-tick,html.reduce-motion .ir-frame__line,html.reduce-motion .ir-frame__cross,
+html[data-art='off'] .if-path,html[data-art='off'] .pg-line,html[data-art='off'] .pg-mark,
+html[data-art='off'] .pg-tick,html[data-art='off'] .ir-frame__line,html[data-art='off'] .ir-frame__cross{
+  transition:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}
+html.reduce-motion .if-flow,html[data-art='off'] .if-flow,
+html.reduce-motion .art-cursor__ring,html[data-art='off'] .art-cursor__ring{display:none}
+html.reduce-motion .glass-layer.glass-layer,html[data-art='off'] .glass-layer.glass-layer{transition:none!important}
+@media (forced-colors:active){.oc,.if,.pg,.ir-frame,.art-cursor__ring{display:none}}

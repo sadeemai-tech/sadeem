@@ -1,0 +1,80 @@
+{
+  "name": "sadeem-cli",
+  "productName": "SADEEM",
+  "version": "11.12.1",
+  "description": "SADEEM — the full AI coding agent in your terminal. Same engine as the desktop app: 145 tools, real approvals, persistent memory, BYOK/local-first models. npm i -g sadeem, then sadeem run \"<task>\" or just sadeem for an interactive REPL.",
+  "main": "dist-electron/electron/main.js",
+  "bin": {
+    "sadeem": "dist-cli/surnia.cjs",
+    "kodex": "dist-cli/kodex.cjs"
+  },
+  "files": [
+    "dist-cli",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "SADEEM",
+    "email": "sadeem@app.local"
+  },
+  "private": false,
+  "dependencies": {
+    "@fontsource/cairo": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
+    "@fontsource/inter": "^5.1.0",
+    "@monaco-editor/react": "^4.6.0",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "diff": "^5.1.0",
+    "electron-updater": "^6.8.11",
+    "highlight.js": "^11.10.0",
+    "lottie-web": "^5.13.0",
+    "lucide-react": "^0.469.0",
+    "monaco-editor": "^0.52.2",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "rehype-highlight": "^7.0.1",
+    "remark-gfm": "^4.0.0",
+    "zustand": "^5.0.2"
+  },
+  "allowScripts": {
+    "electron@45.4.1": true,
+    "esbuild@0.24.2": true,
+    "esbuild@0.21.5": true
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "build": "vite build && node scripts/post-build.mjs",
+    "build:electron": "esbuild electron/main.ts --bundle --platform=node --format=cjs --outfile=dist-electron/electron/main.js --external:electron && esbuild electron/preload.ts --bundle --platform=node --format=cjs --outfile=dist-electron/electron/preload.js --external:electron",
+    "build:cli": "esbuild electron/agent/cli.ts --bundle --platform=node --format=cjs --outfile=dist-cli/kodex.cjs --external:electron && node -e \"require('fs').copyFileSync('dist-cli/kodex.cjs','dist-cli/surnia.cjs')\"",
+    "cli": "node dist-cli/surnia.cjs",
+    "test:cli": "node --test --test-force-exit tests/v1142-cli.test.mjs",
+    "full": "npm run typecheck && npm run build && npm run build:electron && npm run build:cli",
+    "test": "node --test --test-force-exit --test-concurrency=4 tests/*.test.mjs",
+    "dist:win": "electron-builder --win nsis zip",
+    "dist:store": "node scripts/store-preflight.mjs && npm run full && node scripts/store-assets.mjs && electron-builder --win appx",
+    "dist:store:check": "node scripts/store-preflight.mjs",
+    "dist:store:assets": "node scripts/store-assets.mjs",
+    "test:e2e": "node --test --test-force-exit tests/e2e-scenario-game.mjs tests/e2e-scenario-hospital.mjs tests/e2e-scenario-bacteria.mjs tests/e2e-scenario-rare.mjs tests/tool-coverage-all.mjs"
+  },
+  "devDependencies": {
+    "@types/diff": "^7.0.2",
+    "@types/node": "^20.19.43",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.6.2",
+    "electron": "^45.4.1",
+    "electron-builder": "^26.0.12",
+    "esbuild": "^0.24.2",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21"
+  }
+}

@@ -1,0 +1,535 @@
+/* ============================================================
+   Surnia — Liquid Glass v7 design core
+   ------------------------------------------------------------
+   Apple-Liquid-Glass-grade material layer. Imported as the
+   FIRST line of styles.css, so:
+     · every rule here is UNLAYERED → out-ranks Tailwind layers
+     · styles.css re-maps its legacy tokens/aliases onto this
+       ladder (radii, fonts, glass fills) — the v7 values below
+       are the canonical source for names styles.css doesn't
+       re-define (edge, aurora, --sh1..--sh4 depth, blur steps)
+   Doctrine: concentric radii · true specular edges · low-blur
+   chrome vs deep-blur floats · one aurora field behind glass ·
+   every effect degrades under data-glass="off",
+   html[data-specular="off"], prefers-reduced-motion and
+   prefers-reduced-transparency.
+   ============================================================ */
+
+/* ---------- type: the two-font law (Cairo · Arabic + Inter · Latin; IBM Plex Mono for code only) ---------- */
+/* v11.1 — Cairo (variable, 200–1000): the Arabic UI face, on the user's
+   explicit request. Arabic + latin subsets with unicode-range so digits
+   and Latin fragments inside Arabic text render consistently. */
+@font-face {
+  font-family: 'Cairo';
+  src: url('./fonts/Cairo-arabic.woff2') format('woff2');
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1,
+    U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF,
+    U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: 'Cairo';
+  src: url('./fonts/Cairo-latin.woff2') format('woff2');
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215;
+}
+
+
+/* v11.2 — the website's faces, bundled (sadeem.dev identity):
+   Inter (Latin UI) · IBM Plex Mono (code only) — v11.5 palette+font law. */
+@font-face { font-family: 'Inter'; src: url('./fonts/Inter-400-normal-latin.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url('./fonts/Inter-500-normal-latin.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url('./fonts/Inter-600-normal-latin.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'IBM Plex Mono'; src: url('./fonts/IBMPlexMono-400-normal-latin.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'IBM Plex Mono'; src: url('./fonts/IBMPlexMono-500-normal-latin.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'IBM Plex Mono'; src: url('./fonts/IBMPlexMono-600-normal-latin.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+
+/* v11.12b — the website's editorial DISPLAY serif. Latin headings only.
+   The explicit unicode-range claims ONLY Latin / Latin-Extended / Turkish
+   codepoints + common punctuation: Arabic (U+0600–06FF, presentation
+   forms, etc.) is therefore never matched to this face and falls through
+   the token stack to Cairo — so no Arabic title can render in a Latin
+   serif (or tofu) even before the RTL guards kick in. Georgia / Times in
+   --font-display-serif cover any Latin glyph the bundled subset misses.
+   Never applied to body, code, numerals or tool chips. */
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('./fonts/InstrumentSerif-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F, U+20AC, U+2122,
+    U+2191-2193, U+2212, U+2215;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('./fonts/InstrumentSerif-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F, U+20AC, U+2122,
+    U+2191-2193, U+2212, U+2215;
+}
+
+/* ---------- font stacks (v11.5.0 — THE TWO-FONT LAW.
+   Cairo (Arabic) + Inter (Latin) on every surface; IBM Plex Mono
+   strictly for code/terminal text. Nothing else is registered.) ---------- */
+:root {
+  --font-app: 'Inter', 'Cairo', system-ui, sans-serif;
+  --font-app-ar: 'Cairo', 'Inter', system-ui, sans-serif;
+  /* v11.12 — DISPLAY/headings only. Body, code, numerals and tool
+     chips keep their own tokens and are untouched by this face. */
+  --font-display: var(--font-display-serif);
+  --font-mono-x: 'IBM Plex Mono', Menlo, Consolas, monospace;
+}
+html {
+  font-family: var(--font-app);
+}
+html[lang='ar'],
+html[dir='rtl'] {
+  font-family: var(--font-app-ar);
+  /* Arabic headings never fall back to a serif that cannot render
+     the script — Cairo wins for every --font-display consumer. */
+  --font-display: var(--font-display-ar);
+}
+/* Arabic body text breathes wider; never tracked */
+html[lang='ar'] body {
+  line-height: 1.75;
+}
+/* display voice — Latin: Inter (weight 800), Arabic: Cairo (no letter-spacing) */
+.display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+html[lang='ar'] .display,
+html[dir='rtl'] .display,
+html[lang='ar'] .font-display,
+html[dir='rtl'] .font-display {
+  font-family: var(--font-display-ar);
+  letter-spacing: 0;
+}
+
+/* ============================================================
+   v7 core tokens
+   ============================================================ */
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+:root {
+  /* ---------- concentric radius ladder ----------
+     Child radius = parent radius − padding. styles.css maps its
+     legacy --r-* aliases onto these. */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+  --r-pill: 9999px;
+
+  /* ---------- blur ladder ---------- */
+  --blur-1: 8px;
+  --blur-2: 16px;
+  --blur-3: 24px;
+
+  /* ---------- depth shadows ----------
+     NOTE: --s1..--s6 are SPACING tokens consumed by live
+     components, so the v7 shadow ladder uses --sh1..--sh4. */
+  --sh1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sh2: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --sh3: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --sh4: 0 16px 70px rgba(0, 0, 0, 0.6);
+
+  /* ---------- motion + specular edges ---------- */
+  --ease-glass: cubic-bezier(0.32, 0.72, 0, 1);
+  --edge-hi: rgba(255, 255, 255, 0.5);
+  --edge-hi2: rgba(255, 255, 255, 0.25);
+
+  /* ---------- aurora v2 blob colors ----------
+     Indigo/violet/teal cores bled toward the live theme accents
+     (auto-adapts to data-theme + data-accent remaps). */
+  --aurora-a: color-mix(in srgb, var(--acc) 32%, #b0e35f);
+  --aurora-b: color-mix(in srgb, var(--acc2) 36%, #a7a7a7);
+  --aurora-c: color-mix(in srgb, var(--acc2) 48%, #5c8618);
+  --aurora-opacity: 0.34;
+}
+
+/* per-theme adaptation: edge heat + aurora dose */
+html[data-theme='midnight'] {
+  --edge-hi: rgba(255, 255, 255, 0.42);
+  --edge-hi2: rgba(255, 255, 255, 0.2);
+  --aurora-opacity: 0.32;
+}
+/* light (paper): white edges still read on tinted glass, but the
+   wash must stay a whisper or the paper muddies */
+html[data-theme='light'] {
+  --edge-hi: rgba(255, 255, 255, 0.65);
+  --edge-hi2: rgba(255, 255, 255, 0.35);
+  --aurora-opacity: 0.18;
+}
+/* soft (v5 default): the aurora field is nearly silent — soft modern
+   wants calm daylight, not a light show */
+html[data-theme='soft'] {
+  --edge-hi: rgba(255, 255, 255, 0.72);
+  --edge-hi2: rgba(255, 255, 255, 0.4);
+  --aurora-opacity: 0.07;
+}
+
+/* ============================================================
+   NEW utility — .spec-ring
+   Rotating conic specular border drawn with a masked ::after.
+   Combine with any rounded surface. Yields cleanly when the
+   node also carries .tick-frame (the corner ticks step aside).
+   ============================================================ */
+.spec-ring {
+  position: relative;
+}
+.spec-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: color-mix(in srgb, var(--acc) 28%, transparent);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0.9;
+  pointer-events: none;
+  /* v3.1: 3 iterations on mount — the ring used to spin FOREVER on every
+     modal, a constant compositing tax. Hover/focus re-run it (3 more);
+     an explicit .spec-ring--live opts back into the eternal rotation. */
+  animation: spec-ring-spin 8s linear 3;
+}
+@keyframes spec-ring-spin {
+  to {
+    --border-angle: 360deg;
+  }
+}
+/* hover/focus retrigger: a second keyframe alias restarts the sweep for
+   exactly 3 iterations per interaction (identical shorthands never restart) */
+@keyframes spec-ring-spin-2 {
+  to {
+    --border-angle: 360deg;
+  }
+}
+.spec-ring:hover::after,
+.spec-ring:focus-within::after {
+  animation-name: spec-ring-spin-2;
+}
+/* explicit live mode — nothing opts in by default */
+.spec-ring--live::after {
+  animation: spec-ring-spin 8s linear infinite;
+}
+/* corner ticks yield to the rotating ring on the same node */
+.spec-ring.tick-frame::before {
+  content: none;
+}
+.spec-ring.tick-frame::after {
+  width: auto;
+  height: auto;
+  border: 0;
+  opacity: 0.9;
+}
+html[data-specular='off'] .spec-ring::after {
+  content: none;
+}
+
+/* ============================================================
+   NEW utility — .grain
+   SVG feTurbulence noise film, overlay-blended at 5%. Opt-in
+   for any surface; .glass-strong/.glass-menu get the baked
+   background-image variant in styles.css (pseudo-safe).
+   ============================================================ */
+.grain {
+  position: relative;
+}
+.grain.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g7'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23g7)' opacity='1'/></svg>");
+  background-size: 160px 160px;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+}
+
+/* ============================================================
+   NEW utility — .glass-panel--scrolled
+   Scroll-edge fade for tall glass panels; apply when the
+   container reports scrollTop > 0 (JS toggles the class).
+   ============================================================ */
+.glass-panel--scrolled {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 24px,
+    #000 calc(100% - 24px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 24px,
+    #000 calc(100% - 24px),
+    transparent 100%
+  );
+}
+
+/* ============================================================
+   Micro-interaction utilities
+   ============================================================ */
+.press {
+  transition: transform 0.2s var(--ease-glass);
+}
+.press:active {
+  transform: scale(0.96);
+}
+
+/* rest carries s2, hover escalates to s3 (+1px lift) */
+.lift.lift {
+  transition: transform 0.25s var(--ease-glass), box-shadow 0.25s var(--ease-glass);
+}
+.lift.lift:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--sh3);
+}
+
+.focus-glass:focus-visible {
+  /* v3.1: outline-based so the host element's own box-shadow stack
+     (.btn keycap insets, glass float shadows) survives the focus ring */
+  outline: 2px solid color-mix(in srgb, var(--acc) 60%, transparent);
+  outline-offset: 2px;
+}
+
+/* PERF: the sweep is a compositor-only TRANSLATE of a highlight overlay, not
+   a background-position slide of the whole surface (which repainted every
+   skeleton row on every frame). The base stays a flat token fill. */
+@keyframes skeleton-sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: var(--hover-2);
+}
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    color-mix(in srgb, var(--ink) 9%, transparent) 45%,
+    transparent 65%
+  );
+  transform: translateX(-100%);
+  animation: skeleton-sweep 1.6s linear infinite;
+  will-change: transform;
+}
+
+@keyframes glass-pop {
+  from {
+    transform: scale(0.96) translateY(4px);
+    opacity: 0;
+  }
+}
+.anim-glass-pop {
+  animation: glass-pop 0.25s var(--ease-glass) both;
+}
+
+@keyframes msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+/* doubled class = beats .anim-in when components pair both */
+.msg-in,
+.msg-in.msg-in {
+  animation: msg-in 0.3s var(--ease-glass) both;
+}
+
+/* ============================================================
+   Aurora v2 — replaces the v6 body::after field
+   ONE animated gradient field on body::after (26s alternate),
+   while body::before keeps the static v5 base ambience.
+   data-ambient='off' (or a missing 'on'/'soft') leaves the calm
+   v5 base ambience only.
+   PERF CONTRACT (v2.4.1): wide-gradient falloff instead of
+   filter: blur(); a single animated layer; no will-change. The
+   earlier two-layer 60vmax + blur(80px) version crashed software
+   compositors (SwiftShader / RDP / low-end laptops) — this one
+   must stay cheap enough to survive them.
+   ============================================================ */
+html[data-ambient='on'] body::after,
+html[data-ambient='soft'] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: none;
+  opacity: 0;
+  transform: translate3d(0, 0, 0);
+  animation: aurora-drift-a 26s var(--ease-glass) infinite alternate;
+}
+html[data-ambient='soft'] body::after {
+  opacity: 0.18;
+}
+@keyframes aurora-drift-a {
+  from {
+    transform: translate3d(-2%, -1.4%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2%, 1.8%, 0) scale(1.06);
+  }
+}
+
+/* ---------- motion-speed scaling (data-motion + --motion-scale) ---------- */
+[data-motion] .spec-ring::after {
+  animation-duration: calc(8s / var(--motion-scale, 1));
+}
+[data-motion] .skeleton-shimmer::after {
+  animation-duration: calc(1.6s / var(--motion-scale, 1));
+}
+[data-motion] .anim-glass-pop {
+  animation-duration: calc(0.25s / var(--motion-scale, 1));
+}
+[data-motion] .msg-in,
+[data-motion] .msg-in.msg-in {
+  animation-duration: calc(0.3s / var(--motion-scale, 1));
+}
+[data-motion] .press {
+  transition-duration: calc(0.2s / var(--motion-scale, 1));
+}
+[data-motion] .lift.lift {
+  transition-duration: calc(0.25s / var(--motion-scale, 1));
+}
+[data-motion][data-ambient] body::after {
+  animation-duration: calc(26s / var(--motion-scale, 1));
+}
+[data-motion][data-ambient] body::before {
+  animation-duration: calc(32s / var(--motion-scale, 1));
+}
+
+/* ============================================================
+   html[data-specular='off'] — specularEdges=false
+   Every inset white highlight collapses: the edge tokens zero
+   out (token-composed shadows self-collapse) and the specular
+   surfaces fall back to pure depth shadows.
+   ============================================================ */
+:root[data-specular='off'] {
+  --edge-hi: rgba(255, 255, 255, 0);
+  --edge-hi2: rgba(255, 255, 255, 0);
+}
+:root[data-specular='off'] .glass,
+:root[data-specular='off'] .glass-strong,
+:root[data-specular='off'] .glass-menu,
+:root[data-specular='off'] .glass-chrome,
+:root[data-specular='off'] .glass-dock,
+:root[data-specular='off'] .glass-strip,
+:root[data-specular='off'] .toast {
+  box-shadow: var(--glass-shadow);
+}
+:root[data-specular='off'] .card {
+  box-shadow: none;
+}
+
+/* ============================================================
+   Degradation gates — REQUIRED for every v7 effect
+   ============================================================ */
+
+/* user / OS reduced motion: ring freezes static, springs and
+   sweeps stop, aurora freezes (field stays as a still wash) */
+@media (prefers-reduced-motion: reduce) {
+  /* v3.1: the kill must also beat the :hover/:focus-within retrigger
+     (higher specificity) and the explicit --live opt-in */
+  .spec-ring::after,
+  .spec-ring:hover::after,
+  .spec-ring:focus-within::after,
+  .spec-ring--live::after {
+    animation: none;
+  }
+  .anim-glass-pop,
+  .msg-in,
+  .msg-in.msg-in {
+    animation: none;
+  }
+  .skeleton-shimmer::after {
+    animation: none;
+    display: none;
+  }
+  .press,
+  .lift.lift {
+    transition: none;
+  }
+  .press:active {
+    transform: none;
+  }
+  .lift.lift:hover {
+    transform: none;
+  }
+  html[data-ambient='on'] body::after,
+  html[data-ambient='on'] body::before,
+  html[data-ambient='soft'] body::after,
+  html[data-ambient='soft'] body::before {
+    animation: none;
+  }
+}
+/* in-app reduce-motion toggle (settings.css also force-kills *) */
+html.reduce-motion .spec-ring::after,
+html.reduce-motion .anim-glass-pop,
+html.reduce-motion .msg-in,
+html.reduce-motion .skeleton-shimmer::after {
+  animation: none !important;
+}
+html.reduce-motion .skeleton-shimmer::after { display: none !important; }
+html.reduce-motion .press,
+html.reduce-motion .lift.lift {
+  transition: none !important;
+}
+html.reduce-motion .press:active,
+html.reduce-motion .lift.lift:hover {
+  transform: none !important;
+}
+html.reduce-motion body::after,
+html.reduce-motion body::before {
+  animation: none !important;
+}
+
+/* OS reduced transparency: specular ring is pure specular — off.
+   The aurora is a transparency effect — off. (Ambient kills for
+   the legacy pseudo also live in styles.css.) */
+@media (prefers-reduced-transparency: reduce) {
+  .spec-ring::after {
+    content: none;
+  }
+  html[data-ambient='on'] body::after,
+  html[data-ambient='on'] body::before,
+  html[data-ambient='soft'] body::after,
+  html[data-ambient='soft'] body::before {
+    content: none !important;
+  }
+  .grain.grain::after {
+    opacity: 0.03;
+  }
+}

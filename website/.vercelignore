@@ -1,0 +1,12 @@
+# Vercel has a 100 MB per-file limit. Release binaries are far larger.
+# They are kept in <repo>/release/ and published to a file host / GitHub Releases.
+public/downloads/*
+!public/downloads/.gitkeep
+
+# Local docs and development files never needed on the site.
+# ANCHORED with a leading slash: an unanchored `docs/` also matches app/docs/
+# and drops the DOCUMENTATION PAGE from the deployed site (404).
+/docs/
+ VERCEL-DEPLOY.md
+serve.mjs
+*.log

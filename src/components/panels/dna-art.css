@@ -1,0 +1,212 @@
+/* ============================================================
+   SADEEM — dna-art.css  (STABLE, version-free)
+   Editorial skin for DnaPanel only. Scoped under `.art-dna`.
+   The identity sheet is ruled with hairlines (no gradients) and
+   carries a geometric seal; the playbook evolution timeline uses
+   EVEN node spacing derived from real revision versions. Only
+   var(--…) / currentColor. Motion guarded twice.
+   ============================================================ */
+
+.page-v14.page-v14.art-dna {
+  --pv-text: 13px;
+  --pv-meta: 11.5px;
+  --pv-label: 10.5px;
+}
+.page-v14.page-v14.art-dna.art-dna { min-width: 0; }
+.page-v14.page-v14.art-dna [class*='text-[10'] { font-size: 12px !important; }
+.page-v14.page-v14.art-dna [class*='text-[11'] { font-size: 13px !important; }
+
+/* ---- masthead ---------------------------------------------- */
+.page-v14.page-v14.art-dna .pv14-head {
+  position: relative !important;
+  padding: 2px 0 16px !important;
+  border-bottom: 0 !important;
+  background: transparent !important;
+}
+.page-v14.page-v14.art-dna .pv14-head::before { display: none !important; }
+.page-v14.page-v14.art-dna .pv14-head::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: dn-rule-draw 900ms var(--ease-out, ease) both;
+}
+html[dir='rtl'] .page-v14.page-v14.art-dna .pv14-head::after { transform-origin: right center; }
+@keyframes dn-rule-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.page-v14.page-v14.art-dna .pv14-title {
+  font-family: var(--font-display-serif, Georgia, serif) !important;
+  font-size: 22px !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.12 !important;
+}
+html[lang='ar'] .page-v14.page-v14.art-dna .pv14-title,
+html[dir='rtl'] .page-v14.page-v14.art-dna .pv14-title {
+  font-family: var(--font-display-ar, var(--font-display-serif)) !important;
+  font-weight: 700 !important;
+  font-size: 19px !important;
+  letter-spacing: 0 !important;
+}
+.page-v14.page-v14.art-dna .pv14-eyebrow {
+  font-family: var(--font-mono-x, var(--font-mono2, monospace)) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: var(--faint) !important;
+}
+.page-v14.page-v14.art-dna .pv14-desc {
+  font-size: 13px !important;
+  line-height: 1.65 !important;
+  color: var(--dim) !important;
+  max-width: 60ch !important;
+}
+.page-v14.page-v14.art-dna .pv14-head-actions { align-self: flex-start; }
+.dn-glyph { width: 66px; height: 30px; color: var(--faint); display: block; }
+.dn-glyph svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.dn-glyph [stroke] { vector-effect: non-scaling-stroke; }
+.dn-glyph .dn-g-dot { fill: var(--acc); stroke: none; }
+
+/* ---- CARDS -> hairline sections ---------------------------- */
+.page-v14.page-v14.art-dna .aurora-panel,
+.page-v14.page-v14.art-dna .aurora-panel-lg {
+  border: 0 !important;
+  border-top: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 16px 0 !important;
+  transform: none !important;
+  animation: none !important;
+}
+.page-v14.page-v14.art-dna .aurora-panel:hover,
+.page-v14.page-v14.art-dna .aurora-panel-lg:hover {
+  border-top-color: var(--line) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.page-v14.page-v14.art-dna .wscc-tile {
+  border: 0 !important;
+  border-top: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  min-height: 72px !important;
+  padding: 12px 8px !important;
+}
+.page-v14.page-v14.art-dna .keyrow {
+  min-height: 46px !important;
+  border-top: 1px solid var(--line-soft) !important;
+  border-radius: 0 !important;
+  padding: 10px 2px !important;
+}
+.page-v14.page-v14.art-dna .keyrow:hover { background: color-mix(in srgb, var(--ink) 3%, transparent) !important; }
+
+/* ---- IDENTITY SHEET (the centerpiece) ---------------------- */
+.dn-sheet {
+  position: relative;
+  flex-shrink: 0;
+  padding: 14px 0 16px;
+  border-bottom: 1px solid var(--line-soft);
+  min-width: 0;
+}
+.dn-sheet-fig {
+  font-family: var(--font-mono-x, monospace);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 8px;
+}
+.dn-sheet-body {
+  position: relative;
+  border: 1px solid var(--line);
+  padding: 16px 18px;
+  min-width: 0;
+}
+/* ruled lines, drawn as 1px rules — never a repeating gradient */
+.dn-sheet-rule { height: 1px; background: var(--line-soft); margin: 9px 0; }
+.dn-sheet-row { display: flex; align-items: baseline; gap: 12px; min-height: 26px; }
+.dn-sheet-k {
+  font-family: var(--font-mono-x, monospace);
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  min-width: 88px;
+  flex: 0 0 auto;
+}
+.dn-sheet-v { font-size: 13px; color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
+.dn-sheet-v.is-empty { color: var(--ghost); font-style: italic; }
+.dn-sheet-name {
+  font-family: var(--font-display-serif, Georgia, serif);
+  font-size: 21px;
+  line-height: 1.1;
+  color: var(--ink);
+  letter-spacing: -.01em;
+}
+html[lang='ar'] .dn-sheet-name,
+html[dir='rtl'] .dn-sheet-name {
+  font-family: var(--font-display-ar, var(--font-display-serif));
+  font-weight: 700;
+  font-size: 18px;
+}
+/* the seal: concentric circles + crosshair, all currentColor */
+.dn-seal { position: absolute; top: 14px; right: 16px; width: 54px; height: 54px; color: var(--faint); }
+html[dir='rtl'] .dn-seal { right: auto; left: 16px; }
+.dn-seal svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.dn-seal [stroke] { vector-effect: non-scaling-stroke; }
+.dn-seal-ring { fill: none; stroke: currentColor; stroke-width: 1; }
+.dn-seal-ring--dash { stroke-dasharray: 2 5; opacity: .6; }
+.dn-seal-cross { fill: none; stroke: currentColor; stroke-width: 1; opacity: .6; }
+.dn-seal-dot { fill: var(--acc); stroke: none; }
+.dn-seal-label {
+  font-family: var(--font-mono-x, monospace);
+  font-size: 5px;
+  letter-spacing: .12em;
+  fill: currentColor;
+}
+.dn-sheet-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--line-strong);
+  border-style: solid;
+  pointer-events: none;
+}
+.dn-sheet-corner.tl { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+.dn-sheet-corner.tr { top: -1px; right: -1px; border-width: 1px 1px 0 0; }
+.dn-sheet-corner.bl { bottom: -1px; left: -1px; border-width: 0 0 1px 1px; }
+.dn-sheet-corner.br { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+
+/* ---- PLAYBOOK EVOLUTION TIMELINE (even node spacing) ------- */
+.pb-tl { padding: 10px 0 2px; min-width: 0; }
+.pb-tl-svg { display: block; width: 100%; height: 52px; overflow: visible; color: var(--dim); }
+.pb-tl-svg [stroke] { vector-effect: non-scaling-stroke; }
+.pb-tl-base { stroke: var(--line); stroke-width: 1; fill: none; }
+.pb-tl-node { fill: var(--bg1); stroke: currentColor; stroke-width: 1; }
+.pb-tl-node.is-tip { fill: var(--acc); stroke: var(--acc); }
+.pb-tl-tick { stroke: var(--line-soft); stroke-width: 1; }
+.pb-tl-label { font-family: var(--font-mono-x, monospace); font-size: 8.5px; fill: var(--faint); }
+.pb-tl-label.is-tip { fill: var(--ink); }
+
+/* ---- reveal + motion --------------------------------------- */
+.dn-reveal { transition: opacity 620ms var(--ease-out, ease), transform 620ms var(--ease-out, ease); }
+.dn-reveal:not([data-in='true']) { opacity: 0; transform: translateY(8px); }
+@media (hover: hover) {
+  .dn-sheet-body { transition: border-color 240ms var(--ease-out, ease); }
+  .dn-sheet:hover .dn-sheet-body { border-color: var(--line-strong); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-v14.page-v14.art-dna .pv14-head::after { animation: none !important; transform: none !important; }
+  .dn-reveal { transition: none !important; }
+  .dn-reveal:not([data-in='true']) { opacity: 1 !important; transform: none !important; }
+}
+html.reduce-motion .page-v14.page-v14.art-dna .pv14-head::after { animation: none !important; transform: none !important; }
+html.reduce-motion .dn-reveal { transition: none !important; }
+html.reduce-motion .dn-reveal:not([data-in='true']) { opacity: 1 !important; transform: none !important; }

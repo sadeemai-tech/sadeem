@@ -1,0 +1,392 @@
+/* ============================================================
+   SADEEM — hgs-art.css  (FINAL LAUNCH POLISH · editorial art layer)
+   ------------------------------------------------------------
+   Additive, opt-in skin for the four "desk" pages:
+     Home · Source Control · Sessions · Workspace.
+
+   Rules of this layer:
+     · palette UNCHANGED — every colour is an existing semantic token,
+       alpha only through color-mix(); SVG marks use currentColor.
+     · one hairline draw on mount + a calm colour hover; nothing else.
+     · NO translate-based stagger on any scroll root. The Workspace
+       .ws-scroll root in particular must stay transform-free (an earlier
+       stagger physically collided the file card into the stat band).
+     · every animation is killed by prefers-reduced-motion / html.reduce-motion.
+
+   Loaded from the page TSX AFTER pages.css / files.css so it wins ties.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   0 · shared type rhythm — ≥13px body, 18–24px display titles
+   ------------------------------------------------------------ */
+.page-v14.page-v14.hgs-page {
+  --pv-title: 22px;
+  --pv-h: 14px;
+  --pv-text: 13px;
+  --pv-meta: 11.5px;
+  --pv-label: 10.5px;
+  --hgs-ease: cubic-bezier(.2, .72, .16, 1);
+}
+
+/* ------------------------------------------------------------
+   1 · editorial head — mono eyebrow · serif display · description
+   ------------------------------------------------------------ */
+.hgs-head { position: relative; min-width: 0; }
+
+/* replace the header's static bottom border with one drawn hairline */
+.page-v14.page-v14 .hgs-head .pv14-head { border-bottom: 0 !important; padding-bottom: 14px !important; }
+.hgs-head::after {
+  content: '';
+  display: block;
+  height: 1px;
+  background: var(--line);
+  transform-origin: left center;
+  animation: hgs-draw 760ms var(--hgs-ease) both;
+}
+html[dir='rtl'] .hgs-head::after { transform-origin: right center; }
+
+.page-v14.page-v14 .hgs-head .pv14-eyebrow {
+  font-family: var(--font-mono-x, monospace) !important;
+  font-size: 11px !important;
+  letter-spacing: .18em !important;
+}
+
+/* big serif display title; Cairo guard for RTL */
+.page-v14.page-v14 .hgs-head .pv14-title,
+.page-v14.page-v14 .hgs-title {
+  font-family: var(--font-display-serif) !important;
+  font-size: var(--pv-title) !important;
+  font-weight: 400 !important;
+  letter-spacing: -.02em !important;
+  line-height: 1.06 !important;
+}
+html[lang='ar'] .hgs-head .pv14-title,
+html[dir='rtl'] .hgs-head .pv14-title,
+html[lang='ar'] .hgs-title,
+html[dir='rtl'] .hgs-title {
+  font-family: var(--font-display-ar, var(--font-app-ar, 'Cairo', sans-serif)) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+}
+.page-v14.page-v14 .hgs-head .pv14-desc { font-size: 13px !important; line-height: 1.65 !important; }
+
+@keyframes hgs-draw {
+  from { transform: scaleX(0); opacity: .35; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+
+/* standalone drawn hairline (used where ::after is already taken, e.g. Home) */
+.hgs-rule {
+  display: block;
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  transform-origin: left center;
+  animation: hgs-draw 760ms var(--hgs-ease) both;
+}
+html[dir='rtl'] .hgs-rule { transform-origin: right center; }
+
+/* ------------------------------------------------------------
+   2 · original 1px SVG glyphs (registration marks) in the head
+   ------------------------------------------------------------ */
+.hgs-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  color: var(--faint);
+  transition: color var(--dur-2) var(--hgs-ease);
+}
+.hgs-glyph svg { display: block; width: 100%; height: 100%; }
+.hgs-glyph:hover { color: var(--acc); }
+.hgs-glyph [stroke] { vector-effect: non-scaling-stroke; }
+
+/* ------------------------------------------------------------
+   3 · HOME — one bordered metric strip + engraved line chart
+   ------------------------------------------------------------ */
+.page-v14.page-v14.hgs-page .hm-hero {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 8px 2px 0 !important;
+}
+/* the pre-existing coordinate stamp would sit on the CTA row — drop it here */
+.page-v14.page-v14.hgs-page .hm-hero::after { display: none !important; }
+.page-v14.page-v14.hgs-page .hm-title {
+  font-family: var(--font-display-serif) !important;
+  font-size: 28px !important;
+  font-weight: 400 !important;
+  letter-spacing: -.025em !important;
+  line-height: 1.05 !important;
+}
+html[lang='ar'] .hgs-page .hm-title,
+html[dir='rtl'] .hgs-page .hm-title {
+  font-family: var(--font-display-ar, var(--font-app-ar, 'Cairo', sans-serif)) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+}
+.page-v14.page-v14.hgs-page .hm-glyph { margin-inline-end: 2px; }
+
+/* metric band — a single framed strip, equal hairline cells */
+.page-v14.page-v14.hgs-page .hgs-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 10px !important;
+  background: var(--bg1) !important;
+  overflow: hidden;
+}
+.page-v14.page-v14.hgs-page .hgs-metrics > .hm-metric {
+  min-height: 76px !important;
+  padding: 13px 15px !important;
+  border: 0 !important;
+  border-inline-start: 1px solid var(--line) !important;
+  border-block-start: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+.page-v14.page-v14.hgs-page .hgs-metrics > .hm-metric:nth-child(-n + 3) { border-block-start: 0 !important; }
+.page-v14.page-v14.hgs-page .hgs-metrics > .hm-metric:first-child { border-inline-start: 0 !important; }
+.page-v14.page-v14.hgs-page .hgs-metrics > .hm-metric:nth-child(4) { border-inline-start: 0 !important; }
+.page-v14.page-v14.hgs-page .hgs-metrics > .hm-metric:hover { background: var(--hover) !important; }
+.page-v14.page-v14.hgs-page .hm-metric-label {
+  font-family: var(--font-mono-x, monospace) !important;
+  font-size: 10.5px !important;
+  letter-spacing: .12em !important;
+}
+.page-v14.page-v14.hgs-page .hm-metric-value {
+  font-family: var(--font-display-serif) !important;
+  font-size: 17px !important;
+  line-height: 1.1 !important;
+}
+html[lang='ar'] .hgs-page .hm-metric-value {
+  font-family: var(--font-display-ar, var(--font-app-ar, 'Cairo', sans-serif)) !important;
+  font-weight: 700 !important;
+}
+@media (max-width: 640px) {
+  .page-v14.page-v14.hgs-page .hgs-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  /* row separators for the second row onward */
+  .page-v14.page-v14.hgs-page .hgs-metrics > .hm-metric:nth-child(n + 3) { border-block-start: 1px solid var(--line) !important; }
+  /* column separators live on the right-hand cell of each pair */
+  .page-v14.page-v14.hgs-page .hgs-metrics > .hm-metric:nth-child(odd) { border-inline-start: 0 !important; }
+}
+
+/* the engraved chart plate */
+.hgs-chart {
+  position: relative;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg1);
+  overflow: hidden;
+}
+.hgs-chart::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(115deg, transparent 0 9px, color-mix(in srgb, var(--line) 45%, transparent) 9px 10px);
+  opacity: .35;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 60%, black, transparent 78%);
+  mask-image: radial-gradient(ellipse at 50% 60%, black, transparent 78%);
+  pointer-events: none;
+}
+.hgs-chart-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px 0;
+}
+.hgs-mono {
+  font-family: var(--font-mono-x, monospace);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+html[lang='ar'] .hgs-mono { letter-spacing: 0; font-family: var(--font-app-ar, 'Cairo', sans-serif); }
+.hgs-chart-head .hgs-chart-rule { flex: 1; height: 1px; background: var(--line); }
+.hgs-chart svg { display: block; width: 100%; height: 64px; }
+.hgs-chart .hgs-line {
+  fill: none;
+  stroke: var(--acc);
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: hgs-ink 900ms var(--hgs-ease) 120ms forwards;
+}
+.hgs-chart .hgs-dot { fill: var(--acc); }
+.hgs-chart .hgs-base { stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+@keyframes hgs-ink { to { stroke-dashoffset: 0; } }
+
+/* lower Home blocks become hairline rows, not floating cards */
+.page-v14.page-v14.hgs-page .hm-card {
+  border: 0 !important;
+  border-radius: 0 !important;
+  border-block-start: 1px solid var(--line) !important;
+  background: transparent !important;
+  padding: 16px 2px !important;
+}
+.page-v14.page-v14.hgs-page .hm-card:hover { background: transparent !important; }
+.page-v14.page-v14.hgs-page .hm-card-head { padding-inline: 2px; }
+
+/* ------------------------------------------------------------
+   4 · GIT — real branch graph beneath the masthead
+   ------------------------------------------------------------ */
+.hgs-branchgraph {
+  position: relative;
+  margin: 14px 8px 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg1);
+  overflow: hidden;
+}
+.hgs-branchgraph-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 13px 0;
+}
+.hgs-branchgraph-head .hgs-chart-rule { flex: 1; height: 1px; background: var(--line); }
+.hgs-branchgraph svg { display: block; width: 100%; height: 74px; }
+.hgs-branchgraph .hgs-line {
+  fill: none; stroke: currentColor; stroke-width: 1.15;
+  stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke;
+}
+.hgs-branchgraph .hgs-line-local { stroke: var(--acc); }
+.hgs-branchgraph .hgs-node { fill: var(--bg1); stroke: currentColor; stroke-width: 1.15; vector-effect: non-scaling-stroke; }
+.hgs-branchgraph .hgs-node-fork { fill: var(--acc); stroke: none; }
+.hgs-branchgraph .hgs-arrow {
+  fill: none; stroke: var(--acc); stroke-width: 1.15;
+  stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke;
+}
+.hgs-branchgraph .hgs-label { font-family: var(--font-mono-x, monospace); font-size: 8px; letter-spacing: .1em; fill: var(--faint); }
+.hgs-graph-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: hgs-ink 820ms var(--hgs-ease) 80ms forwards;
+}
+
+/* ------------------------------------------------------------
+   5 · SESSIONS — dated timeline with status glyphs
+   ------------------------------------------------------------ */
+.hgs-timeline {
+  position: relative;
+  margin: 14px 8px 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg1);
+  padding: 11px 13px 12px;
+}
+.hgs-timeline-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.hgs-timeline-head .hgs-chart-rule { flex: 1; height: 1px; background: var(--line); }
+.hgs-ticks {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: end;
+  position: relative;
+  padding-top: 2px;
+}
+/* one aligned hairline axis running through every glyph centre */
+.hgs-ticks::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 9px;
+  height: 1px;
+  background: var(--line);
+}
+.hgs-tick {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.hgs-tick-glyph {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  padding: 2px;
+  background: var(--bg1);
+  border-radius: 50%;
+  color: var(--faint);
+}
+.hgs-tick-glyph svg { display: block; width: 11px; height: 11px; }
+.hgs-tick[data-status='run']  .hgs-tick-glyph { color: var(--acc); }
+.hgs-tick[data-status='idle'] .hgs-tick-glyph { color: var(--warn); }
+.hgs-tick[data-status='err']  .hgs-tick-glyph { color: var(--bad); }
+.hgs-tick[data-status='done'] .hgs-tick-glyph { color: var(--ok); }
+.hgs-tick-date {
+  font-family: var(--font-mono-x, monospace);
+  font-size: 9.5px;
+  letter-spacing: .04em;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  direction: ltr;
+}
+.hgs-timeline-empty { font-size: 12px; color: var(--faint); }
+
+/* ------------------------------------------------------------
+   6 · WORKSPACE / PROJECT FILES — centre-piece refinements
+   ------------------------------------------------------------ */
+/* IMPORTANT: .ws-scroll is deliberately transform-free. An earlier
+   translate-based stagger on this scroll root collided the file card
+   into the stat band. This layer only animates opacity + the hairline. */
+.page-v14.page-v14 .ws-scroll { animation: none !important; transform: none !important; }
+
+.page-v14.page-v14 .ws-pf-section .pf-root.aurora-panel {
+  border-color: var(--line-strong) !important;
+}
+/* engraved folder glyph gains a hatched spine */
+.page-v14.page-v14 .pf-root .pf-head-icon {
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--acc) 9%, transparent);
+}
+.hgs-pf-spine { stroke: var(--acc); opacity: .6; vector-effect: non-scaling-stroke; }
+
+/* generous tree rows + crisp indent guides (prose ≥13px) */
+.page-v14.page-v14 .pf-tree .tree-row > span[dir='ltr'] { font-size: 13px !important; }
+.page-v14.page-v14 .pf-tree .ft-guide { opacity: .55; background: var(--line-strong); }
+.page-v14.page-v14 .pf-tree .tree-row:hover .ft-guide { background: var(--acc); opacity: .35; }
+.page-v14.page-v14 .pf-count { font-size: 11.5px !important; }
+
+/* ------------------------------------------------------------
+   7 · MOTION GUARDS — OS preference + manual class
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .hgs-head::after,
+  .hgs-rule,
+  .hgs-chart .hgs-line,
+  .hgs-branchgraph .hgs-graph-draw,
+  .hgs-glyph { animation: none !important; transition: none !important; }
+  .hgs-chart .hgs-line,
+  .hgs-branchgraph .hgs-graph-draw { stroke-dashoffset: 0 !important; }
+  .hgs-head::after,
+  .hgs-rule { transform: none !important; }
+}
+html.reduce-motion .hgs-head::after,
+html.reduce-motion .hgs-rule,
+html.reduce-motion .hgs-chart .hgs-line,
+html.reduce-motion .hgs-branchgraph .hgs-graph-draw,
+html.reduce-motion .hgs-glyph { animation: none !important; transition: none !important; }
+html.reduce-motion .hgs-chart .hgs-line,
+html.reduce-motion .hgs-branchgraph .hgs-graph-draw { stroke-dashoffset: 0 !important; }
+html.reduce-motion .hgs-head::after,
+html.reduce-motion .hgs-rule { transform: none !important; }

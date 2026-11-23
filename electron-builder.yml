@@ -1,0 +1,154 @@
+appId: app.sadeem.desktop
+productName: SADEEM
+copyright: Copyright © 2026 SADEEM
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - resources/**/*
+  - package.json
+asar: true
+compression: normal
+
+# ===================================================================
+# DEEP LINK — OAuth / device-pairing callback (functional Store requirement)
+# ===================================================================
+# electron/main.ts claims `sadeem` with setAsDefaultProtocolClient and handles
+# sadeem://auth/callback (electron/main.ts:764,824-831); the website redirects
+# to sadeem://auth/callback (website/lib/site.ts:12). electron-builder v26
+# turns this list into <uap:Extension Category="windows.protocol"> inside the
+# APPX via the ${extensions} macro of build/store/appx/appxmanifest.xml.
+# Without it the Store build ships a DEAD auth deep link.
+# `surnia://` is an INTERNAL bundle-load scheme (electron/main.ts:123,233,398)
+# and must NOT be registered with the OS — never add it here.
+protocols:
+  - schemes: [sadeem]
+    name: SADEEM authentication callback
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: zip
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+    # Microsoft Store (Desktop Bridge / APPX). Added here so the packaging
+    # route is explicit; `npm run dist:win` passes its own target list
+    # (nsis zip) on the CLI and therefore remains unchanged.
+    - target: appx
+      arch: [x64]
+
+  # ===================================================================
+  # WINDOWS CODE SIGNING — PRESENT BUT DISABLED (v11.16 signing prep)
+  # ===================================================================
+  # STATUS: today's installers and ZIPs are UNSIGNED. That is exactly why
+  # Windows Defender SmartScreen can show "Windows protected your PC".
+  # Signing REQUIRES a trusted code-signing certificate (OV/EV) or an
+  # Azure Artifact Signing account. We do not have one yet, so every
+  # signing line below stays commented and unsigned builds keep working
+  # unchanged. Do NOT uncomment any of this without a real certificate.
+  #
+  # HOW TO ENABLE — Option A: local/cloud .pfx or .p12 (recommended, CI-friendly)
+  #   1. Buy/get an EV (or OV) Authenticode certificate and its password.
+  #   2. Put the secrets in your shell or CI — NEVER commit them to git:
+  #        PowerShell:  $env:WIN_CSC_LINK = "C:\secrets\sadeem.pfx"
+  #                     $env:WIN_CSC_KEY_PASSWORD = "the-pfx-password"
+  #        bash:        export WIN_CSC_LINK=/secrets/sadeem.pfx
+  #                     export WIN_CSC_KEY_PASSWORD='the-pfx-password'
+  #      WIN_CSC_LINK also accepts an https:// URL or a base64-encoded .pfx.
+  #      electron-builder reads these two env vars automatically; the keys
+  #      below are only needed if you want to pin extra signing settings.
+  #   3. Uncomment the block below, then run: npm run dist:win
+  #
+  # certificateFile: "C:/secrets/sadeem.pfx"   # optional; PREFER WIN_CSC_LINK env var
+  # certificatePassword: "..."                 # optional; PREFER WIN_CSC_KEY_PASSWORD env var
+  # signingHashAlgorithms:
+  #   - sha256
+  # rfc3161TimeStampServer: http://timestamp.digicert.com
+  # signAndEditExecutable: true
+  #
+  # Option B — EV token installed on a WINDOWS build machine:
+  #   The private key never leaves the token; select the cert by store name
+  #   (or by SHA-1 thumbprint) instead of a .pfx file:
+  # certificateSubjectName: "SADEEM"
+  # certificateSha1: "<thumbprint>"
+  # signingHashAlgorithms: [sha256]
+  #
+  # Option C — Azure Artifact Signing / Trusted Signing (cloud, no hardware token):
+  #   Cheapest official route; needs an Azure account + identity validation
+  #   (1-30 business days) and a supported region. With electron-builder v26
+  #   (installed here) use a custom `sign` hook or `jsign`. With v27+ you can
+  #   use the native object instead:
+  #     sign:
+  #       type: azure
+  #       endpoint: https://eus.codesigning.azure.net/
+  #       codeSigningAccountName: <account-name>
+  #       certificateProfileName: <profile-name>
+  #       (set publisherName to the exact Subject CN of your signing cert —
+  #        see appx.publisher in the Store block below; none is hardcoded here)
+  #       timestampRfc3161: http://timestamp.acs.microsoft.com
+  #   Full, cited instructions: website/docs/SIGNING.md
+  #
+  # NOTE: an OV certificate no longer builds SmartScreen reputation for new
+  # files (Microsoft changed this in June 2023) — use EV or Azure signing.
+nsis:
+  # v11.7 — benign NSIS macro warnings (unknown ')' in addStartMenuLink) must
+  # not abort the Linux cross-build; they are informational.
+  warningsAsErrors: false
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  shortcutName: SADEEM
+  artifactName: SADEEM-Setup-${version}.${ext}
+  uninstallDisplayName: SADEEM ${version}
+portable:
+  artifactName: SADEEM-${version}-portable.${ext}
+
+# ===================================================================
+# MICROSOFT STORE — APPX (Desktop Bridge) packaging  (v11.12 store prep)
+# ===================================================================
+# electron-builder v26.0.12 (the version installed in this repo) supports
+# the `appx` target. It has NO `msix` target — do not invent one. The APPX
+# produced by makeappx.exe is a valid Desktop Bridge package and is accepted
+# by Microsoft Partner Center for Win32/Electron desktop apps.
+#
+# >>> TWO VALUES MUST BE REPLACED BEFORE A REAL SUBMISSION <<<
+#   1. identityName  = the exact "App identity / package name" reserved in
+#                      Microsoft Partner Center (3-50 chars; letters,
+#                      digits, dots and dashes only).
+#   2. publisher     = the exact Publisher/CN string Partner Center shows
+#                      for your account, written as `CN=...`. It MUST equal
+#                      the Subject CN of the certificate that signs the
+#                      package. A mismatch is an instant Store rejection.
+# The preflight script (`npm run dist:store`) refuses to build while the
+# REPLACE_WITH_* sentinels are still present — on purpose.
+#
+# Signing is deliberately NOT switched on here. Reuse the existing,
+# commented "WINDOWS CODE SIGNING" block under `win:` above; set
+# WIN_CSC_LINK / WIN_CSC_KEY_PASSWORD (or the Azure/EV equivalent) on the
+# Windows build machine. No certificate is invented or committed.
+#
+# The manifest is customized in build/store/appx/appxmanifest.xml to add the
+# `internetClient` capability (SADEEM needs network access) on top of the
+# required `runFullTrust` capability for a full-trust desktop app.
+appx:
+  identityName: REPLACE_WITH_STORE_IDENTITY_NAME
+  publisher: CN=REPLACE_WITH_STORE_PUBLISHER_CN
+  publisherDisplayName: SADEEM
+  displayName: SADEEM
+  applicationId: SADEEM.SADEEM
+  languages:
+    - en-US
+    - ar
+  backgroundColor: "#232A2E"
+  # Resolved relative to `directories.buildResources` (= build/).
+  customManifestPath: store/appx/appxmanifest.xml
+  # false => manifest Version is derived from package.json -> 11.12.0.0
+  setBuildNumber: false
+  # Windows 10 version 2004+ (a safe baseline for Electron 33).
+  minVersion: 10.0.19041.0

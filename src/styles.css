@@ -1,0 +1,3785 @@
+@import './styles/tokens.css';
+@import './assets/glass-v7.css';
+@import './components/art.css';
+/* v11.12b — the broad display-serif layer + opt-in .display-type helpers.
+   Unlayered so it outranks @layer components; every rule changes family
+   only (never size/weight/color) and carries an explicit Arabic guard. */
+@import './components/display-type.css';
+/* v11.12c — the global type scale (--app-scale, +12% on UI chrome with
+   a 13px floor, bigger control min-heights, .brand-display wordmark).
+   Unlayered like display-type.css so it outranks @layer components. */
+@import './components/type-scale.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   SADEEM — WORKSPACE DESIGN SYSTEM  (v11.3 light-primary)
+   ------------------------------------------------------------
+   Doctrine
+     · PALETTE LAW (v11.3, user decree): lemon green + black,
+       white and their derivatives (warm grays) + taupe. NO other
+       hue exists anywhere in the app — iris/violet, cyan, teal,
+       terracotta, amber and blue-tinted surfaces were purged.
+       Semantic states survive through tone and iconography:
+       ok = lemon (#b0e35f family), warn = taupe, bad = bone/
+       ink neutrals, info = gray.
+     · Canvas: warm neutral paper (light, PRIMARY) or warm
+       graphite (dark, secondary). Solid panels, hairline
+       borders, layered soft shadows. Backdrop blur survives in
+       exactly one place (the modal scrim).
+     · Accent: ONE lemon — #b0e35f (dark themes) / #5c8618 inked
+       lemon (light). Secondary taupe #a7a7a7 stays sparse.
+     · Shape: 14px large surfaces · 10px cards & inputs · 8px
+       small controls · 999px pills (--radius-* and the --r-*
+       ladder below; legacy aliases re-anchored, nothing broke).
+     · Motion: v11.3 streaming is SLOW and FLUID — 200ms
+       standard / 320ms overlays on cubic-bezier(0.22,1,0.36,1),
+       thinking/stream reveals 360–480ms. Every animation honors
+       prefers-reduced-motion AND html.reduce-motion.
+     · Type: system stack only (offline), Cairo leads Arabic.
+       Base 13px, display ≤20px, headings tracked -0.01em;
+       Arabic breathes at 1.75 line-height and never tracks or
+       uppercases.
+     · Density: roomier cards (14–16px), list rows ≥32px; the
+       html.compact-ui tightening (settings.css + block below)
+       still applies on top.
+
+   Themes (v11.3 — light PRIMARY, dark secondary, device decides):
+     follow   → SADEEM System (DEFAULT — mirrors the device)
+     light    → SADEEM Light (paper-white canvas — the primary)
+     obsidian → SADEEM Dark  (secondary, warm graphite)
+     midnight → SADEEM Deep  (secondary, near-black)
+     soft     → SADEEM Carbon (secondary, desaturated graphite)
+     ink      → alias of Carbon (future-proofing)
+     high     → high-contrast instrument skin
+
+   EVERY custom property that existed in the previous stylesheet
+   is redefined here — the ~30 component stylesheets and every
+   TSX consumer keep working unchanged.
+   ============================================================ */
+
+/* ============================================================
+   1 · MECHANICAL TOKENS (theme-independent)
+   ============================================================ */
+:root {
+  /* ---------- type ---------- */
+  --font-app: 'Inter', 'Cairo', system-ui, sans-serif;
+  /* v11.1 — Cairo leads the Arabic stack (bundled variable font) */
+  --font-app-ar: 'Cairo', 'Inter', system-ui, sans-serif;
+  /* v11.12 — the website's editorial serif leads DISPLAY surfaces only.
+     Body (--font-app), code/numerals (--font-mono-x) and tool chips are
+     deliberately untouched; RTL headings resolve to Cairo via the token
+     override in tokens.css. */
+  --font-display: var(--font-display-serif);
+  --font-caps: var(--font-app);
+  --font-serif: var(--font-display-serif);
+  --font-mono-x: 'IBM Plex Mono', Menlo, Consolas, monospace;
+  --font-mono2: var(--font-mono-x);
+  --mono: var(--font-mono-x);
+
+  /* ---------- radius ladder (Aurora: 6 / 8 / 10 / 14 / 18 / pill) ----------
+     Overrides the legacy 3–4px boxy ladder from tokens.css and the v7
+     glass ladder from glass-v7.css — every var(--radius-*) / var(--r-*)
+     consumer upgrades automatically. */
+  --r-xs: 6px;
+  --r-sm2: 8px;
+  --r-sm: 8px;
+  --r-md2: 10px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 18px;
+  --r-pill: 999px;
+  --radius-sm: 8px; /* small controls: chips, segs, icon buttons   */
+  --radius-md: 10px; /* cards, inputs, buttons, tiles              */
+  --radius-lg: 16px; /* modals, floats, heroes, large surfaces     */
+  --radius-pill: 999px;
+
+  /* ---------- spacing rhythm ---------- */
+  --s1: 2px;
+  --s2: 4px;
+  --s3: 8px;
+  --s4: 12px;
+  --s5: 16px;
+  --s6: 24px;
+
+  /* ---------- motion: 160ms standard · 240ms overlays ---------- */
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-glass: cubic-bezier(0.2, 0, 0, 1); /* legacy name → standard curve */
+  --motion-scale: 1;
+  --dur-1: calc(0.16s / var(--motion-scale));
+  --dur-2: calc(0.2s / var(--motion-scale));
+  --dur-3: calc(0.24s / var(--motion-scale));
+  --dur-4: calc(0.4s / var(--motion-scale));
+  /* legacy aliases */
+  --dur: var(--dur-2);
+  --dur-fast: var(--dur-1);
+
+  /* ---------- z-plane ladder ---------- */
+  --z-chrome: 10;
+  --z-dock: 20;
+  --z-panel: 30;
+  --z-menu: 60;
+  --z-modal: 75;
+  --z-system: 90;
+
+  /* ---------- glass material — MATTE by default ----------
+     The .glass family reads these. Solid panel fills; only the
+     data-glass='strong' level goes faintly translucent (still
+     zero backdrop blur). Both legacy names stay live for the
+     stylesheets that tint with them. */
+  --glass-blur: 0px;
+  --glass-blur-menu: 0px;
+  --glass-blur-strong: 0px;
+  --glass-saturate: 1;
+  --glass-sat-strong: 1;
+  --glass-1: var(--glass-bg);
+  --glass-2: var(--glass-bg-strong);
+  --shadow-glass-1: var(--glass-shadow);
+  --shadow-glass-2: var(--sh-float);
+  /* legacy whisper highlight (cards/rows/chat.css consume it) */
+  --glass-hi-alpha: 0.05;
+  --glass-highlight: inset 0 1px 0 var(--edge-hi2);
+  --glass-highlight-hover: inset 0 1px 0 var(--edge-hi);
+
+  /* ---------- surface modifiers ---------- */
+  --surface: var(--panel);
+  --fg: var(--ink);
+  --accent: var(--acc);
+  /* SADEEM functional tokens (overridden per theme) */
+  --info: #a8a8a5;
+  --agent: #b1b1b1;
+  --sidebar: var(--bg1);
+}
+
+/* ============================================================
+   SADEEM DESIGN SYSTEM — theme layer (v10)
+   Deep Midnight + Mineral Teal + Electric Blue.
+   KEYS UNCHANGED (obsidian/midnight/soft/light/high + accents
+   sage/teal/clay/amber) so stored settings keep working:
+     obsidian → SADEEM Deep Space (default · cool near-black #0A0E14
+                + deeper brand lime #98D83B)
+     midnight → SADEEM Deep   (near-black · cool high-contrast)
+     soft/ink → SADEEM Carbon (desaturated warm graphite)
+     light    → SADEEM Light  (#FFFFFF cool paper + inked lemon #4F7A10)
+   Accent remaps: sage=Mineral Teal (default) · teal=Electric Blue
+     #A3A3A3 · clay=Steel Grey #a8a8a5 · amber=Lime+ #9ddc38.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   2 · SADEEM DEEP SPACE — [data-theme=obsidian] · DEFAULT
+   v11.8 “Deep Space Precision”: true near-black with a cool blue
+   cast, cooler recessed wells, cards a touch lighter with a
+   barely-visible top-edge highlight (matte, no blur), present
+   hairlines, and depth carried by two-layer ambient shadows —
+   never gradients. Accent: deeper, less-neon brand lime.
+   ------------------------------------------------------------ */
+:root,
+html[data-theme='obsidian'] {
+  color-scheme: dark;
+
+  /* ---------- surface ladder ---------- */
+  --bg0: #0A0E14; /* canvas: deep-space near-black, cool cast */
+  --bg1: #0D1219; /* recessed wells: editor, terminal         */
+  --bg3: #131A23; /* raised: cards, inputs                    */
+  --bg4: #1B2430; /* hover overlay target                     */
+  --bg5: #263041; /* active / strongest fill                  */
+
+  /* ---------- legacy aliases ---------- */
+  --bg: var(--bg0);
+  --bg2: var(--bg3);
+  --panel: var(--bg3);
+  --panel2: var(--bg4);
+
+  /* ---------- hairlines (cool, present — never near-invisible) ---------- */
+  --line-soft: rgba(212, 224, 242, 0.055);
+  --line: rgba(212, 224, 242, 0.1);
+  --line-strong: rgba(212, 224, 242, 0.19);
+  --line-accent: rgba(152, 216, 59, 0.42);
+
+  /* ---------- text ramp (cool steel ladder, --dim ≥ 5:1 on --bg0) ---------- */
+  --ink: #E9EEF6;
+  --dim: #97A5B8;
+  --faint: #6E7D92;
+  --ghost: #556278;
+
+  /* ---------- accent: deeper brand lime (less neon) ---------- */
+  --acc: #98D83B;
+  --acc-hover: #A9E34D;
+  --acc-ink: #0C1103;
+  --acc2: #a7a7a7; /* site skin */
+  --clay: #a7a7a7;
+  --amber: #acacac;
+  --ok: #98D83B;
+  --warn: #DCDCDC;
+  --bad: #FFFFFF;
+  --info: #9AA3AF;
+  --agent: #A9B2C0;
+
+  /* ---------- agent verb palette (tool-call chips) ---------- */
+  --v-read: #9AA3AF;
+  --v-edit: #94A0B0;
+  --v-grep: #93D42F;
+  --v-think: #A9B2C0;
+  --v-run: #8E9FB3;
+
+  /* ---------- overlays & selection ---------- */
+  --sel: rgba(152, 216, 59, 0.3);
+  --hover: rgba(222, 232, 246, 0.05);
+  --hover-2: rgba(222, 232, 246, 0.09);
+  --active: rgba(222, 232, 246, 0.14);
+  --scrim: rgba(4, 7, 12, 0.66);
+
+  /* ---------- elevation: neutral-black layered ambient (no gradients) ---------- */
+  --sh-1: 0 1px 2px rgba(1, 3, 7, 0.35), 0 0 0 1px var(--line);
+  --sh-key: inset 0 1px 0 rgba(226, 236, 252, 0.05),
+    0 1px 2px rgba(1, 3, 7, 0.35);
+  --sh-key-acc: inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 2px 10px rgba(152, 216, 59, 0.2);
+  --sh-card: 0 1px 2px rgba(1, 3, 7, 0.3), 0 8px 24px rgba(1, 3, 7, 0.2);
+  --sh-float: 0 2px 4px rgba(1, 3, 7, 0.35),
+    0 20px 56px -12px rgba(1, 3, 7, 0.62),
+    inset 0 1px 0 rgba(226, 236, 252, 0.07);
+
+  /* ---------- matte glass fills (calm — no frost show) ---------- */
+  --glass-bg: var(--panel);
+  --glass-bg-strong: color-mix(in srgb, var(--bg4) 45%, var(--panel));
+  --glass-chrome-bg: transparent;
+  --glass-border: rgba(196, 210, 234, 0.11);
+  --glass-shadow: 0 8px 24px rgba(1, 3, 7, 0.3);
+
+  /* ---------- top-light + edges (the barely-visible machined edge) ---------- */
+  --edge-hi: rgba(226, 236, 252, 0.07);
+  --edge-hi2: rgba(226, 236, 252, 0.045);
+  --panel-top: rgba(226, 236, 252, 0.04);
+  --grid-line: rgba(226, 236, 252, 0.045);
+
+  /* ---------- ambience: OFF (flat premium surfaces) ---------- */
+  --aurora-opacity: 0;
+
+  /* ---------- diff tints (D10 — theme-safe; chat.css .diffv-* consumes) ---------- */
+  --diff-add-bg: rgba(152, 216, 59, 0.11);
+  --diff-add-fg: var(--acc);
+  --diff-del-bg: rgba(232, 238, 247, 0.1);
+  --diff-del-fg: var(--bad);
+  --diff-hunk: rgba(222, 232, 246, 0.05);
+
+  /* ---------- stable accent-family swatches (accent-tint immune) ---------- */
+  --acc-sage: #98D83B;
+  --acc-teal: #98D83B;
+  --acc-clay: #98D83B;
+  --acc-amber: #98D83B;
+}
+
+/* ------------------------------------------------------------
+   3 · SADEEM DEEP — [data-theme=midnight]
+   v11.8: the deep-space floor one step below obsidian — cooler,
+   darker, with proportionally stronger hairlines (high contrast).
+   ------------------------------------------------------------ */
+html[data-theme='midnight'] {
+  color-scheme: dark;
+
+  --bg0: #060A10;
+  --bg1: #0A0F16;
+  --bg3: #10161E;
+  --bg4: #182029;
+  --bg5: #222C38;
+  --bg: var(--bg0);
+  --bg2: var(--bg3);
+  --panel: var(--bg3);
+  --panel2: var(--bg4);
+
+  --line-soft: rgba(210, 222, 240, 0.065);
+  --line: rgba(210, 222, 240, 0.115);
+  --line-strong: rgba(210, 222, 240, 0.21);
+  --line-accent: rgba(152, 216, 59, 0.45);
+
+  --ink: #ECF1F8;
+  --dim: #9DAABD;
+  --faint: #75849C;
+  --ghost: #5A6880;
+
+  --acc: #98D83B;
+  --acc-hover: #AAE44F;
+  --acc-ink: #0C1103;
+  --acc2: #a3a3a3;
+  --clay: #a3a3a3;
+  --amber: #acacac;
+  --ok: #98D83B;
+  --warn: #DCDCDC;
+  --bad: #FFFFFF;
+  --info: #98A2B0;
+  --agent: #A7B0BE;
+
+  --v-read: #98A2B0;
+  --v-edit: #929EB0;
+  --v-grep: #93D42F;
+  --v-think: #A7B0BE;
+  --v-run: #8C9DB2;
+
+  --sel: rgba(152, 216, 59, 0.32);
+  --hover: rgba(220, 230, 245, 0.055);
+  --hover-2: rgba(220, 230, 245, 0.095);
+  --active: rgba(220, 230, 245, 0.15);
+  --scrim: rgba(3, 5, 9, 0.7);
+
+  --sh-1: 0 1px 2px rgba(0, 2, 5, 0.4), 0 0 0 1px var(--line);
+  --sh-key: inset 0 1px 0 rgba(224, 233, 248, 0.06),
+    0 1px 2px rgba(0, 2, 5, 0.4);
+  --sh-key-acc: inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    0 2px 10px rgba(152, 216, 59, 0.22);
+  --sh-card: 0 1px 2px rgba(0, 2, 5, 0.35), 0 8px 24px rgba(0, 2, 5, 0.24);
+  --sh-float: 0 2px 4px rgba(0, 2, 5, 0.42),
+    0 20px 56px -12px rgba(0, 2, 5, 0.68),
+    inset 0 1px 0 rgba(224, 233, 248, 0.08);
+
+  --glass-bg: var(--panel);
+  --glass-bg-strong: color-mix(in srgb, var(--bg4) 45%, var(--panel));
+  --glass-chrome-bg: transparent;
+  --glass-border: rgba(192, 206, 230, 0.13);
+  --glass-shadow: 0 8px 24px rgba(0, 2, 5, 0.36);
+
+  --edge-hi: rgba(224, 233, 248, 0.08);
+  --edge-hi2: rgba(224, 233, 248, 0.05);
+  --panel-top: rgba(224, 233, 248, 0.045);
+  --grid-line: rgba(224, 233, 248, 0.05);
+  --aurora-opacity: 0;
+
+  /* ---------- diff tints (D10) ---------- */
+  --diff-add-bg: rgba(152, 216, 59, 0.12);
+  --diff-add-fg: var(--acc);
+  --diff-del-bg: rgba(230, 236, 246, 0.12);
+  --diff-del-fg: var(--bad);
+  --diff-hunk: rgba(220, 230, 245, 0.055);
+
+  --acc-sage: #98D83B;
+  --acc-teal: #98D83B;
+  --acc-clay: #98D83B;
+  --acc-amber: #98D83B;
+}
+
+/* ------------------------------------------------------------
+   4 · SADEEM CARBON — [data-theme=soft]  (+ 'ink' alias)
+   Desaturated warm-graphite chrome. v11.8: surfaces keep their
+   Carbon identity; hairlines, ink ladder, selection and shadows
+   re-tuned to the shared depth system (present hairlines, two-
+   layer ambient, deeper lime accent).
+   ------------------------------------------------------------ */
+html[data-theme='soft'],
+html[data-theme='ink'] {
+  color-scheme: dark;
+
+  --bg0: #1a1a18;
+  --bg1: #201f1d;
+  --bg3: #272724;
+  --bg4: #2f2e2b;
+  --bg5: #383733;
+  --bg: var(--bg0);
+  --bg2: var(--bg3);
+  --panel: var(--bg3);
+  --panel2: var(--bg4);
+
+  --line-soft: rgba(226, 226, 226, 0.055);
+  --line: rgba(226, 226, 226, 0.11);
+  --line-strong: rgba(226, 226, 226, 0.19);
+  --line-accent: rgba(152, 216, 59, 0.42);
+
+  --ink: #f0f0ee;
+  --dim: #ACA8A0;
+  --faint: #847F76;
+  --ghost: #6D6A62;
+
+  --acc: #98D83B;
+  --acc-hover: #A9E34D;
+  --acc-ink: #0C1103;
+  --acc2: #a3a3a3;
+  --clay: #a3a3a3;
+  --amber: #acacac;
+  --ok: #98D83B;
+  --warn: #DCDCDC;
+  --bad: #FFFFFF;
+  --info: #a5a29b;
+  --agent: #b0ada6;
+
+  --v-read: #a5a29b;
+  --v-edit: #a09d96;
+  --v-grep: #93D42F;
+  --v-think: #b0ada6;
+  --v-run: #9b988f;
+
+  --sel: rgba(152, 216, 59, 0.28);
+  --hover: rgba(242, 240, 234, 0.05);
+  --hover-2: rgba(242, 240, 234, 0.09);
+  --active: rgba(242, 240, 234, 0.14);
+  --scrim: rgba(10, 10, 8, 0.66);
+
+  --sh-1: 0 1px 2px rgba(5, 5, 4, 0.35), 0 0 0 1px var(--line);
+  --sh-key: inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 1px 2px rgba(5, 5, 4, 0.35);
+  --sh-key-acc: inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 2px 10px rgba(152, 216, 59, 0.2);
+  --sh-card: 0 1px 2px rgba(5, 5, 4, 0.3), 0 8px 24px rgba(5, 5, 4, 0.2);
+  --sh-float: 0 2px 4px rgba(5, 5, 4, 0.36),
+    0 20px 56px -12px rgba(5, 5, 4, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  --glass-bg: var(--panel);
+  --glass-bg-strong: color-mix(in srgb, var(--bg4) 45%, var(--panel));
+  --glass-chrome-bg: transparent;
+  --glass-border: rgba(220, 218, 210, 0.1);
+  --glass-shadow: 0 8px 24px rgba(5, 5, 4, 0.32);
+
+  --edge-hi: rgba(240, 240, 238, 0.06);
+  --edge-hi2: rgba(240, 240, 238, 0.038);
+  --panel-top: rgba(255, 255, 255, 0.032);
+  --grid-line: rgba(238, 238, 238, 0.04);
+  --aurora-opacity: 0;
+
+  /* ---------- diff tints (D10) ---------- */
+  --diff-add-bg: rgba(152, 216, 59, 0.11);
+  --diff-add-fg: var(--acc);
+  --diff-del-bg: rgba(242, 240, 234, 0.11);
+  --diff-del-fg: var(--bad);
+  --diff-hunk: rgba(242, 240, 234, 0.05);
+
+  --acc-sage: #98D83B;
+  --acc-teal: #98D83B;
+  --acc-clay: #98D83B;
+  --acc-amber: #98D83B;
+}
+
+/* ------------------------------------------------------------
+   5 · SADEEM LIGHT — [data-theme=light]
+   v11.8: genuinely light and clean — cool paper canvas, white
+   surfaces, inked-lemon accent (dark ink text flips to white on
+   the dark accent fill), soft neutral shadows.
+   ------------------------------------------------------------ */
+html[data-theme='light'] {
+  color-scheme: light;
+
+  --bg0: #FFFFFF;
+  --bg1: #F4F6F8;
+  --bg3: #FAFBFC;
+  --bg4: #EFF2F5;
+  --bg5: #E5E9EE;
+  --bg: var(--bg0);
+  --bg2: var(--bg3);
+  --panel: var(--bg3);
+  --panel2: var(--bg4);
+
+  --line-soft: rgba(15, 19, 26, 0.06);
+  --line: #DBDFE5;
+  --line-strong: #C3C9D1;
+  --line-accent: rgba(79, 122, 16, 0.45);
+
+  --ink: #0C0F14;
+  --dim: #4E5661;
+  --faint: #7F8894;
+  --ghost: #A7AEB9;
+
+  --acc: #4F7A10;
+  --acc-hover: #5B8A15;
+  --acc-ink: #FFFFFF;
+  --acc2: #636B76;
+  --clay: #636B76;
+  --amber: #6E7681;
+  --ok: #4F7A10;
+  --warn: #565D67;
+  --bad: #13161B;
+  --info: #5D6672;
+  --agent: #666E7A;
+
+  --v-read: #5D6672;
+  --v-edit: #636B76;
+  --v-grep: #4F7A10;
+  --v-think: #666E7A;
+  --v-run: #6E7681;
+
+  --sel: rgba(79, 122, 16, 0.16);
+  --hover: rgba(16, 20, 26, 0.045);
+  --hover-2: rgba(16, 20, 26, 0.08);
+  --active: rgba(16, 20, 26, 0.12);
+  --scrim: rgba(15, 18, 24, 0.48);
+
+  --sh-1: 0 1px 2px rgba(15, 18, 24, 0.08), 0 0 0 1px var(--line);
+  --sh-key: inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 1px 2px rgba(15, 18, 24, 0.1);
+  --sh-key-acc: inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 2px 10px rgba(79, 122, 16, 0.24);
+  --sh-card: 0 1px 2px rgba(15, 18, 24, 0.06), 0 8px 24px rgba(15, 18, 24, 0.08);
+  --sh-float: 0 2px 4px rgba(15, 18, 24, 0.08), 0 16px 48px -12px rgba(15, 18, 24, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+
+  --glass-bg: var(--panel);
+  --glass-bg-strong: color-mix(in srgb, var(--bg4) 30%, var(--panel));
+  --glass-chrome-bg: transparent;
+  --glass-border: #D5D9DF;
+  --glass-shadow: 0 8px 24px rgba(15, 18, 24, 0.09);
+
+  --edge-hi: rgba(255, 255, 255, 0.9);
+  --edge-hi2: rgba(255, 255, 255, 0.55);
+  --panel-top: rgba(255, 255, 255, 0.75);
+  --grid-line: rgba(15, 19, 26, 0.05);
+  --aurora-opacity: 0;
+
+  /* ---------- diff tints (D10 — the light palette finally makes deletions
+     VISIBLE: a rust tint replaces the old white-on-white rgba) ---------- */
+  --diff-add-bg: rgba(79, 122, 16, 0.12);
+  --diff-add-fg: var(--acc);
+  --diff-del-bg: rgba(176, 44, 44, 0.12);
+  --diff-del-fg: #A83232;
+  --diff-hunk: rgba(15, 19, 26, 0.045);
+
+  --acc-sage: #4F7A10;
+  --acc-teal: #4F7A10;
+  --acc-clay: #4F7A10;
+  --acc-amber: #4F7A10;
+}
+
+/* ------------------------------------------------------------
+   6 · HIGH — [data-theme=high]  (accessibility skin, SADEEM hues)
+   v11.8: neutral family cooled; contrast floor unchanged — bright
+   lime accent and 0.3+ hairlines stay for the a11y contract.
+   ------------------------------------------------------------ */
+html[data-theme='high'] {
+  color-scheme: dark;
+
+  --bg0: #05070A;
+  --bg1: #090C10;
+  --bg3: #11141A;
+  --bg4: #1B2028;
+  --bg5: #282F3A;
+  --bg: var(--bg0);
+  --bg2: var(--bg3);
+  --panel: var(--bg3);
+  --panel2: var(--bg4);
+
+  --line-soft: rgba(240, 243, 248, 0.17);
+  --line: rgba(240, 243, 248, 0.32);
+  --line-strong: rgba(240, 243, 248, 0.52);
+  --line-accent: rgba(176, 227, 95, 0.68);
+
+  --ink: #ffffff;
+  --dim: #D6DBE3;
+  --faint: #C4CAD4;
+  --ghost: #AAB2BF;
+  --fg: var(--ink);
+  --fg-hi: var(--ink);
+  --dim-hi: var(--dim);
+  --faint-hi: var(--faint);
+  --line-hi: var(--line);
+  --line-strong-hi: var(--line-strong);
+
+  --acc: #A3E635;
+  --acc-hover: #B9F14F;
+  --acc-ink: #0B0D02;
+  --acc2: #c5cad2;
+  --clay: #c5cad2;
+  --amber: #c5cad2;
+  --ok: #A3E635;
+  --warn: #E0E4EA;
+  --bad: #FFFFFF;
+  --info: #C4CAD4;
+  --agent: #D2D7DF;
+
+  --v-read: #C4CAD4;
+  --v-edit: #C5CAD2;
+  --v-grep: #b0e25e;
+  --v-think: #D2D7DF;
+  --v-run: #C5CAD2;
+
+  --sel: rgba(176, 227, 95, 0.38);
+  --hover: rgba(238, 243, 250, 0.09);
+  --hover-2: rgba(238, 243, 250, 0.14);
+  --active: rgba(238, 243, 250, 0.19);
+  --scrim: rgba(0, 1, 3, 0.82);
+
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--line);
+  --sh-key: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.45);
+  --sh-key-acc: inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 2px 10px rgba(0, 0, 0, 0.45);
+  --sh-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --sh-float: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 48px -12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  --glass-bg: var(--panel);
+  --glass-bg-strong: var(--bg4);
+  --glass-chrome-bg: var(--panel);
+  --glass-border: rgba(240, 243, 248, 0.34);
+  --glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+
+  --edge-hi: rgba(240, 243, 248, 0.13);
+  --edge-hi2: rgba(240, 243, 248, 0.075);
+  --panel-top: rgba(240, 243, 248, 0.055);
+  --grid-line: rgba(240, 243, 248, 0.065);
+  --aurora-opacity: 0;
+
+  /* ---------- diff tints (D10 — boosted for the a11y contrast floor) ---------- */
+  --diff-add-bg: rgba(176, 227, 95, 0.2);
+  --diff-add-fg: var(--acc);
+  --diff-del-bg: rgba(240, 243, 248, 0.18);
+  --diff-del-fg: var(--bad);
+  --diff-hunk: rgba(238, 243, 250, 0.09);
+
+  --acc-sage: #A3E635;
+  --acc-teal: #A3E635;
+  --acc-clay: #A3E635;
+  --acc-amber: #A3E635;
+}
+
+/* accent remaps for the high theme */
+html[data-theme='high'][data-accent='teal'] {
+  --acc: #A3E635;
+  --acc2: #c1c1c1;
+}
+html[data-theme='high'][data-accent='clay'] {
+  --acc: #A3E635;
+  --acc2: #bdbdbd;
+}
+html[data-theme='high'][data-accent='amber'] {
+  --acc: #A3E635;
+  --acc2: #c1c1c1;
+}
+
+/* ------------------------------------------------------------
+   7 · FOLLOW — html[data-theme='follow']
+   dark → SADEEM Dark (the :root default) · light → SADEEM Light.
+   ------------------------------------------------------------ */
+html[data-theme='follow'] {
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  html[data-theme='follow'] {
+    color-scheme: light;
+
+    /* follow-light keeps its slightly dimmed system canvas identity;
+       every other value tracks the v11.8 light ladder (inked lemon,
+       cool paper ramp, neutral shadows). */
+    --bg0: #EFEFEF;
+    --bg1: #E7E9EC;
+    --bg3: #F7F8FA;
+    --bg4: #EAECEF;
+    --bg5: #E1E4E8;
+    --bg: var(--bg0);
+    --bg2: var(--bg3);
+    --panel: var(--bg3);
+    --panel2: var(--bg4);
+
+    --line-soft: rgba(15, 19, 26, 0.06);
+    --line: #DBDFE5;
+    --line-strong: #C3C9D1;
+    --line-accent: rgba(79, 122, 16, 0.45);
+
+    --ink: #0C0F14;
+    --dim: #4E5661;
+    --faint: #7F8894;
+    --ghost: #A7AEB9;
+
+    --acc: #4F7A10;
+    --acc-hover: #5B8A15;
+    --acc-ink: #FFFFFF;
+    --acc2: #636B76;
+    --clay: #636B76;
+    --amber: #6E7681;
+    --ok: #4F7A10;
+    --warn: #565D67;
+    --bad: #13161B;
+    --info: #5D6672;
+    --agent: #666E7A;
+
+    --v-read: #5D6672;
+    --v-edit: #636B76;
+    --v-grep: #4F7A10;
+    --v-think: #666E7A;
+    --v-run: #6E7681;
+
+    --sel: rgba(79, 122, 16, 0.16);
+    --hover: rgba(16, 20, 26, 0.045);
+    --hover-2: rgba(16, 20, 26, 0.08);
+    --active: rgba(16, 20, 26, 0.12);
+    --scrim: rgba(15, 18, 24, 0.48);
+
+    --sh-1: 0 1px 2px rgba(15, 18, 24, 0.08), 0 0 0 1px var(--line);
+    --sh-key: inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      0 1px 2px rgba(15, 18, 24, 0.1);
+    --sh-key-acc: inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      0 2px 10px rgba(79, 122, 16, 0.22);
+    --sh-card: 0 1px 2px rgba(15, 18, 24, 0.06), 0 8px 24px rgba(15, 18, 24, 0.08);
+    --sh-float: 0 2px 4px rgba(15, 18, 24, 0.08), 0 16px 48px -12px rgba(15, 18, 24, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.85);
+
+    --glass-bg: var(--panel);
+    --glass-bg-strong: color-mix(in srgb, var(--bg4) 30%, var(--panel));
+    --glass-chrome-bg: transparent;
+    --glass-border: #D5D9DF;
+    --glass-shadow: 0 8px 24px rgba(15, 18, 24, 0.09);
+
+    --edge-hi: rgba(255, 255, 255, 0.9);
+    --edge-hi2: rgba(255, 255, 255, 0.55);
+    --panel-top: rgba(255, 255, 255, 0.75);
+    --grid-line: rgba(15, 19, 26, 0.05);
+    --aurora-opacity: 0;
+
+    --acc-sage: #4F7A10;
+    --acc-teal: #4F7A10;
+    --acc-clay: #4F7A10;
+    --acc-amber: #4F7A10;
+  }
+}
+
+/* ------------------------------------------------------------
+   8 · data-accent tint remaps (Mineral Teal is default 'sage')
+   sage = Mineral Teal · teal = Electric Blue · clay = Agent
+   Violet · amber = Lime. Settings' accent picker swaps
+   --acc/--acc2 (and --acc-ink for light-on-dark accents) live.
+   ------------------------------------------------------------ */
+html[data-theme='obsidian'][data-accent='teal'] {
+  --acc: #98D83B;
+  --acc-hover: #A9E34D;
+  --acc-ink: #0C1103;
+  --acc2: #a9a49a;
+}
+html[data-theme='obsidian'][data-accent='clay'] {
+  --acc: #98D83B;
+  --acc-hover: #A9E34D;
+  --acc-ink: #0C1103;
+  --acc2: #a9a49a;
+}
+html[data-theme='obsidian'][data-accent='amber'] {
+  --acc: #98D83B;
+  --acc-hover: #A9E34D;
+  --acc-ink: #0C1103;
+  --acc2: #a9a49a;
+}
+html[data-theme='midnight'][data-accent='teal'] {
+  --acc: #98D83B;
+  --acc-hover: #AAE44F;
+  --acc-ink: #0C1103;
+  --acc2: #a19d94;
+}
+html[data-theme='midnight'][data-accent='clay'] {
+  --acc: #98D83B;
+  --acc-hover: #AAE44F;
+  --acc-ink: #0C1103;
+  --acc2: #aaaaaa;
+}
+html[data-theme='midnight'][data-accent='amber'] {
+  --acc: #98D83B;
+  --acc-hover: #AAE44F;
+  --acc-ink: #0C1103;
+  --acc2: #a19d94;
+}
+html[data-theme='soft'][data-accent='teal'],
+html[data-theme='ink'][data-accent='teal'] {
+  --acc: #98D83B;
+  --acc-hover: #A9E34D;
+  --acc-ink: #0C1103;
+  --acc2: #a9a49a;
+}
+html[data-theme='soft'][data-accent='clay'],
+html[data-theme='ink'][data-accent='clay'] {
+  --acc: #98D83B;
+  --acc-hover: #A9E34D;
+  --acc-ink: #0C1103;
+  --acc2: #a3a3a3;
+}
+html[data-theme='soft'][data-accent='amber'],
+html[data-theme='ink'][data-accent='amber'] {
+  --acc: #98D83B;
+  --acc-hover: #A9E34D;
+  --acc-ink: #0C1103;
+  --acc2: #a9a49a;
+}
+html[data-theme='light'][data-accent='teal'] {
+  --acc: #4F7A10;
+  --acc-hover: #5B8A15;
+  --acc-ink: #FFFFFF;
+  --acc2: #636B76;
+}
+html[data-theme='light'][data-accent='clay'] {
+  --acc: #4F7A10;
+  --acc-hover: #5B8A15;
+  --acc-ink: #FFFFFF;
+  --acc2: #636B76;
+}
+html[data-theme='light'][data-accent='amber'] {
+  --acc: #4F7A10;
+  --acc-hover: #5B8A15;
+  --acc-ink: #FFFFFF;
+  --acc2: #636B76;
+}
+
+/* ============================================================
+   9 · BASE LAYER
+   ============================================================ */
+
+* {
+  border-color: var(--line);
+}
+
+/* ---------- code-surface LTR isolation (Monaco / xterm) ----------
+   Code is always read LTR, in every language. These view layers
+   hard-code LTR coordinates and render blank/misplaced under an
+   RTL app root — hard-isolate them. */
+.monaco-editor,
+.monaco-editor * {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.xterm,
+.xterm * {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.xterm .xterm-helper-textarea,
+.xterm .xterm-char-measure-element {
+  left: -9999em;
+  right: auto;
+}
+.xterm .xterm-viewport {
+  background: transparent !important;
+}
+
+/* ---------- html.fx-off — post-crash degraded rendering ----------
+   Applied by the main-process circuit breaker (?fx=off after a
+   renderer crash). Removes every expensive paint: opaque fills,
+   zero blur, zero animation, minimal shadows. */
+html.fx-off *,
+html.fx-off *::before,
+html.fx-off *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  animation: none !important;
+  transition: none !important;
+  will-change: auto !important;
+  filter: none !important;
+}
+html.fx-off .spec-ring::after,
+html.fx-off .grain.grain::after,
+html.fx-off body::after,
+html.fx-off body::before {
+  content: none !important;
+}
+html.fx-off .card,
+html.fx-off .kb-code {
+  box-shadow: none !important;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-app);
+  /* v11.12c — one scale factor for the whole app (13px → ~14.6px).
+     Chat's 14px/1.65 reading base is set explicitly in console.css and
+     is deliberately NOT affected by this body-scoped bump. */
+  font-size: calc(13px * var(--app-scale, 1));
+  line-height: var(--ui-line, 1.6);
+  letter-spacing: -0.01em; /* calm optical tightening */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+}
+
+/* ---------- Aurora ambience ----------
+   One fixed, almost-silent field behind the whole window: an
+   iris bloom top-start, a cyan bloom top-end and a clay breath
+   at the base — each ≤5% alpha. Gives the matte panels a sense
+   of depth without any blur cost. The animated aurora layer
+   (glass-v7.css body::after) drifts on top of this when
+   data-ambient is on. */
+html:root {
+  background: transparent;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: transparent; /* SADEEM: flat premium surfaces — no glow field */
+  opacity: 0;
+}
+/* the app shell stops masking the canvas so the ambience breathes */
+#root > div {
+  background: transparent;
+}
+
+/* ---------- Arabic / RTL typography ----------
+   Arabic script must never track negative or uppercase; the body
+   gains a touch of size and breathes wider. (tokens.css enforces
+   the letter-spacing/text-transform guards with !important.) */
+html[lang='ar'] body,
+html[dir='rtl'] body {
+  font-family: var(--font-app-ar);
+  letter-spacing: 0;
+  font-size: calc(13.5px * var(--app-scale, 1));
+  line-height: var(--ui-line-ar, 1.75);
+}
+
+code,
+pre,
+kbd,
+.font-code {
+  font-family: var(--font-mono-x);
+  direction: ltr;
+  font-feature-settings: 'zero' 1;
+}
+
+/* display layer — tighter tracking, system voice */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+html[lang='ar'] .font-display,
+html[dir='rtl'] .font-display {
+  font-family: var(--font-display-ar);
+  letter-spacing: 0;
+  font-weight: 700;
+}
+
+/* Display headlines that live in component sheets we do not own resolve
+   the same token (their sheets declare size/weight only, never a face). */
+.bx-hero-title {
+  font-family: var(--font-display);
+}
+html[lang='ar'] .bx-hero-title,
+html[dir='rtl'] .bx-hero-title {
+  font-family: var(--font-display-ar);
+}
+
+::selection {
+  background: var(--sel);
+  color: var(--ink);
+}
+
+/* ---------- focus: additive 2px accent ring ----------
+   The outline composes with box-shadow, so focused surfaces keep
+   their own elevation stacks. Text fields keep the .input:focus
+   border + inner ring instead (no double rings). */
+:where(button, [role='button'], a, summary, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+  border-radius: var(--r-xs, 6px);
+}
+:where(input, select, textarea):focus-visible {
+  outline: none;
+}
+.monaco-editor :focus-visible,
+.xterm :focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* ---------- scrollbars: slim 8px rounded thumbs ----------
+   Transparent track, hairline thumb that brightens on hover. */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--ink) 30%, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:active {
+  background: color-mix(in srgb, var(--ink) 42%, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* horizontal-only thin variant */
+.scroll-x-thin {
+  scrollbar-width: thin;
+}
+.scroll-x-thin::-webkit-scrollbar {
+  height: 4px;
+}
+.scroll-x-thin::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+}
+
+[dir='rtl'] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+/* ============================================================
+   10 · COMPONENT LAYER
+   Sits under Tailwind utilities (same doctrine as before) so a
+   `px-6` / `h-10` on the same node always wins.
+   ============================================================ */
+@layer components {
+  /* ---------- display voice ----------
+     Calm sentence-case voice. UPPERCASE BAN: .caps carries
+     DYNAMIC content (hero renders the project name) — it must
+     render exactly as authored; only .caps-xl uppercases. */
+  .caps {
+    font-family: var(--font-caps);
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  html[lang='ar'] .caps {
+    letter-spacing: 0;
+    font-weight: 700;
+  }
+  .caps-xl {
+    /* brand-hero / onboarding title: static chrome only (app name) */
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  html[lang='ar'] .caps-xl,
+  html[dir='rtl'] .caps-xl {
+    font-family: var(--font-display-ar);
+  }
+  .caps-lg {
+    font-size: 18px;
+  }
+  .caps-md {
+    font-size: 14px;
+  }
+
+  .display-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  html[lang='ar'] .display-title,
+  html[dir='rtl'] .display-title {
+    font-family: var(--font-display-ar);
+    letter-spacing: 0;
+  }
+
+  /* micro label — the quiet uppercase section voice (static chrome) */
+  .micro-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  /* section header — panel section voice */
+  .sec-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  /* numbered section marker: "01 — Title" */
+  .sec-titled {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
+    user-select: none;
+  }
+  .sec-titled .sec-no {
+    font-family: var(--font-app);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--acc2);
+    transform: translateY(-1px);
+  }
+  .sec-titled .sec-tt {
+    font-family: var(--font-caps);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    /* UPPERCASE BAN: renders file/skill names — dynamic content */
+    color: var(--dim);
+  }
+  html[lang='ar'] .sec-titled .sec-tt {
+    font-size: 12.5px;
+    letter-spacing: 0;
+  }
+  .sec-titled .sec-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+    transform: translateY(-3px);
+  }
+
+  /* ---------- card: the workhorse surface ---------- */
+  .card {
+    background:
+      var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--sh-card);
+    /* PERF: shadow changes land instantly — no per-frame shadow repaint.
+       The rich two-layer ambient shadow itself is untouched. */
+    transition:
+      border-color var(--dur-1) var(--ease-out),
+      background var(--dur-2) var(--ease-out),
+      transform var(--dur-2) var(--ease-out);
+  }
+  .card-hover:hover {
+    border-color: var(--line-strong);
+    background:
+        color-mix(in srgb, var(--panel) 88%, var(--bg4));
+    box-shadow: var(--sh-card), 0 12px 32px -12px rgba(0, 0, 0, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .hairline {
+    background: var(--line);
+  }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 32px;
+    padding-inline: 14px;
+    font-family: var(--font-app);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0;
+    user-select: none;
+    white-space: nowrap;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-md);
+    color: var(--ink);
+    background:
+      var(--bg3);
+    box-shadow: var(--sh-key);
+    /* PERF: no box-shadow tween — press feedback is transform/color only. */
+    transition:
+      background var(--dur-1) var(--ease-out),
+      border-color var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out),
+      transform var(--dur-1) var(--ease-out);
+  }
+  .btn:hover {
+    background:
+      var(--bg4);
+    border-color: var(--line-strong);
+  }
+  .btn:active {
+    transform: translateY(0.5px) scale(0.995);
+    box-shadow: none;
+  }
+  .btn-primary {
+    background: var(--acc);
+    border: 1px solid color-mix(in srgb, var(--acc) 80%, #000 12%);
+    color: var(--acc-ink);
+    box-shadow: var(--sh-key-acc);
+    font-weight: 600;
+  }
+  .btn-primary:hover {
+    background: var(--acc-hover);
+    border-color: color-mix(in srgb, var(--acc-hover) 80%, #000 12%);
+  }
+  .btn-primary:active {
+    background: color-mix(in srgb, var(--acc) 90%, #000 8%);
+  }
+  .btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--dim);
+  }
+  .btn-ghost:hover {
+    background: var(--hover-2);
+    color: var(--ink);
+    border-color: transparent;
+  }
+  .btn-ghost:active {
+    transform: none;
+  }
+  .btn-danger {
+    color: var(--bad);
+    border-color: color-mix(in srgb, var(--bad) 32%, transparent);
+  }
+  .btn-danger:hover {
+    background: color-mix(in srgb, var(--bad) 10%, transparent);
+    border-color: color-mix(in srgb, var(--bad) 45%, transparent);
+  }
+
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    color: var(--dim);
+    transition:
+      background var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+  .icon-btn:hover {
+    background: var(--hover-2);
+    color: var(--ink);
+  }
+  .icon-btn:active {
+    background: var(--active);
+  }
+
+  /* quieter 26px instrument button */
+  .ibtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: var(--radius-sm);
+    color: var(--dim);
+    border: 1px solid transparent;
+    transition:
+      background var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out),
+      border-color var(--dur-1) var(--ease-out);
+  }
+  .ibtn:hover {
+    background: var(--hover-2);
+    color: var(--ink);
+    border-color: var(--line-soft);
+  }
+  .ibtn.is-on {
+    color: var(--acc);
+    border-color: color-mix(in srgb, var(--acc) 35%, transparent);
+    background: color-mix(in srgb, var(--acc) 10%, transparent);
+  }
+
+  /* ---------- inputs ---------- */
+  .input {
+    width: 100%;
+    height: 32px;
+    padding-inline: 12px;
+    font-family: var(--font-app);
+    font-size: 13px;
+    outline: none;
+    border-radius: var(--radius-md);
+    background: var(--bg1);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    /* PERF: focus ring paints once instead of being tweened every frame. */
+    transition:
+      border-color var(--dur-1) var(--ease-out),
+      background var(--dur-1) var(--ease-out);
+  }
+  .input:hover {
+    border-color: var(--line-strong);
+  }
+  .input:focus {
+    border-color: color-mix(in srgb, var(--acc) 60%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 14%, transparent);
+  }
+  .input::placeholder {
+    color: var(--ghost);
+  }
+
+  /* ---------- chips: soft fills, hairline rings ---------- */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    padding-inline: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background: var(--hover-2);
+    border: 1px solid var(--line);
+    color: var(--dim);
+  }
+  .chip-acc {
+    color: var(--acc);
+    border-color: color-mix(in srgb, var(--acc) 30%, transparent);
+    background: color-mix(in srgb, var(--acc) 10%, transparent);
+  }
+  .chip-ok {
+    color: var(--ok);
+    border-color: color-mix(in srgb, var(--ok) 30%, transparent);
+    background: color-mix(in srgb, var(--ok) 10%, transparent);
+  }
+  .chip-bad {
+    color: var(--bad);
+    border-color: color-mix(in srgb, var(--bad) 30%, transparent);
+    background: color-mix(in srgb, var(--bad) 10%, transparent);
+  }
+  .chip-warn {
+    color: var(--warn);
+    border-color: color-mix(in srgb, var(--warn) 30%, transparent);
+    background: color-mix(in srgb, var(--warn) 10%, transparent);
+  }
+
+  /* ---------- agent verb chips (tool calls) ---------- */
+  .verb {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    padding-inline: 8px;
+    font-family: var(--font-mono2);
+    font-size: 11px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+  }
+  .verb-read {
+    color: var(--v-read);
+    background: color-mix(in srgb, var(--v-read) 10%, transparent);
+    border-color: color-mix(in srgb, var(--v-read) 20%, transparent);
+  }
+  .verb-edit {
+    color: var(--v-edit);
+    background: color-mix(in srgb, var(--v-edit) 10%, transparent);
+    border-color: color-mix(in srgb, var(--v-edit) 20%, transparent);
+  }
+  .verb-grep {
+    color: var(--v-grep);
+    background: color-mix(in srgb, var(--v-grep) 10%, transparent);
+    border-color: color-mix(in srgb, var(--v-grep) 20%, transparent);
+  }
+  .verb-think {
+    color: var(--v-think);
+    background: color-mix(in srgb, var(--v-think) 10%, transparent);
+    border-color: color-mix(in srgb, var(--v-think) 20%, transparent);
+  }
+  .verb-run {
+    color: var(--v-run);
+    background: color-mix(in srgb, var(--v-run) 10%, transparent);
+    border-color: color-mix(in srgb, var(--v-run) 20%, transparent);
+  }
+
+  /* ---------- kbd chips ---------- */
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono2);
+    font-size: 11px;
+    height: 20px;
+    padding-inline: 6px;
+    border-radius: var(--r-xs);
+    background: var(--hover-2);
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    color: var(--dim);
+  }
+
+  .row-hover {
+    transition: background var(--dur-1) var(--ease-out);
+  }
+  .row-hover:hover {
+    background: var(--hover);
+  }
+
+  /* ---------- status stamps ---------- */
+  .stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 18px;
+    padding-inline: 7px;
+    border-radius: var(--r-xs);
+    font-family: var(--font-app);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--line-strong);
+    color: var(--dim);
+    background: transparent;
+    white-space: nowrap;
+  }
+  .stamp-acc {
+    color: var(--acc);
+    border-color: color-mix(in srgb, var(--acc) 45%, transparent);
+    background: color-mix(in srgb, var(--acc) 9%, transparent);
+  }
+  .stamp-warn {
+    color: var(--warn);
+    border-color: color-mix(in srgb, var(--warn) 45%, transparent);
+    background: color-mix(in srgb, var(--warn) 9%, transparent);
+  }
+  .stamp-bad {
+    color: var(--bad);
+    border-color: color-mix(in srgb, var(--bad) 45%, transparent);
+    background: color-mix(in srgb, var(--bad) 9%, transparent);
+  }
+  .stamp-clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 45%, transparent);
+    background: color-mix(in srgb, var(--clay) 9%, transparent);
+  }
+  .stamp-solid {
+    background: var(--acc);
+    border-color: var(--acc);
+    color: var(--acc-ink);
+  }
+
+  /* ---------- mode segment (composer/titlebar grammar) ---------- */
+  .stamp-seg {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--bg1);
+  }
+  .stamp-seg > button {
+    height: 22px;
+    padding-inline: 9px;
+    border-radius: var(--r-xs);
+    font-family: var(--font-app);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--faint);
+    transition:
+      background var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+  .stamp-seg > button:hover {
+    color: var(--ink);
+    background: var(--hover);
+  }
+  .stamp-seg > button.is-active {
+    /* v10.2 — Codex-like segmented state: lime text + bottom keyline
+       instead of a heavy full fill (calmer, reads as a position not a press). */
+    background: transparent;
+    color: var(--acc);
+    box-shadow: inset 0 -2px 0 0 var(--acc);
+  }
+  .stamp-seg.is-plain > button.is-active {
+    background: var(--bg3);
+    color: var(--acc);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+  }
+
+  /* ---------- keyline rows ---------- */
+  .keyrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    min-height: 32px;
+    padding: 7px 10px;
+    border-top: 1px solid var(--line-soft);
+    transition: background var(--dur-1) var(--ease-out);
+  }
+  .keyrow:first-child {
+    border-top: none;
+  }
+  .keyrow:hover {
+    background: var(--hover);
+  }
+  .keyrow .key-main {
+    flex: 1;
+    min-width: 0;
+  }
+  .keyrow .key-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .keyrow .key-sub {
+    font-family: var(--font-mono2);
+    font-size: 11px;
+    color: var(--faint);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* row with an inline-start accent bar on hover/selected */
+  .row-accent {
+    position: relative;
+  }
+  .row-accent::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 5px;
+    bottom: 5px;
+    width: 2px;
+    border-radius: 999px;
+    background: var(--acc);
+    opacity: 0;
+    transform: scaleY(0.55);
+    transition:
+      opacity var(--dur-1) var(--ease-out),
+      transform var(--dur-2) var(--ease-out);
+  }
+  .row-accent:hover::before,
+  .row-accent.is-selected::before {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  .row-accent.is-selected {
+    background: color-mix(in srgb, var(--acc) 10%, transparent);
+  }
+
+  /* ---------- plan approval contract ---------- */
+  .contract {
+    border: 1px solid color-mix(in srgb, var(--acc) 34%, transparent);
+    border-radius: var(--radius-md);
+    background:
+      color-mix(in srgb, var(--acc) 4%, var(--panel));
+    box-shadow: var(--sh-card);
+    overflow: hidden;
+  }
+  .contract-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--acc) 6%, transparent);
+  }
+  .contract-body {
+    padding: 12px;
+  }
+  .contract-opt {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    text-align: start;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--bg2);
+    color: var(--ink);
+    font-size: 12px;
+    cursor: pointer;
+    transition:
+      border-color var(--dur-1) var(--ease-out),
+      background var(--dur-1) var(--ease-out),
+      transform var(--dur-1) var(--ease-out);
+  }
+  .contract-opt:hover {
+    border-color: color-mix(in srgb, var(--acc) 45%, transparent);
+    background: color-mix(in srgb, var(--acc) 6%, var(--bg2));
+    transform: translateY(-1px);
+  }
+  .contract-opt .opt-no {
+    font-family: var(--font-app);
+    font-size: 11px;
+    color: var(--acc2);
+    font-weight: 600;
+  }
+  .contract-opt .opt-label {
+    font-weight: 600;
+  }
+  .contract-opt .opt-hint {
+    color: var(--faint);
+    font-size: 11px;
+  }
+  .contract-step {
+    display: flex;
+    gap: 9px;
+    padding: 4px 0;
+    font-size: 12px;
+    color: var(--dim);
+    border-top: 1px dashed var(--line-soft);
+  }
+  .contract-step:first-child {
+    border-top: none;
+  }
+  .contract-step .step-no {
+    font-family: var(--font-app);
+    font-size: 11px;
+    color: var(--ghost);
+    padding-top: 2px;
+    min-width: 16px;
+  }
+
+  /* ---------- findings list ---------- */
+  .finding {
+    display: flex;
+    gap: 8px;
+    padding: 7px 10px;
+    border-top: 1px solid var(--line-soft);
+    font-size: 12px;
+  }
+  .finding:first-child {
+    border-top: none;
+  }
+  .finding .f-sev {
+    font-family: var(--font-app);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding-inline: 5px;
+    border-radius: var(--r-xs);
+    border: 1px solid currentColor;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .finding .f-file {
+    font-family: var(--font-mono2);
+    font-size: 12px;
+    color: var(--clay);
+  }
+  .finding .f-note {
+    color: var(--dim);
+  }
+
+  /* ---------- definition-list rows ---------- */
+  .defrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 36px;
+    padding: 10px 2px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .defrow:first-child {
+    border-top: none;
+  }
+  .defrow .def-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .defrow .def-desc {
+    font-size: 11px;
+    color: var(--faint);
+    margin-top: 1px;
+    max-width: 52ch;
+  }
+  .defrow .def-ctl {
+    flex-shrink: 0;
+  }
+
+  /* ---------- toggle: soft pill switch ---------- */
+  .tog {
+    position: relative;
+    width: 34px;
+    height: 20px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: var(--bg1);
+    transition:
+      background var(--dur-2) var(--ease-out),
+      border-color var(--dur-2) var(--ease-out);
+    flex-shrink: 0;
+  }
+  .tog::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    inset-inline-start: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: var(--faint);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    transition:
+      transform var(--dur-2) var(--ease-expo),
+      background var(--dur-2) var(--ease-out);
+  }
+  .tog.is-on {
+    background: color-mix(in srgb, var(--acc) 30%, var(--bg1));
+    border-color: color-mix(in srgb, var(--acc) 60%, transparent);
+  }
+  .tog.is-on::after {
+    transform: translateX(14px);
+    background: var(--acc);
+  }
+  html[dir='rtl'] .tog.is-on::after {
+    transform: translateX(-14px);
+  }
+
+  /* file header strip (diffs, editor tabs backing) */
+  .fhdr {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding-inline: 12px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg2);
+    font-family: var(--font-mono2);
+    font-size: 12px;
+    color: var(--dim);
+  }
+
+  /* live activity pulse — soft round LED */
+  .led {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--acc);
+    animation: ledBlink 1.2s steps(2, start) infinite;
+  }
+  .led-idle {
+    background: var(--ghost);
+    animation: none;
+  }
+  .led-warn {
+    background: var(--warn);
+  }
+  .led-bad {
+    background: var(--bad);
+    animation: none;
+  }
+
+  /* ---------- numerals ---------- */
+  .tnum {
+    font-family: var(--font-mono2);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+  }
+
+  /* ---------- blank states: editorial, not sad ---------- */
+  .blank-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    padding: 40px 24px;
+  }
+  .blank-state .bs-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--faint);
+  }
+  html[lang='ar'] .blank-state .bs-title,
+  html[dir='rtl'] .blank-state .bs-title {
+    font-family: var(--font-display-ar);
+    letter-spacing: 0;
+  }
+  .blank-state .bs-sub {
+    font-family: var(--font-app);
+    font-size: 12px;
+    color: var(--ghost);
+    max-width: 46ch;
+    line-height: 1.7;
+  }
+  .bs-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: var(--font-mono2);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--ghost);
+    user-select: none;
+  }
+
+  /* ---------- hero backdrop grid: quiet architecture ---------- */
+  .hero-grid {
+    background-image:
+      repeating-linear-gradient(to right, var(--grid-line) 0, var(--grid-line) 1px, transparent 1px, transparent 24px),
+      repeating-linear-gradient(to bottom, var(--grid-line) 0, var(--grid-line) 1px, transparent 1px, transparent 24px);
+    background-position: center top;
+    -webkit-mask-image: radial-gradient(ellipse 90% 78% at 50% 0%, #000 45%, transparent 100%);
+    mask-image: radial-gradient(ellipse 90% 78% at 50% 0%, #000 45%, transparent 100%);
+  }
+
+  /* scroll-edge fade — functional transparency mask */
+  .fade-y {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 16px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 16px), transparent 100%);
+  }
+
+  /* ---------- corner accents: HERO-ONLY decoration ----------
+     Draws only where markup opts in (.deco-brackets). */
+  .deco-brackets {
+    position: relative;
+  }
+  .deco-brackets::before,
+  .deco-brackets::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    opacity: 0.55;
+    transition: opacity var(--dur-2) var(--ease-out);
+    border-color: var(--acc);
+    border-style: solid;
+  }
+  .deco-brackets::before {
+    top: -1px;
+    inset-inline-start: -1px;
+    border-width: 1px 0 0 1px;
+    border-start-start-radius: 6px;
+  }
+  .deco-brackets::after {
+    bottom: -1px;
+    inset-inline-end: -1px;
+    border-width: 0 1px 1px 0;
+    border-end-end-radius: 6px;
+  }
+  .deco-brackets:hover::before,
+  .deco-brackets:hover::after {
+    opacity: 1;
+  }
+  /* geometry kept, decoration stripped */
+  .tick-frame {
+    position: relative;
+  }
+  .tick-frame::before,
+  .tick-frame::after {
+    content: none;
+  }
+
+  /* tick ruler: measuring-strip header ornament */
+  .ruler {
+    height: 7px;
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--line-strong) 0,
+      var(--line-strong) 1px,
+      transparent 1px,
+      transparent 10px
+    );
+    background-size: 100% 4px;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    border-bottom: 1px solid var(--line);
+    opacity: 0.7;
+  }
+
+  /* ---------- skeleton rows ----------
+     Pair with .skeleton-shimmer (glass-v7): `class="skel-row skeleton-shimmer"` */
+  .skel-row {
+    height: 20px;
+    border-radius: var(--r-xs);
+  }
+  .skel-row:nth-child(2n) {
+    width: 86%;
+  }
+  .skel-row:nth-child(3n) {
+    width: 72%;
+  }
+
+  /* ---------- text-color safety aliases ----------
+     These are normally Tailwind utilities (theme.extend.colors);
+     defined here as belt-and-suspenders so they resolve even if
+     a purge misses. */
+  .text-ink {
+    color: var(--ink);
+  }
+  .text-dim {
+    color: var(--dim);
+  }
+  .text-faint {
+    color: var(--faint);
+  }
+  .text-ghost {
+    color: var(--ghost);
+  }
+  .ms-auto {
+    margin-inline-start: auto;
+  }
+  .me-auto {
+    margin-inline-end: auto;
+  }
+}
+
+/* ============================================================
+   11 · MOTION PRIMITIVES
+   160ms standard entrances · every rule gated below (§16) for
+   prefers-reduced-motion and html.reduce-motion.
+   ============================================================ */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.anim-in {
+  animation: fadeUp 0.24s var(--ease-out) both;
+}
+
+/* v10.3 — staggered entrances: apply .anim-stagger to a container and its
+   direct children rise in sequence (cards, lists, rows). Caps at
+   8 children so very long lists never feel slow; reduced-motion users get
+   the plain layout via the global reduce-motion kill-switch below. */
+.anim-stagger > * {
+  animation: fadeUp 0.3s var(--ease-out) both;
+}
+.anim-stagger > *:nth-child(2) { animation-delay: 40ms; }
+.anim-stagger > *:nth-child(3) { animation-delay: 80ms; }
+.anim-stagger > *:nth-child(4) { animation-delay: 120ms; }
+.anim-stagger > *:nth-child(5) { animation-delay: 160ms; }
+.anim-stagger > *:nth-child(6) { animation-delay: 200ms; }
+.anim-stagger > *:nth-child(7) { animation-delay: 240ms; }
+.anim-stagger > *:nth-child(8) { animation-delay: 280ms; }
+
+html.reduce-motion .anim-stagger > *,
+html.reduce-motion .anim-in,
+html.reduce-motion .anim-pop {
+  animation: none;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.anim-pop {
+  animation: popIn 0.16s var(--ease-out) both;
+}
+
+@keyframes spin360 {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  /* PERF: promote the one always-spinning glyph to its own compositor layer
+     so 360° frames never repaint (will-change used sparingly — this only). */
+  will-change: transform;
+  animation: spin360 0.47s linear infinite;
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.pulse-dot {
+  animation: pulseDot 1.1s ease-in-out infinite;
+}
+
+/* matte working indicator: gentle opacity breathing.
+   Uniquely named so it can never collide with billing.css's inverse-phase
+   billing-breathe — two same-named @keyframes used to fight globally (the
+   last one loaded won for BOTH surfaces). Opacity-only = compositor-safe. */
+@keyframes matte-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.shimmer {
+  background: var(--hover-2);
+  animation: matte-breathe 1.6s ease-in-out infinite;
+}
+.thinking-live {
+  animation: matte-breathe 2.2s ease-in-out infinite; /* founder's calm cadence */
+}
+
+/* v11.9 (agent A2) — the straight block-glyph cursor ('▍') is DEAD.
+   The write head is a 6px round dot pulsing after the last streamed
+   character (geometry mirrors chat.css's .md-live override; the
+   sc18-dot-pulse keyframes live in chat.css). */
+.streaming-cursor::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-inline-start: 4px;
+  border-radius: 999px;
+  background: var(--acc);
+  vertical-align: 0.08em;
+  animation: sc18-dot-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes ledBlink {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  61%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+/* ============================================================
+   12 · MARKDOWN
+   ============================================================ */
+.md {
+  user-select: text;
+  line-height: 1.66;
+  word-break: break-word;
+  font-size: 13px;
+}
+.md > :first-child {
+  margin-top: 0;
+}
+.md > :last-child {
+  margin-bottom: 0;
+}
+.md p {
+  margin: 0.5em 0;
+}
+.md h1,
+.md h2,
+.md h3,
+.md h4 {
+  font-weight: 600;
+  margin: 1em 0 0.35em;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.md h1 {
+  font-size: 1.18em;
+}
+.md h2 {
+  font-size: 1.1em;
+}
+.md h3 {
+  font-size: 1em;
+}
+.md ul,
+.md ol {
+  padding-inline-start: 1.4em;
+  margin: 0.4em 0;
+}
+.md li {
+  margin: 0.18em 0;
+}
+.md li::marker {
+  color: var(--faint);
+}
+.md a {
+  color: var(--acc2);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+.md a:hover {
+  text-decoration: underline;
+}
+.md code {
+  background: var(--hover-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-xs);
+  padding: 0.1em 0.35em;
+  font-size: 0.88em;
+}
+.md pre {
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  overflow-x: auto;
+  margin: 0.55em 0;
+  direction: ltr;
+  text-align: left;
+}
+.md pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.md blockquote {
+  /* v11: no accent side border — quiet tint + indent carry the quote */
+  border: none;
+  background: var(--bg1);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  color: var(--dim);
+  margin: 0.55em 0;
+}
+.md table {
+  border-collapse: collapse;
+  margin: 0.55em 0;
+  width: 100%;
+}
+.md th,
+.md td {
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  text-align: start;
+  font-size: 12px;
+}
+.md th {
+  background: var(--hover);
+  font-weight: 600;
+}
+.md hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 0.9em 0;
+}
+
+/* ============================================================
+   13 · HIGHLIGHT.JS — iris/cyan palette on graphite
+   ============================================================ */
+.hljs {
+  background: transparent !important;
+  color: var(--ink);
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal {
+  color: var(--acc);
+}
+.hljs-string,
+.hljs-attr {
+  color: var(--acc2);
+}
+.hljs-number,
+.hljs-symbol {
+  color: var(--amber);
+}
+.hljs-comment,
+.hljs-quote {
+  color: var(--ghost);
+  font-style: italic;
+}
+.hljs-title,
+.hljs-name,
+.hljs-function .hljs-title {
+  color: var(--clay);
+}
+.hljs-type,
+.hljs-built_in {
+  color: var(--amber);
+}
+.hljs-variable,
+.hljs-template-variable,
+.hljs-bullet {
+  color: var(--ink);
+}
+.hljs-attribute,
+.hljs-section,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-regexp,
+.hljs-link,
+.hljs-doctag {
+  color: var(--acc2);
+}
+.hljs-meta,
+.hljs-meta .hljs-keyword,
+.hljs-meta .hljs-string {
+  color: var(--faint);
+}
+.hljs-tag {
+  color: var(--dim);
+}
+.hljs-subst,
+.hljs-punctuation,
+.hljs-operator {
+  color: var(--ink);
+}
+.hljs-emphasis {
+  color: var(--dim);
+  font-style: italic;
+}
+.hljs-strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.hljs-addition {
+  color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 10%, transparent);
+}
+.hljs-deletion {
+  color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 10%, transparent);
+}
+
+/* ============================================================
+   14 · TOASTS
+   ============================================================ */
+.toast-stack {
+  position: fixed;
+  bottom: 34px;
+  inset-inline-end: 12px;
+  z-index: var(--z-system, 90);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(360px, calc(100vw - 24px));
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background:
+    var(--bg3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--sh-float);
+  color: var(--ink);
+  animation: popIn 0.24s var(--ease-out) both;
+}
+@keyframes toastFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.toast-exit {
+  animation: toastFadeOut 0.15s ease both;
+}
+.toast-ico {
+  margin-top: 1px;
+}
+.toast-info .toast-ico {
+  color: var(--acc2);
+}
+.toast-success .toast-ico {
+  color: var(--ok);
+}
+.toast-warn .toast-ico {
+  color: var(--warn);
+}
+.toast-error .toast-ico {
+  color: var(--bad);
+}
+.toast-action {
+  height: 24px;
+  padding-inline: 10px;
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+}
+.toast-x {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-xs);
+}
+
+/* staggered entrance + exit slide toward inline-end */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.toast-stack > .toast {
+  animation: toast-in 0.24s var(--ease-out) both;
+}
+.toast-stack > .toast:nth-child(2) {
+  animation-delay: 40ms;
+}
+.toast-stack > .toast:nth-child(3) {
+  animation-delay: 80ms;
+}
+.toast-stack > .toast:nth-child(4) {
+  animation-delay: 120ms;
+}
+@keyframes toast-out-end {
+  to {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+}
+@keyframes toast-out-end-rtl {
+  to {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+}
+.toast-stack > .toast.toast-exit {
+  animation: toast-out-end 0.15s var(--ease-out) both;
+}
+html[dir='rtl'] .toast-stack > .toast.toast-exit {
+  animation-name: toast-out-end-rtl;
+}
+
+/* ============================================================
+   15 · STATUS BAR + CONTEXT METER + RESIZERS
+   ============================================================ */
+@media (max-width: 1180px) {
+  .sb-secondary {
+    display: none !important;
+  }
+}
+.sb-mid {
+  min-width: 0;
+  overflow: hidden;
+}
+.sb-mid .chip span {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.sb-sep {
+  width: 1px;
+  height: 12px;
+  background: var(--line);
+  flex-shrink: 0;
+}
+.sb-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.ctx-meter {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ctx-meter .ctx-track {
+  width: 60px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--hover-2);
+  overflow: hidden;
+}
+.ctx-meter .ctx-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--acc);
+  /* PERF: the meter's value arrives as an inline `width` from TSX, so it
+     cannot be converted to scaleX here without touching a component. The
+     60px fill now snaps between values instead of forcing a layout every
+     frame — the pulse on critical state is still opacity-only below. */
+  transition: background var(--dur-3) var(--ease-out);
+}
+.ctx-meter .ctx-pct {
+  color: var(--dim);
+  transition: color var(--dur-3) var(--ease-out);
+}
+.ctx-meter.ctx-warn .ctx-fill {
+  background: color-mix(in srgb, var(--warn) 72%, var(--acc));
+}
+.ctx-meter.ctx-warn .ctx-pct {
+  color: var(--warn);
+}
+.ctx-meter.ctx-crit .ctx-fill {
+  background: color-mix(in srgb, var(--bad) 82%, var(--warn));
+  animation: ctx-crit-pulse 2s ease-in-out infinite;
+}
+.ctx-meter.ctx-crit .ctx-pct {
+  color: var(--bad);
+}
+@keyframes ctx-crit-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.chat-resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -3px; /* v12 — chat is physical-left; handle is its right edge in all languages */
+  width: 5px;
+  cursor: col-resize;
+  z-index: var(--z-dock, 20);
+  transition: background var(--dur-1) ease;
+}
+.chat-resizer:hover,
+.chat-resizer.is-dragging {
+  background: color-mix(in srgb, var(--acc) 40%, transparent);
+}
+
+/* ============================================================
+   16 · WORKSPACE COMMAND CENTER
+   ============================================================ */
+.wscc-tile {
+  background:
+    var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  /* PERF: hover shadow is instant; transform/border/background stay fluid. */
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-2) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
+}
+.wscc-tile:hover {
+  border-color: var(--line-strong);
+  background:
+    color-mix(in srgb, var(--panel) 88%, var(--bg4));
+  transform: translateY(-1px);
+  box-shadow: var(--sh-card);
+}
+.wscc-tile-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase; /* static tile captions */
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wscc-tile-value {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wscc-tile-sub {
+  font-size: 11px;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wscc-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  min-height: 32px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  min-width: 0;
+  transition: background var(--dur-1) var(--ease-out);
+}
+.wscc-row:hover {
+  background: var(--hover);
+}
+
+.seg-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--hover-2);
+}
+.seg-bar > span {
+  height: 100%;
+  min-width: 3px;
+  /* PERF: widths are data-driven (inline), so no transform swap is possible
+     here; drop the layout-triggering width tween — the segments stay exact. */
+}
+.seg-bar > span + span {
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--bg3) 80%, transparent);
+}
+
+.qt-tile {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background:
+    var(--panel);
+  color: var(--dim);
+  font-size: 11.5px;
+  font-weight: 500;
+  text-align: start;
+  cursor: pointer;
+  min-width: 0;
+  /* PERF: instant hover shadow; no blurred-shadow interpolation. */
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-2) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
+}
+.qt-tile:hover {
+  border-color: var(--line-strong);
+  background:
+    color-mix(in srgb, var(--panel) 88%, var(--bg4));
+  color: var(--ink);
+  transform: translateY(-1px);
+  box-shadow: var(--sh-card);
+}
+.qt-tile:active {
+  transform: translateY(0.5px);
+}
+.qt-tile .qt-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.goal-banner {
+  margin: 0 var(--s4) var(--s3);
+  padding: 9px 12px;
+  background: color-mix(in srgb, var(--acc) 7%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--acc) 26%, transparent);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.goal-banner .goal-track {
+  height: 3px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--acc) 16%, transparent);
+  overflow: hidden;
+}
+.goal-banner .goal-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--acc);
+  /* PERF: data-driven inline width — snap, never animate layout. */
+}
+
+.todo-card {
+  margin: 0 var(--s4) var(--s3);
+  padding: 8px 12px;
+  background:
+    var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.todo-card .todo-meter {
+  height: 2.5px;
+  border-radius: 999px;
+  background: var(--hover-2);
+  overflow: hidden;
+}
+.todo-card .todo-meter > div {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--acc);
+  /* PERF: data-driven inline width — snap, never animate layout. */
+}
+
+.sched-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  padding: var(--s3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background:
+    var(--panel);
+  min-width: 0;
+  transition: border-color var(--dur-1) var(--ease-out);
+}
+.sched-row:hover {
+  border-color: var(--line-strong);
+}
+.sched-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.usage-bar {
+  border-radius: var(--r-xs) var(--r-xs) 0 0;
+  background: color-mix(in srgb, var(--acc) 55%, transparent);
+  min-height: 2px;
+  /* PERF: bar height is an inline data value; tweening it forced layout on
+     14+ bars at once. Keep the instant value, animate only the hover fill. */
+  transition: background var(--dur-1) var(--ease-out);
+}
+.usage-bar:hover {
+  background: var(--acc);
+}
+.usage-bar.is-today {
+  background: var(--acc);
+}
+
+/* ============================================================
+   17 · TRANSCRIPT INSTRUMENTS
+   ============================================================ */
+
+/* tool-call timeline rows */
+.tl-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 4px 8px 4px 10px;
+  border-top: 1px solid var(--line-soft);
+  font-family: var(--font-mono2);
+  font-size: 11px;
+  color: var(--dim);
+}
+.tl-row::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 3px;
+  bottom: 3px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--verb-c, var(--line-strong));
+}
+.tl-row .tl-verb {
+  font-family: var(--font-app);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--verb-c, var(--dim));
+  min-width: 52px;
+}
+.tl-row .tl-detail {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tl-row .tl-meta {
+  font-size: 11px;
+  color: var(--ghost);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* v11.9 — the 2px accent rail is GONE (founder: "another bad green
+   straight line"). Streaming elevation now comes from the pulsing
+   write-head dot after the last character — no straight-line chrome. */
+.msg-streaming {
+  position: relative;
+}
+@keyframes msg-tail-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+}
+.msg-streaming > *:last-child {
+  animation: msg-tail-in 0.18s var(--ease-out);
+}
+
+/* tool-card entrance: staggered rise */
+@keyframes tl2-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.tl2-card {
+  animation: tl2-in 0.24s var(--ease-out) both;
+}
+.tl2-card:nth-child(2) {
+  animation-delay: 30ms;
+}
+.tl2-card:nth-child(3) {
+  animation-delay: 60ms;
+}
+.tl2-card:nth-child(4) {
+  animation-delay: 90ms;
+}
+.tl2-card:nth-child(5) {
+  animation-delay: 120ms;
+}
+.tl2-card:nth-child(6) {
+  animation-delay: 150ms;
+}
+.tl2-card:nth-child(7) {
+  animation-delay: 180ms;
+}
+.tl2-card:nth-child(8) {
+  animation-delay: 210ms;
+}
+
+/* editor tab strip polish (additive on workspace.css) */
+.etab.is-active {
+  box-shadow: inset 0 2px 0 color-mix(in srgb, var(--acc) 55%, transparent);
+}
+[role='tablist'] .etab {
+  /* PERF: the active-tab inset accent is static; never tween a shadow. */
+  transition:
+    background var(--dur-2) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+.etab .etab-dirty {
+  animation: ledBlink 1.2s steps(2, start) infinite;
+}
+
+/* docked SearchPanel surface + file header */
+.wsp-panel {
+  background: var(--panel);
+  border-inline-start: 1px solid var(--line);
+  box-shadow: var(--sh-card);
+}
+.wsp-filehead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  /* v11.10 (A8) de-density: 10px → 14px horizontal air */
+  padding-inline: 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg2);
+  font-family: var(--font-mono2);
+  font-size: 12px;
+  color: var(--dim);
+}
+
+/* rail tooltips — small fixed floats */
+.rail-tip {
+  background: var(--bg3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--sh-float);
+  /* v11.10 (A8) de-density: 3px 8px → 4px 10px */
+  padding: 4px 10px;
+  z-index: var(--z-menu, 60);
+}
+
+/* welcome hero breath */
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.hero-in {
+  animation: hero-in 0.4s var(--ease-expo) both;
+}
+
+/* ============================================================
+   18 · STREAM BANDS — moved to chat.css §18 (.sc18-band*) in v11.8.
+   The legacy .band* block that lived here was dead markup (no TSX
+   references since the StreamTimeline band shell shipped) — D13 removed it.
+   ============================================================ */
+
+/* ============================================================
+   19 · BEST-OF-N RACE CHIPS (.bon-*)
+   ============================================================ */
+.bon-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding-block-end: 8px;
+  padding-inline-start: 40px;
+  padding-inline-end: 9px;
+}
+.bon-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 24ch;
+  height: 20px;
+  padding-inline: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xs);
+  background: transparent;
+  font-family: var(--font-mono2);
+  font-size: 10.5px;
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+.bon-chip .bon-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bon-chip .bon-score {
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.bon-chip .bon-win {
+  color: var(--acc);
+  font-size: 10px;
+  flex-shrink: 0;
+}
+.bon-chip.is-ok {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 38%, transparent);
+  background: color-mix(in srgb, var(--ok) 8%, transparent);
+}
+.bon-chip.is-bad {
+  color: var(--bad);
+  border-color: color-mix(in srgb, var(--bad) 40%, transparent);
+  background: color-mix(in srgb, var(--bad) 9%, transparent);
+}
+.bon-chip.is-run {
+  color: var(--verb-c, var(--acc2));
+  border-color: color-mix(in srgb, var(--verb-c, var(--acc2)) 36%, transparent);
+}
+.bon-chip.is-run::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--verb-c, var(--acc2));
+  flex-shrink: 0;
+  animation: bon-pulse 1.4s ease-in-out infinite;
+}
+@keyframes bon-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+/* the chosen attempt — iris ring + tint beats the state tint */
+.bon-chip.is-win {
+  color: var(--acc);
+  border-color: color-mix(in srgb, var(--acc) 60%, transparent);
+  background: color-mix(in srgb, var(--acc) 14%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--acc) 35%, transparent);
+}
+.bon-chip.bon-cost {
+  color: var(--acc2);
+  border-color: color-mix(in srgb, var(--acc2) 40%, transparent);
+}
+
+/* ============================================================
+   20 · WORD-DIFF LIVE PREVIEW (.wd-*)
+   ============================================================ */
+.wd-sec {
+  margin: 2px 0;
+  min-width: 0;
+}
+.wd-sec > summary {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+  margin-inline-start: 10px;
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+  transition:
+    color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
+}
+.wd-sec > summary::-webkit-details-marker {
+  display: none;
+}
+.wd-sec > summary:hover {
+  color: var(--ink);
+  background: var(--hover);
+}
+.wd-sec[open] > summary {
+  color: var(--dim);
+}
+.wd-sec > summary .sc-tl-caret {
+  transition: transform var(--dur-1) var(--ease-out);
+}
+.wd-sec[open] > summary .sc-tl-caret {
+  transform: rotate(180deg);
+}
+.wd-diff {
+  margin: 4px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg1);
+  overflow: auto;
+  max-height: 180px;
+  font-family: var(--font-mono2);
+  font-size: 11.5px;
+  line-height: 1.55;
+  direction: ltr;
+}
+.wd-line {
+  display: flex;
+  gap: 8px;
+  padding: 0 8px;
+  min-width: 0;
+}
+.wd-line.is-del {
+  background: color-mix(in srgb, var(--bad) 6%, transparent);
+}
+.wd-line.is-add {
+  background: color-mix(in srgb, var(--ok) 6%, transparent);
+}
+.wd-gut {
+  flex-shrink: 0;
+  width: 10px;
+  text-align: center;
+  color: var(--ghost);
+  user-select: none;
+}
+.wd-line.is-del .wd-gut {
+  color: var(--bad);
+}
+.wd-line.is-add .wd-gut {
+  color: var(--ok);
+}
+.wd-text {
+  min-width: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--dim);
+}
+.wd-del {
+  color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 14%, transparent);
+  border-radius: 2px;
+}
+.wd-add {
+  color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 14%, transparent);
+  border-radius: 2px;
+}
+.wd-ctx {
+  color: var(--dim);
+  opacity: 0.85;
+}
+.wd-more {
+  padding: 3px 8px 4px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 10.5px;
+  color: var(--ghost);
+  font-family: var(--font-mono2);
+}
+
+/* ============================================================
+   21 · GATE VERDICT CHIPS (.gate-*)  --gate-c drives the tint
+   ============================================================ */
+.gate-row {
+  min-width: 0;
+  margin: 2px 0;
+}
+.gate-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  cursor: pointer;
+  text-align: start;
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
+}
+.gate-pill:hover {
+  border-color: color-mix(in srgb, var(--gate-c, var(--acc)) 40%, var(--line));
+}
+.gate-tag {
+  flex-shrink: 0;
+  font-family: var(--font-mono2);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gate-c, var(--dim));
+}
+.gate-verdict {
+  flex-shrink: 0;
+}
+.gate-brief {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11.5px;
+  color: var(--dim);
+}
+.gate-body {
+  margin: 4px 0 0;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg1);
+  padding: 8px 10px;
+  max-height: 220px;
+  overflow: auto;
+  font-family: var(--font-mono2);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--dim);
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+  text-align: start;
+}
+
+/* ============================================================
+   22 · AURORA SURFACES — the .glass family, now matte
+   Previously a blur/saturate backdrop material; under Aurora the
+   whole family resolves to calm solid panels: top-light gradient,
+   hairline border, layered soft shadow. Backdrop-filter is
+   removed everywhere EXCEPT the modal scrim. Class names are
+   untouched — every consumer keeps working, just calmer.
+   Unlayered so these out-rank Tailwind bg-* on the same nodes.
+   ============================================================ */
+.glass {
+  background-color: var(--glass-1);
+  background-image: none;
+  border: 1px solid var(--glass-border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: var(--sh-card), var(--glass-highlight);
+  /* PERF: the matte glass never tweened a shadow — hover swaps it instantly. */
+}
+.glass-strong {
+  background-color: var(--glass-2);
+  background-image: none;
+  border: 1px solid var(--glass-border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: var(--sh-float);
+}
+/* hover: the top light brightens a step; fill never flashes */
+.glass:hover,
+.glass-strong:hover,
+.glass-menu:hover {
+  box-shadow: var(--glass-shadow), var(--glass-highlight-hover);
+}
+/* text-heavy rails keep the plain panel fill */
+.glass:has(.set-rail) {
+  background-color: var(--panel);
+}
+
+/* chrome strips: titlebar / rail / status bar */
+.glass-chrome {
+  background-color: var(--bg1);
+  background-image: var(--glass-chrome-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: inset 0 -1px 0 var(--line-soft);
+}
+/* docked panels */
+.glass-dock {
+  background-color: var(--panel);
+  background-image: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+}
+/* section headers inside docks */
+.glass-strip {
+  background-color: color-mix(in srgb, var(--bg1) 92%, transparent);
+  background-image: var(--glass-chrome-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  container: statusbar / inline-size;
+}
+/* dropdown / context menus: elevated panel + float shadow */
+.glass-menu {
+  background-color: var(--glass-2);
+  background-image: none;
+  border: 1px solid var(--glass-border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: var(--sh-float);
+}
+
+/* modal scrim: the ONE sanctioned backdrop-filter in the app.
+   PERF: 10px → 6px — blur cost scales with radius, and 6px still reads as
+   the same frosted depth on a full-viewport surface. */
+.scrim-glass {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* toasts stay matte (override any leftover glass assumptions) */
+.toast {
+  background-color: var(--bg3);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: var(--sh-float);
+}
+
+/* noise tooth damped: matte surfaces only whisper */
+.grain.grain::after {
+  opacity: 0.025;
+}
+/* specular ring: keep the light sweep, at whisper strength */
+.spec-ring::after {
+  opacity: 0.4;
+}
+
+/* ---------- data-glass levels ----------
+   'medium' (default) = the matte token values above — no block.
+   'soft' = identical matte (kept for setting parity).
+   'strong' = the only faintly translucent level (still no blur).
+   'off' = fully opaque + hard kill of any backdrop-filter. */
+html[data-glass='soft'] {
+  --glass-bg: var(--panel);
+  --glass-bg-strong: color-mix(in srgb, var(--bg4) 45%, var(--panel));
+}
+html[data-glass='strong'] {
+  --glass-bg: color-mix(in srgb, var(--panel) 90%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--panel) 80%, transparent);
+  --glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.2),
+    0 14px 48px color-mix(in srgb, var(--acc) 8%, rgba(0, 0, 0, 0.4));
+}
+html[data-glass='off'] {
+  --glass-bg: var(--panel);
+  --glass-bg-strong: var(--bg4);
+  --glass-chrome-bg: none;
+  --glass-border: var(--line-strong);
+  --glass-shadow: var(--sh-card);
+}
+html[data-glass='off'] .glass,
+html[data-glass='off'] .glass-strong,
+html[data-glass='off'] .glass-chrome,
+html[data-glass='off'] .glass-dock,
+html[data-glass='off'] .glass-strip,
+html[data-glass='off'] .glass-menu,
+html[data-glass='off'] .scrim-glass,
+html[data-glass='off'] .sc-deck,
+html[data-glass='off'] .toast {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-image: none;
+}
+
+/* ---------- OS reduced transparency ----------
+   The scrim blur is a transparency effect — off. Aurora/grain/
+   specular collapse with it. */
+@media (prefers-reduced-transparency: reduce) {
+  .scrim-glass {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .spec-ring::after {
+    content: none;
+  }
+  .grain.grain::after {
+    opacity: 0;
+  }
+  html[data-ambient='on'] body::after,
+  html[data-ambient='soft'] body::after,
+  body::before {
+    content: none !important;
+  }
+  html[data-glass] {
+    --glass-bg: var(--panel);
+    --glass-bg-strong: var(--bg4);
+    --glass-chrome-bg: none;
+    --glass-border: var(--line-strong);
+    --glass-shadow: var(--sh-card);
+  }
+}
+
+/* ============================================================
+   23 · TRANSCRIPT MEASURE (data-chatwidth)
+   ============================================================ */
+html[data-chatwidth='cozy'] div[aria-live='polite'][aria-busy].overflow-y-auto > *,
+html[data-chatwidth='wide'] div[aria-live='polite'][aria-busy].overflow-y-auto > * {
+  width: 100%;
+  margin-inline: auto;
+}
+html[data-chatwidth='cozy'] div[aria-live='polite'][aria-busy].overflow-y-auto > * {
+  max-width: 740px;
+}
+html[data-chatwidth='wide'] div[aria-live='polite'][aria-busy].overflow-y-auto > * {
+  max-width: 980px;
+}
+
+/* ============================================================
+   24 · MOTION-SPEED SCALING (data-motion + --motion-scale)
+   --motion-scale divides durations; reduce-motion still wins.
+   ============================================================ */
+[data-motion] .anim-in {
+  animation-duration: calc(0.24s / var(--motion-scale, 1));
+}
+[data-motion] .anim-pop {
+  animation-duration: calc(0.16s / var(--motion-scale, 1));
+}
+[data-motion] .spin {
+  animation-duration: calc(0.47s / var(--motion-scale, 1));
+}
+[data-motion] .pulse-dot {
+  animation-duration: calc(1.1s / var(--motion-scale, 1));
+}
+[data-motion] .streaming-cursor::after {
+  animation-duration: calc(1.4s / var(--motion-scale, 1));
+}
+[data-motion] .shimmer {
+  animation-duration: calc(1.6s / var(--motion-scale, 1));
+}
+[data-motion] .thinking-live {
+  animation-duration: calc(1.4s / var(--motion-scale, 1));
+}
+[data-motion] .led {
+  animation-duration: calc(1.2s / var(--motion-scale, 1));
+}
+[data-motion] .msg-streaming > *:last-child {
+  animation-duration: calc(0.14s / var(--motion-scale, 1));
+}
+[data-motion] .tl2-card {
+  animation-duration: calc(0.16s / var(--motion-scale, 1));
+}
+[data-motion] .ctx-meter.ctx-crit .ctx-fill {
+  animation-duration: calc(2s / var(--motion-scale, 1));
+}
+[data-motion] .etab .etab-dirty {
+  animation-duration: calc(1.2s / var(--motion-scale, 1));
+}
+[data-motion] .toast-stack > .toast {
+  animation-duration: calc(0.24s / var(--motion-scale, 1));
+}
+[data-motion] .hero-in {
+  animation-duration: calc(0.4s / var(--motion-scale, 1));
+}
+
+/* ============================================================
+   25 · COMPACT DENSITY (html.compact-ui — set by SettingsModal)
+   Complements settings.css tightening: rows, tiles, toggles.
+   ============================================================ */
+html.compact-ui .keyrow {
+  min-height: 26px;
+  padding: 4px 8px;
+}
+html.compact-ui .defrow {
+  min-height: 28px;
+  padding-block: 6px;
+}
+html.compact-ui .ibtn {
+  width: 24px;
+  height: 24px;
+}
+html.compact-ui .icon-btn {
+  width: 26px;
+  height: 26px;
+}
+html.compact-ui .tog {
+  width: 30px;
+  height: 18px;
+}
+html.compact-ui .tog.is-on::after {
+  transform: translateX(12px);
+}
+html[dir='rtl'] html.compact-ui .tog.is-on::after,
+html.compact-ui html[dir='rtl'] .tog.is-on::after {
+  transform: translateX(-12px);
+}
+html.compact-ui .wscc-tile {
+  padding: 8px 10px;
+}
+html.compact-ui .qt-tile {
+  padding: 4px 8px;
+}
+html.compact-ui .sched-row {
+  padding: 6px;
+}
+html.compact-ui .blank-state {
+  padding: 28px 20px;
+}
+
+/* ============================================================
+   26 · AURORA SHELL CLASSES — new primitives for the shell
+   agents (additive; nothing else consumes them yet).
+   ============================================================ */
+
+/* .aurora-panel — the standard raised content panel. */
+.aurora-panel {
+  background:
+    var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--sh-card);
+}
+/* .aurora-panel-lg — heroes & large surfaces (14px radius). */
+.aurora-panel-lg {
+  background:
+    var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--sh-card);
+  padding: 16px;
+}
+/* .aurora-raised — hover-lift companion for interactive panels.
+   PERF: lift is transform + border only; the shadow lands in one paint. */
+.aurora-raised {
+  transition:
+    transform var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out);
+}
+.aurora-raised:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--sh-card), 0 12px 32px -12px rgba(0, 0, 0, 0.35);
+  border-color: var(--line-strong);
+}
+/* .aurora-divider — hairline rule (logical, RTL-safe). */
+.aurora-divider {
+  block-size: 1px;
+  inline-size: 100%;
+  background: var(--line);
+  border: none;
+}
+/* .glass-pill — pill badge: hairline ring + top light. */
+.glass-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding-inline: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background:
+    var(--bg3);
+  color: var(--dim);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+/* .aurora-shell — root frame for new shell surfaces. */
+.aurora-shell {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-app);
+  -webkit-font-smoothing: antialiased;
+}
+/* .aurora-gradient-text — iris→cyan brand moments. */
+.aurora-gradient-text {
+  background: var(--acc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* .aurora-ring — inset accent ring for selected states. */
+.aurora-ring {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 45%, transparent);
+}
+
+/* ============================================================
+   27 · REDUCED MOTION GATES
+   prefers-reduced-motion (OS) and html.reduce-motion (settings)
+   both freeze every animation this file defines. tokens.css
+   already carries the global kill-switch floor; these explicit
+   gates keep semantics when specificities fight.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .anim-in,
+  .anim-pop,
+  .spin,
+  .pulse-dot,
+  .shimmer,
+  .thinking-live,
+  .streaming-cursor::after,
+  .led,
+  .msg-streaming > *:last-child,
+  .tl2-card,
+  .ctx-meter.ctx-crit .ctx-fill,
+  .etab .etab-dirty,
+  .toast-stack > .toast,
+  .hero-in,
+  .bon-chip.is-run::before,
+  .anim-search {
+    animation: none;
+  }
+  .toast-stack > .toast.toast-exit {
+    animation: toastFadeOut 0.15s ease both;
+  }
+}
+html.reduce-motion .anim-in,
+html.reduce-motion .anim-pop,
+html.reduce-motion .spin,
+html.reduce-motion .pulse-dot,
+html.reduce-motion .shimmer,
+html.reduce-motion .thinking-live,
+html.reduce-motion .streaming-cursor::after,
+html.reduce-motion .led,
+html.reduce-motion .msg-streaming > *:last-child,
+html.reduce-motion .tl2-card,
+html.reduce-motion .ctx-meter.ctx-crit .ctx-fill,
+html.reduce-motion .etab .etab-dirty,
+html.reduce-motion .toast-stack > .toast,
+html.reduce-motion .hero-in,
+html.reduce-motion .bon-chip.is-run::before,
+html.reduce-motion .anim-search {
+  animation: none !important;
+}
+
+/* ============================================================
+   28 · HIGH-CONTRAST RE-FORCES
+   The high theme collapses any residual translucency.
+   ============================================================ */
+html[data-theme='high'] .glass,
+html[data-theme='high'] [class*='glass'] {
+  background: var(--panel) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-image: none !important;
+}
+
+/* ============================================================
+   29 · STATUS-BAR OVERFLOW CONTRACT (container queries)
+   The status strip packs many chips; on real window widths its
+   shrink-0 rows ran past the window edge. The strip is a size
+   container (declared on .glass-strip above); secondary chips
+   lose their TEXT first (icon + tooltip survive), then vanish.
+   ============================================================ */
+@container statusbar (max-width: 1760px) {
+  .glass-strip .sb-secondary span:not(.sb-dot) {
+    display: none;
+  }
+  .glass-strip .sb-secondary {
+    gap: 0;
+    padding-inline: 7px;
+  }
+}
+@container statusbar (max-width: 1520px) {
+  .glass-strip .sb-secondary {
+    display: none;
+  }
+}
+
+/* ============================================================
+   30 · TSX-REFERENCED CLASSES WITH NO PRIOR STYLING
+   Found during the redesign audit: referenced in components but
+   never defined in ANY stylesheet. Minimal Aurora-voice bases
+   so they render correctly (other agents may extend them).
+   ============================================================ */
+
+/* FileTree rows — visible keyboard focus without double rings
+   (the markup pairs it with Tailwind focus:outline-none) */
+.row-focus:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--acc) 55%, transparent);
+  border-radius: var(--radius-sm);
+}
+
+/* SearchPanel mount animation */
+@keyframes search-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.anim-search {
+  animation: search-in 0.16s var(--ease-out) both;
+}
+
+/* DiffModal hunk blocks — hard-LTR like every code surface */
+.diff-hunk {
+  font-family: var(--font-mono2);
+  font-size: 11.5px;
+  line-height: 1.55;
+  direction: ltr;
+  text-align: left;
+  background: var(--bg1);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  overflow: auto;
+  user-select: text;
+  white-space: pre;
+}
+
+/* DnaPanel scroll container guard */
+.dna-panel {
+  min-width: 0;
+}
+
+/* ============================================================
+   SADEEM — HOME page (v10)
+   Calm overview over real store data. Flat cards, one accent.
+   ============================================================ */
+.hm-page {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--bg);
+}
+.hm-inner {
+  max-width: 1000px;
+  margin-inline: auto;
+  padding: 28px 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.hm-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  box-shadow: var(--sh-card);
+}
+.hm-hero-tx { flex: 1; min-width: 0; }
+.hm-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 2px;
+}
+html[lang='ar'] .hm-title,
+html[dir='rtl'] .hm-title {
+  font-family: var(--font-display-ar);
+}
+.hm-sub { font-size: 12.5px; color: var(--dim); margin: 0; }
+.hm-actions { display: flex; gap: 8px; }
+.hm-cta, .hm-cta2 { height: 32px; }
+.hm-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+.hm-metric {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  text-align: start;
+  cursor: default;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--panel);
+  transition: border-color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+  min-width: 0;
+}
+.hm-metric:disabled { cursor: default; }
+.hm-metric:not(:disabled):hover {
+  border-color: var(--line-strong);
+  background: var(--panel2);
+}
+.hm-metric-ic { color: var(--dim); display: inline-flex; }
+.hm-metric-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.hm-metric-label { font-size: 10.5px; color: var(--faint); }
+.hm-metric-value { font-size: 12px; font-weight: 600; }
+.hm-metric-go { color: var(--ghost); opacity: 0; transition: opacity var(--dur-1); }
+.hm-metric:not(:disabled):hover .hm-metric-go { opacity: 1; }
+.hm-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  box-shadow: var(--sh-card);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hm-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.hm-card-head .caps { color: var(--dim); font-size: 10.5px; }
+.hm-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--dim);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+.hm-more:hover { color: var(--acc); background: var(--hover); }
+.hm-goal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg1);
+  border: 1px solid var(--line-soft);
+  min-width: 0;
+}
+.hm-goal-dot {
+  width: 7px; height: 7px; border-radius: 999px;
+  background: var(--acc);
+  flex-shrink: 0;
+}
+.hm-goal-dot.is-agent { background: var(--agent); }
+.hm-goal-dot.is-live { background: var(--info); animation: hm-pulse 1.6s ease-in-out infinite; }
+@keyframes hm-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.hm-goal-tx { flex: 1; min-width: 0; }
+.hm-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.hm-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: start;
+  border: 1px solid transparent;
+  transition: background var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
+  min-width: 0;
+}
+.hm-row:hover { background: var(--hover); border-color: var(--line-soft); }
+.hm-row-dot {
+  width: 7px; height: 7px; border-radius: 999px;
+  background: var(--ghost);
+  flex-shrink: 0;
+}
+.hm-row-dot[data-live='true'] { background: var(--ok); }
+.hm-row-tx { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.hm-row-title { font-size: 12.5px; font-weight: 550; color: var(--ink); }
+.hm-row-meta { font-size: 10.5px; color: var(--faint); }
+.hm-row-time { font-size: 10.5px; color: var(--ghost); }
+.hm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px;
+  color: var(--faint);
+  text-align: center;
+}
+.hm-empty p { margin: 0; font-size: 12px; max-width: 46ch; }
+.hm-projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 8px;
+}
+.hm-proj {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg1);
+  cursor: pointer;
+  text-align: start;
+  transition: border-color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+  min-width: 0;
+}
+.hm-proj:hover { border-color: color-mix(in srgb, var(--acc) 45%, var(--line)); background: var(--panel2); }
+.hm-proj-ic { color: var(--acc); }
+.hm-proj-name { font-size: 12.5px; font-weight: 600; color: var(--ink); max-width: 100%; }
+.hm-proj-path { font-size: 10px; color: var(--ghost); max-width: 100%; }
+.hm-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  padding-block: 6px 2px;
+}
+
+/* ============================================================
+   v10.2 — motion polish: calm micro-animations (flat, no gradients)
+   ============================================================ */
+@keyframes sd-fade-slide {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: none; }
+}
+/* v11.3 — stream rows reveal SLOW and FLUID: a 420ms ease-out rise on
+   cubic-bezier(0.22,1,0.36,1). Nothing pops; each row settles calmly —
+   the user asked for a smooth chain, never rapid one-after-another. */
+.msg-in { animation: sd-fade-slide 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.sc-deck-row { animation: sd-fade-slide 0.36s cubic-bezier(0.22, 1, 0.36, 1) both; }
+button, .btn { transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
+html.reduce-motion .msg-in,
+html.reduce-motion .sc-deck-row {
+  animation: none !important;
+}
+
+/* ============================================================
+   v11 — STAGE PAGES: feature panels own the center column.
+   The page header keeps the numbered contract; the content is a
+   centered max-width column (no dead one-sided gutter) with its
+   own scroll container.
+   ============================================================ */
+.stage-page {
+  background: var(--bg);
+}
+.stage-head {
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.stage-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+  /* PERF: this is already an overflow-y:auto scroller; isolating layout and
+     paint keeps its long page content from invalidating the shell on scroll. */
+  contain: layout paint;
+}
+.stage-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.stage-scroll::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.stage-col {
+  width: 100%;
+  max-width: 1080px;
+  margin-inline: auto;
+  /* v11.10 (A8) de-density: 18px 22px 40px → 22px 26px 48px — the stage
+     pages breathe one notch more; max-width contract unchanged. */
+  padding: 22px 26px 48px;
+}
+@media (max-width: 1100px) {
+  .stage-col {
+    padding: 16px 18px 36px;
+  }
+}

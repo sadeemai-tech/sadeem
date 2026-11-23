@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-label="A browser window where a small sprout grows — the preview is waiting">
+  <!-- SADEEM v11.11 · empty-preview · hand-authored, license-clean -->
+  <defs>
+    <linearGradient id="win" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1B2430"/>
+      <stop offset="1" stop-color="#10151D"/>
+    </linearGradient>
+    <radialGradient id="pglow" cx="0.5" cy="0.5" r="0.65">
+      <stop offset="0" stop-color="#98D83B" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#98D83B" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <ellipse cx="160" cy="118" rx="128" ry="80" fill="url(#pglow)"/>
+
+  <!-- browser window -->
+  <g class="ill-float">
+    <rect x="64" y="44" width="192" height="132" rx="14" fill="url(#win)" stroke="rgba(212,224,242,0.18)" stroke-width="1.5"/>
+    <line x1="64" y1="74" x2="256" y2="74" stroke="rgba(212,224,242,0.12)" stroke-width="1.2"/>
+    <circle cx="82" cy="59" r="4" fill="#97A5B8" opacity="0.7"/>
+    <circle cx="96" cy="59" r="4" fill="#97A5B8" opacity="0.45"/>
+    <circle cx="110" cy="59" r="4" fill="#98D83B" opacity="0.8"/>
+    <rect x="126" y="53" width="112" height="12" rx="6" fill="rgba(212,224,242,0.08)"/>
+    <rect x="126" y="53" width="70" height="12" rx="6" fill="rgba(152,216,59,0.16)"/>
+
+    <!-- page placeholders -->
+    <rect x="82" y="90" width="70" height="8" rx="4" fill="rgba(212,224,242,0.10)"/>
+    <rect x="82" y="104" width="52" height="8" rx="4" fill="rgba(212,224,242,0.07)"/>
+
+    <!-- pot -->
+    <path d="M186 128 h44 l-6 30 a6 6 0 0 1 -6 5 h-20 a6 6 0 0 1 -6 -5 z" fill="#1B2430" stroke="rgba(212,224,242,0.16)" stroke-width="1.4"/>
+    <rect x="182" y="122" width="52" height="10" rx="4" fill="#131A23" stroke="rgba(212,224,242,0.16)" stroke-width="1.4"/>
+
+    <!-- sprout -->
+    <path d="M208 122 v-26" stroke="#98D83B" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M208 104 c-3 -12 -12 -16 -22 -16 c2 12 10 17 22 16z" fill="#98D83B"/>
+    <path d="M208 96 c3 -11 11 -15 21 -15 c-2 11 -9 16 -21 15z" fill="#A9E34D"/>
+  </g>
+
+  <!-- quiet ground line -->
+  <path d="M88 196 Q 160 182 232 196" stroke="rgba(212,224,242,0.12)" stroke-width="2" stroke-linecap="round" fill="none"/>
+</svg>

@@ -1,0 +1,216 @@
+/* ============================================================
+   SADEEM — mcp-art.css  (STABLE, version-free)
+   Editorial skin for MCPPanel only. Scoped under `.art-mcp`.
+   Ink on paper: serif display, mono instrumentation, hairlines.
+   Palette UNCHANGED — var(--…) / currentColor only. No gradients,
+   no glow, no shadow. Motion is guarded twice (OS preference +
+   html.reduce-motion) and uses currentColor / tokens only.
+   ============================================================ */
+
+/* ---- 0 · type scale for this page (body >= 13px) ---------- */
+.page-v14.page-v14.art-mcp {
+  --pv-text: 13px;
+  --pv-meta: 11.5px;
+  --pv-label: 10.5px;
+}
+.page-v14.page-v14.art-mcp.art-mcp { min-width: 0; }
+/* lift the shell's forced 10/11px body steps toward a >=13px reading size */
+.page-v14.page-v14.art-mcp [class*='text-[10'] { font-size: 12px !important; }
+.page-v14.page-v14.art-mcp [class*='text-[11'] { font-size: 13px !important; }
+
+/* ---- 1 · masthead ------------------------------------------ */
+.page-v14.page-v14.art-mcp .pv14-head {
+  position: relative !important;
+  padding: 2px 0 16px !important;
+  border-bottom: 0 !important;
+  background: transparent !important;
+}
+.page-v14.page-v14.art-mcp .pv14-head::before { display: none !important; }
+/* the ONE deliberate hairline draw on mount */
+.page-v14.page-v14.art-mcp .pv14-head::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: mc-rule-draw 900ms var(--ease-out, ease) both;
+}
+html[dir='rtl'] .page-v14.page-v14.art-mcp .pv14-head::after { transform-origin: right center; }
+@keyframes mc-rule-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.page-v14.page-v14.art-mcp .pv14-title {
+  font-family: var(--font-display-serif, Georgia, serif) !important;
+  font-size: 22px !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.12 !important;
+}
+html[lang='ar'] .page-v14.page-v14.art-mcp .pv14-title,
+html[dir='rtl'] .page-v14.page-v14.art-mcp .pv14-title {
+  font-family: var(--font-display-ar, var(--font-display-serif)) !important;
+  font-weight: 700 !important;
+  font-size: 19px !important;
+  letter-spacing: 0 !important;
+}
+.page-v14.page-v14.art-mcp .pv14-eyebrow {
+  font-family: var(--font-mono-x, var(--font-mono2, monospace)) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: var(--faint) !important;
+}
+.page-v14.page-v14.art-mcp .pv14-desc {
+  font-size: 13px !important;
+  line-height: 1.65 !important;
+  color: var(--dim) !important;
+  max-width: 60ch !important;
+}
+/* 1px editorial glyph, parked in the head's action slot */
+.page-v14.page-v14.art-mcp .pv14-head-actions { align-self: flex-start; }
+.mc-glyph { width: 66px; height: 30px; color: var(--faint); display: block; }
+.mc-glyph svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.mc-glyph [stroke] { vector-effect: non-scaling-stroke; }
+.mc-glyph .mc-g-dot { fill: var(--acc); stroke: none; }
+
+/* ---- 2 · CARDS -> hairline-separated sections -------------- */
+.page-v14.page-v14.art-mcp .aurora-panel,
+.page-v14.page-v14.art-mcp .aurora-panel-lg {
+  border: 0 !important;
+  border-top: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 16px 0 !important;
+  transform: none !important;
+  animation: none !important;
+}
+.page-v14.page-v14.art-mcp .aurora-panel:hover,
+.page-v14.page-v14.art-mcp .aurora-panel-lg:hover {
+  border-top-color: var(--line) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.page-v14.page-v14.art-mcp .aurora-panel.keyrow-list,
+.page-v14.page-v14.art-mcp .aurora-panel.overflow-hidden { padding: 0 !important; }
+/* server cards are already hairline rows inside one column */
+.page-v14.page-v14.art-mcp .mcp-server-card {
+  border: 0 !important;
+  border-top: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 16px 0 !important;
+}
+.page-v14.page-v14.art-mcp .mcp-server-card:hover { background: transparent !important; }
+.page-v14.page-v14.art-mcp .keyrow,
+.page-v14.page-v14.art-mcp .mcp-tool-row,
+.page-v14.page-v14.art-mcp .tree-row {
+  min-height: 46px !important;
+  border-top: 1px solid var(--line-soft) !important;
+  border-radius: 0 !important;
+  padding: 10px 2px !important;
+}
+.page-v14.page-v14.art-mcp .keyrow:hover,
+.page-v14.page-v14.art-mcp .mcp-tool-row:hover,
+.page-v14.page-v14.art-mcp .tree-row:hover { background: color-mix(in srgb, var(--ink) 3%, transparent) !important; }
+
+/* ---- 3 · CONNECTION PLATE (the centerpiece) ---------------- */
+.mc-plate {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: clamp(16px, 3vw, 30px);
+  padding: 14px 0 18px;
+  border-bottom: 1px solid var(--line-soft);
+  min-width: 0;
+}
+.mc-plate-art { width: 150px; height: 150px; flex: 0 0 auto; color: var(--dim); }
+.mc-plate-art svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.mc-plate-art [stroke] { vector-effect: non-scaling-stroke; }
+.mc-ring { fill: none; stroke: currentColor; stroke-width: 1; }
+.mc-ring--dash { stroke-dasharray: 2 6; opacity: .5; }
+.mc-ring--inner { opacity: .55; }
+.mc-spoke { fill: none; stroke: currentColor; stroke-width: 1; opacity: .65; }
+.mc-hub { fill: none; stroke: currentColor; stroke-width: 1; }
+.mc-dot { fill: currentColor; stroke: none; }
+.mc-dot--terminal { fill: var(--acc); stroke: none; }
+.mc-center { fill: var(--acc); stroke: none; }
+/* status arc: geometry computed in TSX (r=78, C=2πr); accent only */
+.mc-status {
+  fill: none;
+  stroke: var(--acc);
+  stroke-width: 2;
+  transform: rotate(-90deg);
+  transform-origin: 100px 100px;
+}
+.mc-plate-copy { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.mc-plate-fig {
+  font-family: var(--font-mono-x, monospace);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.mc-plate-num {
+  font-family: var(--font-display-serif, Georgia, serif);
+  font-size: 32px;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -.02em;
+}
+html[lang='ar'] .mc-plate-num,
+html[dir='rtl'] .mc-plate-num {
+  font-family: var(--font-display-ar, var(--font-display-serif));
+  font-weight: 700;
+}
+.mc-plate-legend { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
+.mc-plate-legend-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-height: 22px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 3px;
+}
+.mc-plate-legend-k {
+  font-family: var(--font-mono-x, monospace);
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  min-width: 78px;
+}
+.mc-plate-legend-v {
+  font-family: var(--font-mono-x, monospace);
+  font-size: 12.5px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+/* terminal dot cluster (bottom-left of plate) */
+.mc-term { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; }
+.mc-term i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .55; display: block; }
+.mc-term i:first-child { background: var(--acc); opacity: 1; }
+
+/* ---- 4 · reveal (IntersectionObserver, opt-in) ------------- */
+.mc-reveal { transition: opacity 620ms var(--ease-out, ease), transform 620ms var(--ease-out, ease); }
+.mc-reveal:not([data-in='true']) { opacity: 0; transform: translateY(8px); }
+
+/* ---- 5 · calm hover on the plate --------------------------- */
+@media (hover: hover) {
+  .mc-plate-art svg { transition: opacity 260ms var(--ease-out, ease); }
+  .mc-plate:hover .mc-plate-art svg { opacity: .78; }
+}
+
+/* ---- 6 · MOTION KILL SWITCHES ------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .page-v14.page-v14.art-mcp .pv14-head::after { animation: none !important; transform: none !important; }
+  .mc-reveal { transition: none !important; }
+  .mc-reveal:not([data-in='true']) { opacity: 1 !important; transform: none !important; }
+}
+html.reduce-motion .page-v14.page-v14.art-mcp .pv14-head::after { animation: none !important; transform: none !important; }
+html.reduce-motion .mc-reveal { transition: none !important; }
+html.reduce-motion .mc-reveal:not([data-in='true']) { opacity: 1 !important; transform: none !important; }

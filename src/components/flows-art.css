@@ -1,0 +1,209 @@
+/* ============================================================
+   SADEEM — flows-art.css  (STABLE · imported by flows.css)
+   ------------------------------------------------------------
+   The artistic layer for the Flows page: engraved registration
+   crosshairs, a precise static "has run" marker, ONE deliberate
+   hairline draw on mount, and a staggered row reveal. No grain,
+   gradients or glows; only existing tokens at rest. Every motion
+   yields to BOTH prefers-reduced-motion and html.reduce-motion.
+   ============================================================ */
+
+/* ---------- 1 · engraved registration crosshairs ----------
+   Fixed to the panel corners, pointer-transparent, 1px strokes. */
+.fl-cross {
+  position: absolute;
+  inline-size: 26px;
+  block-size: 26px;
+  color: var(--faint);
+  opacity: 0.62;
+  pointer-events: none;
+  z-index: 2;
+}
+.fl-cross--tl {
+  inset-block-start: 8px;
+  inset-inline-start: 9px;
+}
+.fl-cross--br {
+  inset-block-end: 8px;
+  inset-inline-end: 9px;
+}
+.fl-cross svg [stroke],
+.fl-cross [vector-effect] {
+  vector-effect: non-scaling-stroke;
+}
+/* precision: hairline registration strokes resolve at exact coordinates —
+   no half-pixel fuzz on the 1px crosshair ticks. */
+.fl-cross svg {
+  shape-rendering: geometricPrecision;
+}
+
+/* ---------- 2 · "has been run" marker — a precise, static ring ----------
+   A quiet 6px dot with a hairline ring. It is a fact marker, not a
+   continuous animation: the motion vocabulary here is draw / hover /
+   stagger only. */
+.fl-breathe {
+  position: relative;
+  inline-size: 6px;
+  block-size: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--acc);
+  border: 1px solid color-mix(in srgb, var(--acc) 32%, transparent);
+}
+/* precision detail: a token-coloured 1px registration ring around the dot —
+   the "has run" fact now reads as an instrument dial, not a flat blob. Static
+   (no motion), pointer-transparent, and sized in whole screen pixels. */
+.fl-breathe::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 1px solid color-mix(in srgb, var(--faint) 55%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ---------- 3 · the ONE deliberate hairline draw (on mount) ---------- */
+@keyframes fl-draw {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.fl-rule-art {
+  display: inline-block;
+  inline-size: 22px;
+  block-size: 1px;
+  background: var(--acc);
+  transform-origin: left center;
+  animation: fl-draw 700ms var(--ease-out) both;
+}
+/* RTL: mirror the draw origin from the inline-end edge. Key off BOTH signals
+   — dir='rtl' is authoritative; lang='ar' is the legacy fallback (an Arabic
+   locale can still run with dir='ltr' before the shell applies direction). */
+html[dir='rtl'] .fl-rule-art,
+html[lang='ar'] .fl-rule-art {
+  transform-origin: right center;
+}
+
+/* ---------- 4 · staggered row reveal (calm, 8px rise) ---------- */
+@keyframes fl-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.fl-reveal {
+  animation: fl-rise 380ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+/* ---------- 5 · kill switches — OS preference + manual class ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .fl-reveal,
+  .fl-rule-art {
+    animation: none !important;
+    transition: none !important;
+  }
+  .fl-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .fl-rule-art,
+  .fl-status-line::after {
+    transform: scaleX(1) !important;
+  }
+}
+html.reduce-motion .fl-reveal,
+html.reduce-motion .fl-rule-art {
+  animation: none !important;
+  transition: none !important;
+}
+html.reduce-motion .fl-reveal {
+  opacity: 1 !important;
+  transform: none !important;
+}
+html.reduce-motion .fl-rule-art,
+html.reduce-motion .fl-status-line::after {
+  transform: scaleX(1) !important;
+}
+
+/* ============================================================
+   v1142 · CONNECTED-NODE FLOW (additive)
+   ------------------------------------------------------------
+   The founder's "more drawings from the same app": a hairline chain
+   of two nodes joined by the existing draw-in rule, with ONE 1px
+   lime pulse riding the edge once per 2.8s cadence. The same pulse
+   travels the app's own engraved loop in the empty state via a
+   stroke-dashoffset flow — no new colour, no box, no gradient.
+   Pointer-transparent; frozen by BOTH motion signals and the
+   data-art kill switch.
+   ============================================================ */
+.page-v14 .fl-compare-note {
+  position: relative;
+}
+/* node A + node B — two 1px rings seated on the spine ends */
+.page-v14 .fl-compare-note::before,
+.page-v14 .fl-compare-note::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 50%;
+  inline-size: 5px;
+  block-size: 5px;
+  margin-block-start: -2.5px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--bg1);
+  pointer-events: none;
+}
+.page-v14 .fl-compare-note::before { inset-inline-start: 16px; }
+.page-v14 .fl-compare-note::after { inset-inline-start: 54px; }
+/* the spine — the existing one-shot rule widened into an edge */
+.page-v14 .fl-compare-note .fl-rule-art {
+  position: relative;
+  inline-size: 40px;
+  background: var(--line);
+}
+/* the travelling 1px pulse */
+.page-v14 .fl-compare-note .fl-rule-art::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: -2px;
+  inline-size: 1px;
+  block-size: 5px;
+  background: var(--acc);
+  pointer-events: none;
+  animation: v1142-flow-pulse 2.8s var(--ease-out, ease-out) infinite;
+}
+@keyframes v1142-flow-pulse {
+  0%   { transform: translateX(0);     opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(39px); opacity: 0; }
+}
+html[dir='rtl'] .page-v14 .fl-compare-note .fl-rule-art::after {
+  animation-name: v1142-flow-pulse-rtl;
+}
+@keyframes v1142-flow-pulse-rtl {
+  0%   { transform: translateX(0);      opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(-39px); opacity: 0; }
+}
+/* the app's own engraved loop — a 1px dash-flow along its edges */
+.page-v14 .fl-empty-art path[stroke-dasharray] {
+  animation: v1142-edge-pulse 2.8s linear infinite;
+}
+@keyframes v1142-edge-pulse {
+  to { stroke-dashoffset: -16; }
+}
+
+/* motion scale + BOTH reduced-motion signals + the art kill switch */
+[data-motion] .page-v14 .fl-compare-note .fl-rule-art::after,
+[data-motion] .page-v14 .fl-empty-art path[stroke-dasharray] {
+  animation-duration: calc(2.8s / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-v14 .fl-compare-note .fl-rule-art::after,
+  .page-v14 .fl-empty-art path[stroke-dasharray] { animation: none !important; }
+}
+html.reduce-motion .fl-compare-note .fl-rule-art::after,
+html.reduce-motion .fl-empty-art path[stroke-dasharray] { animation: none !important; }
+html[data-art='off'] .fl-compare-note .fl-rule-art::after,
+html[data-art='off'] .fl-empty-art path[stroke-dasharray] { animation: none !important; }

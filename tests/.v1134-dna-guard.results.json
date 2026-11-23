@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-11-22T20:55:17.867Z",
+  "verdict": "ALL-GUARDS-PASS",
+  "guards": {
+    "accumulate": "PASS",
+    "capEviction": "PASS",
+    "promptRestart": "PASS",
+    "capsHonest": "PASS",
+    "transientError": "PASS"
+  },
+  "findings": [
+    {
+      "id": "1a-accumulate",
+      "status": "PASS",
+      "detail": "4/4 distinct facts physically present; factsRecorded=4",
+      "fileLine": "electron/agent/engine.ts:4207-4228,7055-7097; electron/agent/dna.ts:434-502"
+    },
+    {
+      "id": "1b-cap-eviction",
+      "status": "PASS",
+      "detail": "new fact kept at cap; 60 active; 59 reinforced old left (1 evicted); factsRecorded=61",
+      "fileLine": "electron/agent/dna.ts:53-54,412-421,434-502; electron/agent/engine.ts:7096"
+    },
+    {
+      "id": "2-prompt-restart",
+      "status": "PASS",
+      "detail": "new fact entered full 8-reinforced window, uncached tail + downgrade path; fresh reload + honest status + IPC OK",
+      "fileLine": "electron/agent/engine.ts:2421; electron/agent/prompts.ts:923,962; electron/agent/providers.ts:1829,1831; electron/agent/dna.ts:597-680"
+    },
+    {
+      "id": "3-caps-honest",
+      "status": "PASS",
+      "detail": "bounded 60/40 constants + lossless eviction; caps documented in docs/DNA-V1134.md; no unlimited claim",
+      "fileLine": "electron/agent/dna.ts:53-68,385-390,412-421,434-502; docs/DNA-V1134.md"
+    },
+    {
+      "id": "4-transient-error",
+      "status": "PASS",
+      "detail": "fact recovered after 2 extraction calls (transient error then success)",
+      "fileLine": "electron/agent/engine.ts:7055-7101"
+    }
+  ]
+}

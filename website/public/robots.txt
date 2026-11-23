@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Public, crawlable marketing + documentation site.
+# Release binaries live on Vercel Blob and are intentionally not listed here.
+
+Sitemap: https://sadeem-ai.com/sitemap.xml

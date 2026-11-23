@@ -1,0 +1,392 @@
+/* ============================================================
+   SADEEM v11.38 — signature-art.css (additive, signature panel only)
+   Hairline instrument grammar: 1px rules, 2px meters, tabular numerals.
+   No cards, no gradients, no shadows, no colored backgrounds.
+   All colors come from the existing theme tokens; RTL is inherited
+   from the panel's `dir` attribute, data strings use `dir="auto"`.
+   ============================================================ */
+
+.sg-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding: 12px 14px 22px;
+  color: var(--ink);
+}
+
+.sg-glyph {
+  display: block;
+  width: 64px;
+  height: 18px;
+  color: var(--acc);
+  opacity: .8;
+}
+
+/* ---- hairline tab strip ------------------------------------- */
+.sg-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 0 0 auto;
+}
+.sg-tabs::-webkit-scrollbar { display: none; }
+.sg-tab {
+  position: relative;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--faint);
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 10px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  padding: 8px 14px 9px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 140ms ease;
+}
+.sg-tab:hover { color: var(--ink); }
+.sg-tab.is-on { color: var(--acc); }
+.sg-tab.is-on::after {
+  content: '';
+  position: absolute;
+  inset-inline: 10px;
+  bottom: -1px;
+  height: 1px;
+  background: var(--acc);
+}
+
+/* ---- sections ------------------------------------------------ */
+.sg-section { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.sg-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 10.5px;
+  color: var(--dim);
+}
+.sg-field { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.sg-field > span { color: var(--faint); font-size: 9.5px; text-transform: uppercase; letter-spacing: .07em; }
+.sg-field select {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--ink);
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 16px 3px 2px;
+  max-width: 34ch;
+  cursor: pointer;
+}
+.sg-field select:focus-visible { outline: 1px solid var(--acc); outline-offset: 2px; }
+.sg-toolbar-stat { color: var(--faint); white-space: nowrap; }
+.sg-code {
+  display: inline-block;
+  margin-inline-start: 8px;
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 9px;
+  color: var(--faint);
+  border-bottom: 1px dotted var(--line-strong);
+}
+
+/* ---- replay: one vertical hairline plus 1px row rules -------- */
+.sg-thread {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 14px;
+  position: relative;
+}
+[dir='rtl'] .sg-thread { padding: 0 14px 0 0; }
+.sg-thread::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 3px;
+  width: 1px;
+  background: var(--line);
+}
+.sg-step {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  padding: 8px 0 10px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.sg-step::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -14px;
+  top: 13px;
+  width: 7px;
+  height: 1px;
+  background: var(--line-strong);
+}
+[dir='rtl'] .sg-step::before { inset-inline-start: auto; inset-inline-end: -14px; }
+.sg-step--tool_call::before, .sg-step--tool_result::before { background: var(--acc); }
+.sg-step-no {
+  flex: 0 0 2.4ch;
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 9px;
+  color: var(--faint);
+  padding-top: 2px;
+}
+.sg-step-main { flex: 1 1 auto; min-width: 0; }
+.sg-step-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.sg-step-kind {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--dim);
+}
+.sg-step-label {
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 11.5px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 32ch;
+}
+.sg-step-metric, .sg-step-src, .sg-step-bad, .sg-step-warn {
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 9px;
+  color: var(--faint);
+}
+.sg-step-bad { color: var(--bad); }
+.sg-step-warn { color: var(--warn); border-bottom: 1px dotted var(--warn); }
+.sg-step-src { opacity: .7; }
+.sg-step-io { display: flex; gap: 8px; align-items: flex-start; margin-top: 4px; min-width: 0; }
+.sg-step-k {
+  flex: 0 0 5ch;
+  font-size: 9px;
+  color: var(--faint);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding-top: 1px;
+}
+.sg-step-code {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--dim);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.sg-step-foot { display: flex; gap: 10px; margin-top: 4px; font-size: 9px; color: var(--faint); }
+.sg-caveat {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--faint);
+}
+
+/* ---- DNA autopsy --------------------------------------------- */
+.sg-findings { list-style: none; margin: 0; padding: 0; }
+.sg-finding { padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+.sg-finding-head { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.sg-finding-kind {
+  flex: 0 0 auto;
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 9px;
+  color: var(--agent, var(--acc));
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.sg-finding-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.sg-finding-live {
+  flex: 0 0 auto;
+  font-size: 9px;
+  color: var(--acc);
+  border-bottom: 1px solid var(--acc);
+}
+.sg-finding-meter { position: relative; height: 2px; margin-top: 8px; background: var(--line-soft); }
+.sg-finding-fill { position: absolute; inset-block: 0; inset-inline-start: 0; background: var(--acc); }
+[dir='rtl'] .sg-finding-fill { inset-inline-start: auto; inset-inline-end: 0; }
+.sg-finding-score {
+  position: absolute;
+  inset-inline-end: 0;
+  top: -14px;
+  font-size: 9px;
+  color: var(--faint);
+}
+.sg-finding-basis {
+  margin-top: 6px;
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 9px;
+  color: var(--faint);
+  overflow-wrap: anywhere;
+}
+.sg-finding-why { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+.sg-why {
+  font-size: 9px;
+  color: var(--dim);
+  border-bottom: 1px solid var(--line-strong);
+  padding-bottom: 1px;
+}
+.sg-why--count { color: var(--acc); border-color: var(--acc); }
+.sg-evidence { list-style: none; margin: 8px 0 0; padding: 0; }
+.sg-evidence li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 3px 0;
+  border-top: 1px solid var(--line-soft);
+  font-size: 10px;
+  color: var(--dim);
+  min-width: 0;
+}
+.sg-ev-src {
+  flex: 0 0 auto;
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 8.5px;
+  color: var(--faint);
+}
+.sg-ev-ctx { flex: 0 0 auto; color: var(--faint); font-size: 9px; }
+.sg-ev-text { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.sg-ev-at { flex: 0 0 auto; font-size: 9px; color: var(--faint); }
+
+/* ---- capability compass -------------------------------------- */
+.sg-intent { display: flex; flex-direction: column; gap: 5px; }
+.sg-intent > span { font-size: 9.5px; color: var(--faint); text-transform: uppercase; letter-spacing: .07em; }
+.sg-intent input {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 2px;
+  outline: none;
+}
+.sg-intent input:focus { border-bottom-color: var(--acc); }
+.sg-intent input::placeholder { color: var(--faint); }
+.sg-coverage { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 10px; }
+.sg-coverage-label { color: var(--dim); }
+.sg-coverage-track { flex: 1 1 120px; height: 2px; background: var(--line-soft); }
+.sg-coverage-fill { display: block; height: 100%; background: var(--acc); }
+.sg-coverage-num, .sg-coverage-unknown { color: var(--faint); font-size: 9.5px; white-space: nowrap; }
+.sg-recs { list-style: none; margin: 0; padding: 0; }
+.sg-rec { padding: 9px 0; border-bottom: 1px solid var(--line-soft); }
+.sg-rec-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.sg-rec-name { font-size: 12px; color: var(--ink); }
+.sg-rec-profile, .sg-rec-score, .sg-rec-used {
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 9px;
+  color: var(--faint);
+}
+.sg-rec-score { color: var(--acc); }
+.sg-rec-hint { margin-top: 4px; font-size: 10.5px; color: var(--dim); line-height: 1.5; overflow-wrap: anywhere; }
+.sg-rec-reasons { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+.sg-rec-reason {
+  display: inline-flex;
+  gap: 5px;
+  align-items: baseline;
+  max-width: 46ch;
+  border-bottom: 1px solid var(--line-soft);
+  padding-bottom: 1px;
+}
+.sg-rec-reason-type {
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 8.5px;
+  color: var(--faint);
+  text-transform: uppercase;
+}
+.sg-rec-reason-detail {
+  font-size: 9px;
+  color: var(--dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 38ch;
+}
+.sg-rec-reason--routed-away { border-color: color-mix(in srgb, var(--warn) 50%, transparent); }
+.sg-rec-reason--routed-here { border-color: var(--acc); }
+.sg-undiscovered { border-top: 1px solid var(--line); padding-top: 10px; }
+.sg-subhead {
+  font-family: var(--font-mono-x, var(--font-mono2, monospace));
+  font-size: 9px;
+  color: var(--faint);
+  letter-spacing: .09em;
+  margin-bottom: 6px;
+}
+.sg-undiscovered ul { list-style: none; margin: 0; padding: 0; }
+.sg-undiscovered li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 10px;
+  min-width: 0;
+}
+.sg-undiscovered code { flex: 0 0 auto; font-size: 10px; color: var(--acc); }
+.sg-undiscovered span {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sg-empty {
+  margin: 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--dim);
+}
+
+/* ---- v11.42 — DNA Insights inside DnaPanel ------------------- */
+/* The `.sg-finding*` rows above are reused verbatim (imported by
+   DnaPanel.tsx); only the `<details>` disclosure chrome is new here.
+   Hairlines + tabular numerals, logical axes for RTL, no cards. */
+.dna-insights > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  cursor: pointer;
+  list-style: none;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.dna-insights > summary::-webkit-details-marker { display: none; }
+.dna-insights > summary::marker { content: ''; }
+.dna-insights-head { color: var(--ink); min-width: 0; }
+.dna-insights-caret {
+  flex: 0 0 auto;
+  color: var(--faint);
+  transition: transform 160ms ease;
+}
+.dna-insights[open] .dna-insights-caret { transform: rotate(180deg); }
+.dna-insights > .sg-toolbar { margin-top: 10px; }
+
+/* ---- motion: same kill switches as panel-craft.css ----------- */
+@media (prefers-reduced-motion: reduce) {
+  .sg-tab, .sg-field select, .dna-insights-caret { transition: none !important; }
+}
+html.reduce-motion .sg-tab, html.reduce-motion .sg-field select,
+html.reduce-motion .dna-insights-caret { transition: none !important; }

@@ -1,0 +1,409 @@
+/* ============================================================
+   SADEEM — clarification.css  (STABLE · version-free)
+   Editorial "ink on paper" language for <ClarificationCard>.
+   Imported directly by the owning TSX module.
+
+   DISCIPLINE
+     · Presentation only. No capability, IPC, store or key changes.
+     · Colors are existing vars / currentColor / color-mix() of vars.
+       No new palette, no gradients, no glows, no shadows, NO rounded cards.
+     · 1px strokes and hairlines everywhere; corners are square.
+     · Every continuous effect is guarded by BOTH
+       @media (prefers-reduced-motion: reduce) AND html.reduce-motion,
+       and every guarded element has a static end state.
+     · Titles: --font-display-serif for Latin, Cairo (--font-display-ar)
+       for RTL. Mono labels stay instrumentation-size.
+     · RTL uses logical properties; the horizontal arrow hint flips via
+       [dir='rtl'] so the card never depends on physical sides.
+   ============================================================ */
+
+.clarif,
+.clarif * {
+  box-sizing: border-box;
+}
+
+.clarif {
+  position: relative;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.7;
+  background: var(--panel, var(--bg1));
+  border: 1px solid var(--line-strong);
+  border-radius: 0; /* editorial: square corners, no rounded cards */
+  box-shadow: none;
+  overflow: hidden;
+  margin: 0;
+}
+
+.clarif[aria-disabled='true'] {
+  opacity: 0.7;
+}
+
+/* ---------- masthead: mono eyebrow · drawn rule · 1px question glyph ---------- */
+.clarif-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px 0;
+}
+
+.clarif-eyebrow {
+  flex: none;
+  font-family: var(--font-mono-x, var(--mono));
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--faint);
+  white-space: nowrap;
+}
+html[lang='ar'] .clarif-eyebrow,
+html[dir='rtl'] .clarif-eyebrow,
+[dir='rtl'] .clarif-eyebrow {
+  font-family: var(--font-app-ar, 'Cairo', sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.clarif-rule {
+  position: relative;
+  flex: 1;
+  height: 1px;
+  min-width: 12px;
+  overflow: hidden;
+  background: var(--line-soft);
+}
+.clarif-rule::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--acc) 52%, var(--line));
+  transform: scaleX(0);
+  transform-origin: inline-start;
+  animation: clarif-draw 0.9s var(--ease-out, ease-out) 0.06s forwards;
+}
+[dir='rtl'] .clarif-rule::after {
+  transform-origin: inline-end;
+}
+@keyframes clarif-draw {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.clarif-glyph {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  overflow: visible;
+  color: var(--faint);
+}
+.clarif-glyph-ink {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.clarif-glyph-dot {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* ---------- the question (display voice) ---------- */
+.clarif-q {
+  margin: 5px 13px 10px;
+  font-family: var(--font-display-serif);
+  font-weight: 400;
+  font-size: clamp(17px, 1.6vw, 19px);
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+html[lang='ar'] .clarif-q,
+html[dir='rtl'] .clarif-q,
+[dir='rtl'] .clarif-q {
+  font-family: var(--font-display-ar);
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.6;
+}
+
+/* ---------- options list: hairline rows · accent bar slides in on select ---------- */
+.clarif-opts {
+  border-top: 1px solid var(--line-soft);
+}
+
+.clarif-opt {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  margin: 0;
+  padding: 9px 13px;
+  text-align: start;
+  font: inherit;
+  color: var(--dim);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
+  border-radius: 0;
+  cursor: pointer;
+  transition: color var(--dur-2, 0.2s) var(--ease-out, ease-out),
+    background-color var(--dur-2, 0.2s) var(--ease-out, ease-out);
+}
+.clarif-opt:last-child {
+  border-bottom-color: transparent;
+}
+.clarif-opt:hover,
+.clarif-opt:focus-visible {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  outline: none;
+}
+.clarif-opt:disabled {
+  cursor: default;
+}
+.clarif-opt[data-selected='true'] {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--acc) 5%, transparent);
+}
+
+/* the 1px selection bar — scaleY draws from the top, no glow/gradient */
+.clarif-opt-mark {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 2px;
+  background: var(--acc);
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform var(--dur-2, 0.2s) var(--ease-out, ease-out);
+}
+.clarif-opt[data-selected='true'] .clarif-opt-mark {
+  transform: scaleY(1);
+}
+
+.clarif-opt-key {
+  flex: none;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono-x, var(--mono));
+  font-size: 11px;
+  line-height: 1;
+  color: var(--faint);
+  border: 1px solid var(--line);
+  border-radius: 0;
+}
+.clarif-opt[data-selected='true'] .clarif-opt-key {
+  color: var(--acc);
+  border-color: var(--line-accent);
+}
+
+.clarif-opt-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+.clarif-opt-label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: inherit;
+}
+.clarif-opt-desc {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--faint);
+}
+.clarif-opt[data-selected='true'] .clarif-opt-desc {
+  color: var(--dim);
+}
+
+/* ---------- free-text "other" row ---------- */
+.clarif-other {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 7px 13px;
+  border-bottom: 1px solid var(--line-soft);
+  cursor: text;
+}
+.clarif-other-mark {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 2px;
+  background: var(--acc);
+  transform: scaleY(0);
+  transition: transform var(--dur-2, 0.2s) var(--ease-out, ease-out);
+}
+.clarif-other[data-selected='true'] .clarif-other-mark {
+  transform: scaleY(1);
+}
+.clarif-other .clarif-opt-key {
+  color: var(--faint);
+}
+.clarif-other[data-selected='true'] .clarif-opt-key {
+  color: var(--acc);
+  border-color: var(--line-accent);
+}
+.clarif-other-input {
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  padding: 0 2px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  outline: none;
+}
+.clarif-other-input::placeholder {
+  color: var(--faint);
+}
+.clarif-other-input:focus {
+  border-bottom-color: var(--line-accent);
+}
+
+/* ---------- footer: keyboard hints + square confirm button ---------- */
+.clarif-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 9px 13px;
+  border-top: 1px solid var(--line-soft);
+  background: color-mix(in srgb, var(--bg1) 30%, transparent);
+}
+.clarif-hints {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex-wrap: wrap;
+}
+.clarif-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono-x, var(--mono));
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+}
+[dir='rtl'] .clarif-hint {
+  font-family: var(--font-app-ar, 'Cairo', sans-serif);
+  letter-spacing: 0;
+}
+.clarif-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  font-family: var(--font-mono-x, var(--mono));
+  font-size: 10px;
+  line-height: 1;
+  color: var(--dim);
+  border: 1px solid var(--line);
+  border-radius: 0;
+}
+
+.clarif-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-inline-start: auto;
+}
+.clarif-btn {
+  height: 28px;
+  padding: 0 13px;
+  font-family: var(--font-app, 'Inter', system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 0;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--dim);
+  cursor: pointer;
+  transition: color var(--dur-2, 0.2s) var(--ease-out, ease-out),
+    border-color var(--dur-2, 0.2s) var(--ease-out, ease-out),
+    background-color var(--dur-2, 0.2s) var(--ease-out, ease-out);
+}
+html[lang='ar'] .clarif-btn,
+[dir='rtl'] .clarif-btn {
+  font-family: var(--font-app-ar, 'Cairo', sans-serif);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.clarif-btn:hover:not(:disabled),
+.clarif-btn:focus-visible:not(:disabled) {
+  color: var(--ink);
+  border-color: var(--line-accent);
+  outline: none;
+}
+.clarif-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.clarif-btn-confirm {
+  color: var(--acc-ink, var(--bg0));
+  background: var(--acc);
+  border-color: var(--acc);
+}
+.clarif-btn-confirm:hover:not(:disabled),
+.clarif-btn-confirm:focus-visible:not(:disabled) {
+  color: var(--acc-ink, var(--bg0));
+  background: color-mix(in srgb, var(--acc) 82%, var(--ink));
+}
+.clarif-btn-ghost {
+  border-color: var(--line);
+}
+
+/* ---------- reduction gates: OS preference AND in-app toggle ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .clarif-rule::after {
+    animation: none !important;
+    transform: none !important;
+  }
+  .clarif-opt,
+  .clarif-opt-mark,
+  .clarif-other-mark,
+  .clarif-rule::after,
+  .clarif-btn {
+    transition: none !important;
+  }
+}
+html.reduce-motion .clarif-rule::after {
+  animation: none !important;
+  transform: none !important;
+}
+html.reduce-motion .clarif-opt,
+html.reduce-motion .clarif-opt-mark,
+html.reduce-motion .clarif-other-mark,
+html.reduce-motion .clarif-rule::after,
+html.reduce-motion .clarif-btn {
+  transition: none !important;
+}
+html[data-art='off'] .clarif-rule::after {
+  animation: none !important;
+  transform: none !important;
+}

@@ -1,0 +1,369 @@
+/* ============================================================
+   SADEEM — dna.css (A4 rewrite of the v2.2 panel additions)
+   ------------------------------------------------------------
+   Visual voice: flat matte surfaces, 1px hairlines, sparse
+   accents. Zero gradients, zero glows. All values come from
+   the theme tokens in styles.css — no hard-coded hex. Logical
+   properties throughout (RTL-safe by construction, no [dir]
+   mirrors needed). Class names and selectors are CONTRACT —
+   MessageView/ChatPanel consume the kb-* feedback grammar.
+   ============================================================ */
+
+/* ---------- profile chips (removable) ---------- */
+.dna-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding-block: 2px;
+  padding-inline: 4px 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--dim);
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+.dna-chip:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+.dna-chip-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-sm);
+  color: var(--ghost);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
+}
+.dna-chip-x:hover {
+  color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 12%, transparent);
+}
+
+/* ---------- inline add input (per profile section) ---------- */
+.dna-add {
+  height: 22px;
+  min-width: 9ch;
+  max-width: 22ch;
+  padding-inline: 7px;
+  font-size: 12px;
+  color: var(--ink);
+  background: transparent;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
+}
+.dna-add::placeholder {
+  color: var(--ghost);
+}
+.dna-add:focus {
+  border-color: color-mix(in srgb, var(--acc) 55%, transparent);
+  border-style: solid;
+  background: var(--bg1);
+}
+
+/* ---------- pattern confidence — 2px track, honest fill ---------- */
+/* track --bg5 · fill --acc; low confidence reads --warn (paired
+   with the numeric % in the row, never color-alone). */
+.dna-conf {
+  display: inline-block;
+  width: 34px;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--bg5);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.dna-conf-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--acc);
+  transform-origin: inline-start;
+  /* the honest width transition still carries live data changes; this one-shot
+     growth draw only calibrates the bar on mount (opacity + scale, no fill) */
+  transition: width var(--dur-3) var(--ease-out);
+  animation: dna-grow 2.4s var(--ease-out, ease) both;
+}
+.dna-conf-fill.is-low {
+  background: var(--warn);
+}
+@keyframes dna-grow {
+  from { transform: scaleX(0); opacity: 0.45; }
+  18%  { opacity: 1; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+/* staggered growth across sibling reads — the ledger settles in calm beats */
+.dna-conf:nth-child(2) .dna-conf-fill { animation-delay: 80ms; }
+.dna-conf:nth-child(3) .dna-conf-fill { animation-delay: 160ms; }
+.dna-conf:nth-child(n + 4) .dna-conf-fill { animation-delay: 240ms; }
+[data-motion] .dna-conf-fill {
+  animation-duration: calc(2.4s / var(--motion-scale, 1));
+}
+
+/* ---------- how-it-works collapsible (empty state) ---------- */
+.dna-how {
+  margin-top: 12px;
+  text-align: start;
+  width: 100%;
+}
+.dna-how > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase; /* static help caption */
+  color: var(--faint);
+  cursor: pointer;
+  list-style: none;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition:
+    color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+.dna-how > summary::-webkit-details-marker {
+  display: none;
+}
+.dna-how > summary:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+.dna-how-caret {
+  transition: transform var(--dur-1) var(--ease-out);
+}
+.dna-how[open] .dna-how-caret {
+  transform: rotate(180deg);
+}
+.dna-how-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 300px;
+  font-size: 12px;
+  color: var(--dim);
+  line-height: 1.5;
+}
+.dna-how-list li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  text-align: start;
+}
+.dna-how-no {
+  color: var(--ghost);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  flex-shrink: 0;
+}
+
+/* ---------- assistant hover action bar (copy · retry · 👍 · 👎) ----------
+   The .kb-row-actions wrapper predates v5 without CSS backing; these rules
+   give the whole bar one consistent hover-reveal grammar (LTR + RTL).
+   Matte: panel fill + hairline ring, neutral shadow only. */
+.kb-has-actions .kb-row-actions {
+  position: absolute;
+  inset-inline-end: 0;
+  top: -4px;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity var(--dur-1) var(--ease-out);
+  z-index: 6;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 1px 2px;
+  box-shadow: var(--sh-1);
+}
+.kb-has-actions:hover .kb-row-actions,
+.kb-has-actions:focus-within .kb-row-actions,
+.kb-row-actions.is-open {
+  opacity: 1;
+}
+.kb-row-actions > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: 11px;
+  color: var(--dim);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
+}
+.kb-row-actions > button:hover {
+  color: var(--ink);
+  background: var(--hover);
+}
+
+/* ---------- inline DNA note input (message feedback) ---------- */
+.dna-note {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px;
+}
+.dna-note > input {
+  width: 200px;
+  max-width: 40vw;
+  height: 20px;
+  padding-inline: 6px;
+  font-size: 12px;
+  color: var(--ink);
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color var(--dur-1) var(--ease-out);
+}
+.dna-note > input:focus {
+  border-color: color-mix(in srgb, var(--acc) 55%, transparent);
+}
+.dna-note > input:disabled {
+  opacity: 0.55;
+}
+
+/* ---------- v2.6.1 feedback state fix ----------
+   Persistent grammar (unchanged mechanics, SADEEM tones):
+   • .is-fb-active — the thumb whose feedback was recorded keeps a
+     permanent tint whether the bar is revealed or not.
+   • :disabled — the opposite thumb locks once a record exists.
+   • .dna-fb-flag — tiny always-visible chip shown while the hover-only bar
+     is hidden (fades while the bar is revealed; pointer-events:none).
+   • .dna-fb-stamp — brief 'Copied'-style "Recorded" confirmation. */
+.kb-row-actions > button:disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+.kb-row-actions > button.is-fb-active {
+  color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 10%, transparent);
+}
+.kb-row-actions > button.is-fb-active.is-fb-down {
+  color: var(--clay);
+  background: color-mix(in srgb, var(--clay) 12%, transparent);
+}
+.dna-fb-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dna-fb-stamp.is-up {
+  color: var(--ok);
+}
+.dna-fb-stamp.is-down {
+  color: var(--clay);
+}
+.dna-fb-flag {
+  position: absolute;
+  inset-inline-end: 2px;
+  top: -5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  pointer-events: none;
+  opacity: 0.85;
+  transition: opacity var(--dur-1) var(--ease-out);
+  z-index: 5;
+}
+.dna-fb-flag.is-up {
+  color: var(--ok);
+}
+.dna-fb-flag.is-down {
+  color: var(--clay);
+}
+.kb-has-actions:hover .dna-fb-flag,
+.kb-has-actions:focus-within .dna-fb-flag,
+.kb-row-actions.is-open + .dna-fb-flag {
+  opacity: 0;
+}
+
+/* ---------- panel scroll container — slim instrument scrollbar ---------- */
+.dna-panel {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.dna-panel::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.dna-panel::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: var(--radius-pill);
+}
+.dna-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--line-strong);
+}
+.dna-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- reduced motion (belt to tokens.css suspenders) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .dna-chip,
+  .dna-chip-x,
+  .dna-add,
+  .dna-conf-fill,
+  .dna-how-caret,
+  .kb-row-actions,
+  .kb-row-actions > button,
+  .dna-fb-flag {
+    transition: none !important;
+  }
+}
+html.reduce-motion .dna-conf-fill,
+html.reduce-motion .dna-how-caret {
+  transition: none !important;
+}
+/* one-shot growth: both gates rest at the fully-grown, honest-width state */
+@media (prefers-reduced-motion: reduce) {
+  .dna-conf-fill {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+html.reduce-motion .dna-conf-fill {
+  animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}

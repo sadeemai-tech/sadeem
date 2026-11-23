@@ -1,0 +1,302 @@
+/* ============================================================
+   SADEEM — s4-art.css  (STABLE · version-free)
+   Editorial "ink on paper" language for the 12 final settings
+   surfaces. Imported directly by each owning TSX module.
+
+   DISCIPLINE
+     · Presentation only. No capability, IPC, store or key changes.
+     · Colors are vars / currentColor / color-mix() of existing vars.
+       No new palette, no gradients, no glows, no shadows.
+     · Every continuous effect is guarded by BOTH
+       @media (prefers-reduced-motion: reduce) AND html.reduce-motion,
+       and every guarded element has a static end state.
+     · Titles: --font-display-serif for Latin, Cairo (--font-display-ar)
+       for RTL. Body copy >= 13px; mono labels stay instrumentation-size.
+     · One hairline draws once on mount; hover is a calm 1px shift.
+   ============================================================ */
+
+/* ---------- page canvas ---------- */
+.s4-page {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.s4-page *,
+.s4-page *::before,
+.s4-page *::after {
+  box-sizing: border-box;
+}
+
+/* ---------- masthead: mono eyebrow · serif display · one-line desc ---------- */
+.s4-mast {
+  position: relative;
+  padding-top: 2px;
+}
+.s4-mast--inline {
+  padding-top: 0;
+}
+.s4-mast-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.s4-eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono-x, var(--mono));
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding-top: 4px;
+}
+html[lang='ar'] .s4-eyebrow,
+html[dir='rtl'] .s4-eyebrow,
+[dir='rtl'] .s4-eyebrow {
+  font-family: var(--font-app-ar, 'Cairo', sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.s4-title {
+  margin: 10px 0 6px;
+  font-family: var(--font-display-serif);
+  font-weight: 400;
+  font-size: clamp(20px, 2.2vw, 24px);
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+html[lang='ar'] .s4-title,
+html[dir='rtl'] .s4-title,
+[dir='rtl'] .s4-title {
+  font-family: var(--font-display-ar);
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+.s4-desc {
+  margin: 0;
+  max-width: 84ch;
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--dim);
+}
+html[lang='ar'] .s4-desc,
+html[dir='rtl'] .s4-desc,
+[dir='rtl'] .s4-desc {
+  line-height: 1.95;
+}
+.s4-desc--tight {
+  max-width: none;
+}
+
+/* ---------- the original 1px glyph ---------- */
+.s4-glyph {
+  flex: 0 0 auto;
+  width: 76px;
+  height: 58px;
+  overflow: visible;
+  color: var(--faint);
+  transition: color var(--dur-2, 0.24s) var(--ease-out, ease-out);
+}
+.s4-glyph .s4-ink {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.s4-glyph .s4-thin {
+  opacity: 0.5;
+}
+.s4-glyph .s4-dot {
+  fill: currentColor;
+  stroke: none;
+}
+.s4-glyph .s4-accent {
+  fill: none;
+  stroke: var(--acc);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.s4-page:hover .s4-glyph,
+.s4-mast:hover .s4-glyph {
+  color: var(--dim);
+}
+
+/* ---------- one hairline, drawn once on mount ---------- */
+.s4-rule {
+  position: relative;
+  height: 1px;
+  margin: 18px 0 22px;
+  overflow: hidden;
+  background: var(--line-soft);
+}
+.s4-rule::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--acc) 52%, var(--line));
+  transform: scaleX(0);
+  transform-origin: inline-start;
+  animation: s4-draw 1.05s var(--ease-out, ease-out) 0.08s forwards;
+}
+html[dir='rtl'] .s4-rule::after {
+  transform-origin: inline-end;
+}
+@keyframes s4-draw {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ---------- hairline groups + generous rows ---------- */
+.s4-body > .set-card,
+.s4-page .set-card {
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  border-radius: 2px;
+  padding: 22px 24px;
+  margin-bottom: 14px;
+  transition: border-color var(--dur-2, 0.24s) var(--ease-out, ease-out);
+}
+.s4-page .set-card:hover {
+  border-color: var(--line-strong);
+}
+.s4-page .set-card-tt,
+.s4-page .micro-label,
+.s4-page .caps {
+  font-family: var(--font-mono-x, var(--mono));
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+html[lang='ar'] .s4-page .caps,
+html[dir='rtl'] .s4-page .caps,
+[dir='rtl'] .s4-page .caps,
+html[lang='ar'] .s4-page .micro-label,
+html[dir='rtl'] .s4-page .micro-label,
+[dir='rtl'] .s4-page .micro-label {
+  font-family: var(--font-app-ar, 'Cairo', sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.s4-page .defrow {
+  padding-block: 13px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.s4-page .defrow:last-child {
+  border-bottom: 0;
+}
+.s4-page .def-label {
+  font-size: 13px;
+  color: var(--ink);
+}
+.s4-page .def-desc,
+.s4-page .set-note {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--dim);
+}
+html[lang='ar'] .s4-page .def-desc,
+html[dir='rtl'] .s4-page .def-desc,
+[dir='rtl'] .s4-page .def-desc,
+html[lang='ar'] .s4-page .set-note,
+html[dir='rtl'] .s4-page .set-note {
+  line-height: 1.95;
+}
+.s4-page .set-kv,
+.s4-page .set-kvlist {
+  font-size: 13px;
+}
+.s4-page .s4-mono {
+  font-family: var(--font-mono-x, var(--mono));
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+html[lang='ar'] .s4-page .s4-mono,
+html[dir='rtl'] .s4-page .s4-mono,
+[dir='rtl'] .s4-page .s4-mono {
+  font-family: var(--font-app-ar, 'Cairo', sans-serif);
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.s4-page p,
+.s4-page li {
+  font-size: 13px;
+}
+.s4-page .s4-serif {
+  font-family: var(--font-display-serif);
+  letter-spacing: -0.01em;
+}
+html[lang='ar'] .s4-page .s4-serif,
+html[dir='rtl'] .s4-page .s4-serif,
+[dir='rtl'] .s4-page .s4-serif {
+  font-family: var(--font-display-ar);
+  letter-spacing: 0;
+}
+
+/* ---------- the shared honest statement (no monthly plan) ---------- */
+.s4-statement {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 26px 28px;
+}
+.s4-statement-text {
+  margin: 12px 0 0;
+  max-width: 72ch;
+  font-family: var(--font-display-serif);
+  font-size: 19px;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+html[lang='ar'] .s4-statement-text,
+html[dir='rtl'] .s4-statement-text,
+[dir='rtl'] .s4-statement-text {
+  font-family: var(--font-display-ar);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.8;
+}
+
+/* ---------- reduction gates: OS preference AND in-app toggle ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .s4-rule::after {
+    animation: none !important;
+    transform: none !important;
+  }
+  .s4-glyph,
+  .s4-page .set-card {
+    transition: none !important;
+  }
+}
+html.reduce-motion .s4-rule::after {
+  animation: none !important;
+  transform: none !important;
+}
+html.reduce-motion .s4-glyph,
+html.reduce-motion .s4-page .set-card {
+  transition: none !important;
+}
+html[data-art='off'] .s4-rule::after {
+  animation: none !important;
+  transform: none !important;
+}

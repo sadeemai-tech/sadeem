@@ -1,0 +1,449 @@
+/* ============================================================
+   ART-MOTION — a small, shared concept layer (v11.40)
+   ------------------------------------------------------------
+   Additive only: it never edits an existing rule. Every animation
+   below expresses one idea of the drawing it decorates:
+
+     am-key-turn     a BYOK key turns gently in its lock
+     am-outline-draw a 1px outline writes itself once
+     am-line-flow    a hairline carries data from key to lock
+     am-node-pulse   a node breathes (network / node / stamp)
+     am-sway         an open page settles, weightless
+
+   Namespace: this layer owns ONLY `--art-*` custom properties.
+   The app-mock owns the `--am-*` namespace (see app/home.css:295-312),
+   including a light ink token at home.css:303. This layer deliberately
+   defines no `--am-*` token at all — an earlier global ink token here
+   contradicted it and has been removed. Structure inherits the live
+   theme's --ink / --line, so both themes stay legible.
+
+   Only the lime identity is scoped locally to the section art
+   (`.am-svg`); no global palette token is introduced. Hairlines only,
+   no fills, no cards, no random motion, no layout-affecting properties
+   — transform, opacity and stroke-dashoffset exclusively.
+
+   Cadence is 2.8s (one 3.2s page sway) so the whole layer breathes
+   as one instrument rather than a collection of unrelated loops.
+   RTL-safe: the turn is symmetric and the flow direction flips.
+   ============================================================ */
+
+/* Timing only — not a colour, so it cannot conflict with app-mock. */
+:root{
+  --art-cadence:2.8s;
+}
+
+/* --- keyframes ------------------------------------------------ */
+
+/* symmetric +/- rotation: identical motion in LTR and RTL */
+@keyframes am-key-turn{
+  0%,100%{transform:rotate(-12deg)}
+  50%{transform:rotate(12deg)}
+}
+
+/* one-shot hairline draw. --art-from defaults to 1 for pathLength=1
+   elements; the changelog tick sets it to its real 12-unit length. */
+@keyframes am-outline-draw{
+  from{stroke-dashoffset:var(--art-from,1)}
+  to{stroke-dashoffset:0}
+}
+
+/* energy travelling along a dashed hairline */
+@keyframes am-line-flow{
+  from{stroke-dashoffset:0}
+  to{stroke-dashoffset:-24}
+}
+@keyframes am-line-flow-rtl{
+  from{stroke-dashoffset:0}
+  to{stroke-dashoffset:24}
+}
+
+/* a node drawing breath */
+@keyframes am-node-pulse{
+  0%,100%{opacity:.45;transform:scale(.82)}
+  50%{opacity:1;transform:scale(1.18)}
+}
+
+/* an open page settling back onto its spine */
+@keyframes am-sway{
+  0%,100%{transform:rotate(-.4deg)}
+  50%{transform:rotate(.4deg)}
+}
+
+/* --- opt-in classes ------------------------------------------- */
+
+/* The founder's lime lives here, scoped to section art — never on
+   :root, never in the app-mock's --am-* namespace. */
+.am-svg{
+  --art-lime:#9be515;
+  overflow:visible;
+  color:var(--ink);
+}
+
+/* The key rotates around its bow. The origin is supplied by the
+   SVG group as --art-origin in viewBox user units. */
+.am-key{
+  --art-origin:center;
+  transform-box:view-box;
+  transform-origin:var(--art-origin);
+  animation:am-key-turn var(--art-cadence) var(--ease-art) infinite;
+}
+
+/* Draw-once outline; pair with pathLength={1} on the SVG element. */
+.am-draw{
+  --art-from:1;
+  stroke-dasharray:1;
+  stroke-dashoffset:1;
+  animation:am-outline-draw var(--art-cadence) ease-out .18s both;
+}
+
+/* A flowing data hairline. Dash period is 12 units, so one loop
+   advances exactly two periods and joins seamlessly. */
+.am-flow{
+  stroke-dasharray:2 10;
+  animation:am-line-flow var(--art-cadence) linear infinite;
+}
+html[dir='rtl'] .am-flow{animation-name:am-line-flow-rtl}
+
+.am-node-pulse{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:am-node-pulse var(--art-cadence) ease-in-out infinite;
+}
+
+.am-sway{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:am-sway 3.2s ease-in-out infinite;
+}
+
+/* Changelog's current-wave tick lives in a component outside this
+   layer's ownership, so it is styled by class only. Its four 3-unit
+   strokes total 12 user units — no pathLength needed. */
+.c-node-tick{
+  --art-from:12;
+  stroke-dasharray:12;
+  stroke-dashoffset:12;
+  animation:am-outline-draw var(--art-cadence) ease-out .35s both;
+}
+.c-entry.is-current .c-node-dot{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:am-node-pulse var(--art-cadence) ease-in-out infinite;
+}
+
+/* --- kill switches --------------------------------------------
+   Three independent gates: OS preference, the manual .reduce-motion
+   class and the existing data-art opt-out. Each lands on the same
+   static, fully-drawn end state — never a half-written outline.
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion:reduce){
+  :is(.am-key,.am-node-pulse,.am-sway,.c-entry.is-current .c-node-dot){
+    animation:none!important;transform:none!important;opacity:1!important;
+  }
+  :is(.am-draw,.c-node-tick){animation:none!important;stroke-dashoffset:0!important}
+  .am-flow{animation:none!important;opacity:.5!important}
+}
+html.reduce-motion :is(.am-key,.am-node-pulse,.am-sway,.c-entry.is-current .c-node-dot),
+html[data-art='off'] :is(.am-key,.am-node-pulse,.am-sway,.c-entry.is-current .c-node-dot){
+  animation:none!important;transform:none!important;opacity:1!important;
+}
+html.reduce-motion :is(.am-draw,.c-node-tick),
+html[data-art='off'] :is(.am-draw,.c-node-tick){
+  animation:none!important;stroke-dashoffset:0!important;
+}
+html.reduce-motion .am-flow,
+html[data-art='off'] .am-flow{animation:none!important;opacity:.5!important}
+
+/* ============================================================
+   SITE-ART — v11.43. Four small INSTRUMENTS, one per idea.
+   ------------------------------------------------------------
+   The founder asked for creative marks that EARN their place:
+   original hairline line-art, never a gradient blob or a cliché
+   badge. Every mark here is an alpha MASK coloured by a live
+   theme token (--ink / --accent), so it stays legible in both
+   themes and introduces no hex paint. Geometry is fixed — no
+   randomness, no layout-affecting properties, transform +
+   opacity only.
+
+   The four marks live on pages that ALREADY have their own
+   signature art. They do not duplicate it: they label a precise
+   fact the existing art does not name (a count, a locality, a
+   schedule, a checksum). The hero is untouched — selectors are
+   scoped to /docs and /download only.
+
+   Local lime identity, scoped to the marked elements — never on
+   :root, never in the app-mock's --am-* namespace.
+   ============================================================ */
+
+/* --- shared cadence primitives (opt-in) --------------------- */
+@keyframes sa-settle{
+  from{opacity:0;transform:rotate(-8deg) scale(.92)}
+  to{opacity:1;transform:none}
+}
+@keyframes sa-tick{
+  0%{opacity:0;transform:rotate(-9deg)}
+  55%{opacity:1;transform:rotate(2deg)}
+  100%{opacity:1;transform:none}
+}
+@keyframes sa-fingerprint{
+  from{opacity:0;transform:scaleX(.45)}
+  to{opacity:1;transform:none}
+}
+
+/* --- C · schedule clock -------------------------------------
+   /docs section 08 is the only place the site promises a cron.
+   A 20px hairline face after the section index says "time" before
+   the reader meets the schedule syntax. One advancing tick. */
+.docs-main #schedules .sec-index::after{
+  content:'';
+  display:inline-block;
+  width:20px;height:20px;
+  vertical-align:-5px;
+  margin-inline-start:10px;
+  background-color:var(--accent);
+  -webkit-mask:url('/art/sa-clock.svg') center/contain no-repeat;
+  mask:url('/art/sa-clock.svg') center/contain no-repeat;
+  animation:sa-tick var(--art-cadence) var(--ease-art) .2s both;
+}
+
+/* --- D · checksum fingerprint --------------------------------
+   The release instrument already prints the real SHA-256 figures.
+   A 44px hairline matrix before the "verify before running" line
+   gives that instruction a precise, original anchor. */
+.dl-inst-foot .mono:first-child::before{
+  content:'';
+  display:inline-block;
+  width:44px;height:18px;
+  vertical-align:middle;
+  margin-inline-end:12px;
+  background-color:var(--ink);
+  -webkit-mask:url('/art/sa-hash-grid.svg') center/contain no-repeat;
+  mask:url('/art/sa-hash-grid.svg') center/contain no-repeat;
+  opacity:.7;
+  animation:sa-fingerprint var(--art-cadence) var(--ease-art) .3s both;
+}
+
+/* --- kill switches: OS preference, manual class, data-art ----
+   Each lands on the static, fully-drawn end state. data-art='off'
+   removes the decoration entirely — it is not information. */
+@media (prefers-reduced-motion:reduce){
+  .docs-main #schedules .sec-index::after,
+  .dl-inst-foot .mono:first-child::before{
+    animation:none!important;transform:none!important;opacity:1!important;
+  }
+}
+html.reduce-motion .docs-main #schedules .sec-index::after,
+html.reduce-motion .dl-inst-foot .mono:first-child::before,
+html[data-art='off'] .docs-main #schedules .sec-index::after,
+html[data-art='off'] .dl-inst-foot .mono:first-child::before{
+  animation:none!important;transform:none!important;opacity:1!important;
+}
+html[data-art='off'] .docs-main #schedules .sec-index::after,
+html[data-art='off'] .dl-inst-foot .mono:first-child::before{display:none!important}
+
+/* ============================================================
+   FILM MOTION — v11.44. The founder asked for the drawings to
+   move "like an animation film": one calm cadence, eased
+   waypoints and a genuine dwell, never a loud loop. The eight
+   feature glyphs (`.am-glyph--*`) are hairline instruments, so
+   each gets ONE idea of motion, derived from --art-cadence.
+   transform / opacity / stroke-dashoffset only — no paint,
+   no layout, no randomness, no second cursor system.
+   ============================================================ */
+
+@keyframes am-film-in{
+  0%  {opacity:0;transform:translate3d(0,9px,0) scale(.96);animation-timing-function:cubic-bezier(.2,.7,.3,1)}
+  58% {opacity:1;transform:translate3d(0,-1.5px,0) scale(1);animation-timing-function:cubic-bezier(.2,.7,.3,1)}
+  100%{opacity:1;transform:none}
+}
+@keyframes am-dwell-breathe{
+  0%,100%{opacity:.34}
+  18%,46%{opacity:1}
+  62%,90%{opacity:.34}
+}
+@keyframes am-glide{
+  0%,100%{transform:translate3d(0,0,0);animation-timing-function:cubic-bezier(.45,0,.55,1)}
+  50%    {transform:translate3d(0,-2px,0);animation-timing-function:cubic-bezier(.45,0,.55,1)}
+}
+/* each glyph assembles once, then decides what it means to be alive */
+html[data-js='1'] .am-glyph{
+  animation:am-film-in var(--art-cadence) var(--ease-art,cubic-bezier(.2,.7,.3,1)) both
+}
+html[data-js='1'] .am-glyph--tools{animation-delay:calc(var(--art-cadence) * .04)}
+html[data-js='1'] .am-glyph--mcp{animation-delay:calc(var(--art-cadence) * .08)}
+html[data-js='1'] .am-glyph--subagents{animation-delay:calc(var(--art-cadence) * .12)}
+html[data-js='1'] .am-glyph--playbook{animation-delay:calc(var(--art-cadence) * .16)}
+html[data-js='1'] .am-glyph--worktrees{animation-delay:calc(var(--art-cadence) * .20)}
+html[data-js='1'] .am-glyph--workflow{animation-delay:calc(var(--art-cadence) * .24)}
+html[data-js='1'] .am-glyph--editor{animation-delay:calc(var(--art-cadence) * .28)}
+html[data-js='1'] .am-glyph--privacy{animation-delay:calc(var(--art-cadence) * .32)}
+
+.am-glyph--tools,.am-glyph--editor{transform-box:fill-box;transform-origin:center}
+.am-glyph--tools,.am-glyph--editor{
+  animation:am-glide calc(var(--art-cadence) * 2) cubic-bezier(.45,0,.55,1)
+    calc(var(--art-cadence) * 1.4) infinite
+}
+.am-glyph--playbook{
+  transform-box:fill-box;transform-origin:center;
+  animation:am-glide calc(var(--art-cadence) * 2) cubic-bezier(.45,0,.55,1)
+    calc(var(--art-cadence) * 1.6) infinite
+}
+.am-glyph--mcp,.am-glyph--subagents,.am-glyph--workflow{
+  animation:am-dwell-breathe calc(var(--art-cadence) * 2) ease-in-out
+    calc(var(--art-cadence) * 1.5) infinite
+}
+/* The worktree branches and the privacy outline are single hairlines, not
+   dashed paths (no pathLength), so they breathe rather than fake a draw-on. */
+.am-glyph--worktrees>path,.am-glyph--privacy>path:not(.am-draw){
+  transform-box:fill-box;transform-origin:center;
+  animation:am-dwell-breathe calc(var(--art-cadence) * 2) ease-in-out
+    calc(var(--art-cadence) * 1.1) infinite
+}
+.am-glyph--worktrees>path:nth-child(2){animation-delay:calc(var(--art-cadence) * 1.3)}
+
+/* the same three independent gates land on the static, fully-drawn frame */
+@media (prefers-reduced-motion:reduce){
+  html[data-js='1'] .am-glyph,
+  .am-glyph--tools,.am-glyph--editor,.am-glyph--playbook,
+  .am-glyph--mcp,.am-glyph--subagents,.am-glyph--workflow,
+  .am-glyph--worktrees>path,.am-glyph--privacy>path{
+    animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important
+  }
+}
+html.reduce-motion[data-js='1'] .am-glyph,
+html.reduce-motion :is(.am-glyph--tools,.am-glyph--editor,.am-glyph--playbook,
+  .am-glyph--mcp,.am-glyph--subagents,.am-glyph--workflow),
+html[data-art='off'][data-js='1'] .am-glyph,
+html[data-art='off'] :is(.am-glyph--tools,.am-glyph--editor,.am-glyph--playbook,
+  .am-glyph--mcp,.am-glyph--subagents,.am-glyph--workflow){
+  animation:none!important;opacity:1!important;transform:none!important
+}
+html.reduce-motion :is(.am-glyph--worktrees>path,.am-glyph--privacy>path),
+html[data-art='off'] :is(.am-glyph--worktrees>path,.am-glyph--privacy>path){
+  animation:none!important;stroke-dashoffset:0!important
+}
+
+/* ============================================================
+   V1145 — ALL-PAGES FILM ART (shared instrument layer)
+   ------------------------------------------------------------
+   The founder asked to SEE the improvement on every page, with a
+   precise, long, cinematic motion — never one page left behind.
+   This layer gives every route one ORIGINAL hairline illustration
+   plus one shared micro-interaction vocabulary. Every drawing is
+   an inline SVG alpha mask, so its paint comes ONLY from a live
+   token (--art-lime / --ink / --accent) — no gradient, no glow,
+   no box, no off-palette literal. Geometry is exact user units.
+
+   ONE cadence family: the existing --art-cadence is 2.8s. Long
+   accents are STRICT inline multiples of it: 3x (8.4s), 4x
+   (11.2s), 5x (14s). No new custom properties are introduced.
+   Micro-interactions are fractional multiples of the same base.
+
+   Every animation below is covered by THREE gates: OS preference,
+   html.reduce-motion and html[data-art='off']. On mobile the
+   drawings shrink with clamp() and swap to `v1145-calm` — no
+   rotation, no travel, only a faint breath.
+   ============================================================ */
+
+/* NO NEW CSS VARS (style guide §6): the lime below is the SAME approved
+   --art-lime token declared for `.am-svg` above, reused on the six hosts.
+   Timing is inline calc() of the existing --art-cadence (2.8s); long
+   accents are strict 3x / 4x / 5x multiples (8.4 / 11.2 / 14s). */
+:is(.feat-close,.price-hero,.docs-hero,.d-hero,.c-hero,.auth-hero){
+  --art-lime:#9be515;
+}
+
+/* --- keyframes: film arcs + one-shot writes -------------------
+   transform / opacity / clip-path only. Loops return to their
+   first frame so they never snap; writes end on the drawn frame. */
+@keyframes v1145-constellation{
+  0%,100%{opacity:.7;transform:rotate(-3deg) scale(1)}
+  24%{opacity:1;transform:rotate(0deg) scale(1.015)}
+  52%{opacity:.7;transform:rotate(2deg) scale(1)}
+  78%{opacity:.94;transform:rotate(0deg) scale(1.012)}
+}
+@keyframes v1145-seal-turn{
+  0%,100%{transform:rotate(-8deg);opacity:.7}
+  30%{transform:rotate(2deg);opacity:1}
+  62%{transform:rotate(-3deg);opacity:.7}
+  86%{transform:rotate(1deg);opacity:.92}
+}
+@keyframes v1145-handshake{
+  0%,100%{transform:scaleX(1);opacity:.7}
+  30%{transform:scaleX(.94);opacity:1}
+  58%{transform:scaleX(1);opacity:.7}
+  82%{transform:scaleX(.965);opacity:.94}
+}
+@keyframes v1145-arrow-drop{
+  0%,100%{transform:translateY(-12%);opacity:0}
+  22%{opacity:1}
+  58%{transform:translateY(0);opacity:1}
+  76%{transform:translateY(3%)}
+  92%{opacity:0}
+}
+@keyframes v1145-node-blink{
+  0%,100%{opacity:.25;transform:scale(.8)}
+  32%,72%{opacity:1;transform:scale(1.15)}
+}
+@keyframes v1145-wipe-x{
+  0%,8%{clip-path:inset(0 100% 0 0);opacity:0}
+  20%{opacity:1}
+  72%,100%{clip-path:inset(0 0 0 0);opacity:1}
+}
+@keyframes v1145-wipe-y{
+  0%,6%{clip-path:inset(0 0 100% 0);opacity:0}
+  18%{opacity:1}
+  78%,100%{clip-path:inset(0 0 0 0);opacity:1}
+}
+@keyframes v1145-page-settle{
+  0%,100%{opacity:.49;transform:translateY(2px) rotate(-.6deg)}
+  46%{opacity:.7;transform:translateY(0) rotate(.6deg)}
+}
+/* the calm mobile variant: opacity only, no transform, no travel */
+@keyframes v1145-calm{0%,100%{opacity:.4}50%{opacity:.58}}
+
+/* --- staggers: one index ladder for every new layer ----------- */
+.v1145-stagger>*:nth-child(2){--i:1}
+.v1145-stagger>*:nth-child(3){--i:2}
+.v1145-stagger>*:nth-child(4){--i:3}
+.v1145-stagger>*:nth-child(5){--i:4}
+.v1145-stagger>*:nth-child(6){--i:5}
+
+/* ============================================================
+   MASTER KILL SWITCH — all six hosts, all pseudo layers, both
+   micro-interaction utilities. Three independent gates land on
+   a static, fully-drawn end state (or remove the decoration).
+   Declared here with !important so page-sheet order cannot undo
+   it; page sheets repeat their own local guard as well.
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  :is(.feat-close,.price-hero,.docs-hero,.d-hero,.c-hero,.auth-hero)::before,
+  :is(.feat-close,.price-hero,.docs-hero,.d-hero,.c-hero,.auth-hero)::after,
+  .v1145-underline::after,.v1145-rule::after{
+    animation:none!important;transform:none!important;clip-path:none!important;opacity:1!important
+  }
+}
+html.reduce-motion :is(.feat-close,.price-hero,.docs-hero,.d-hero,.c-hero,.auth-hero)::before,
+html.reduce-motion :is(.feat-close,.price-hero,.docs-hero,.d-hero,.c-hero,.auth-hero)::after,
+html.reduce-motion .v1145-underline::after,html.reduce-motion .v1145-rule::after,
+html[data-art='off'] :is(.feat-close,.price-hero,.docs-hero,.d-hero,.c-hero,.auth-hero)::before,
+html[data-art='off'] :is(.feat-close,.price-hero,.docs-hero,.d-hero,.c-hero,.auth-hero)::after,
+html[data-art='off'] .v1145-underline::after,html[data-art='off'] .v1145-rule::after{
+  animation:none!important;transform:none!important;clip-path:none!important;opacity:1!important
+}
+html[data-art='off'] :is(.feat-close,.price-hero,.docs-hero,.d-hero,.c-hero,.auth-hero)::before,
+html[data-art='off'] :is(.feat-close,.price-hero,.docs-hero,.d-hero,.c-hero,.auth-hero)::after,
+html[data-art='off'] .v1145-underline::after,html[data-art='off'] .v1145-rule::after{display:none!important}
+
+/* Mobile: swap every long film arc for the calm opacity breath.
+   Guarded by motion preference AND both manual gates, so it can
+   never revive an animation that a kill switch has stopped. */
+@media (max-width:640px) and (prefers-reduced-motion:no-preference){
+  html:not(.reduce-motion):not([data-art='off']) :is(.feat-close,.price-hero,.docs-hero,.d-hero,.c-hero,.auth-hero)::before,
+  html:not(.reduce-motion):not([data-art='off']) :is(.feat-close,.price-hero,.docs-hero,.d-hero,.c-hero,.auth-hero)::after{
+    animation-name:v1145-calm!important;
+    animation-duration:calc(var(--art-cadence) * 5)!important;
+    animation-delay:0s!important;
+  }
+}
+

@@ -1,0 +1,204 @@
+/* ============================================================
+   SADEEM — type-scale.css  (v11.12c + v11.36 "clearer + larger chat")
+   ------------------------------------------------------------
+   The single home for the app-wide TYPE SCALE. Imported from
+   styles.css (alongside display-type.css) so it ships in every
+   build without any TSX change. The sheet is unlayered, and the
+   control/heading overrides use doubled-class (and html-scoped)
+   selectors so they beat the plain `.btn` / `.input` rules that
+   Tailwind v3 emits later from styles.css's @layer components.
+
+   WHAT IT DOES
+     1 · body + UI chrome  — one --app-scale multiplier (+12%),
+         with a hard 13px floor on the 11–13px reading band.
+     2 · token-driven surfaces — lifts .page-v14's --pv-* scale and
+         the chat chrome (--chat-ui / --chat-meta). Chat MESSAGE BODY
+         (--chat-base 14px / 1.65) was lifted 14→15.5px in v11.34; v11.36 lifts it
+          ONE MORE clear step (15.5→16.75px) with the reasoning + tool rows,
+          scoped to .chat-panel-root. The V7 literals stay above the v11.36
+          declarations as the documented baseline guarded by
+          tests/v1134-ui-layout.test.mjs; CSS last declaration wins.
+         scoped to .chat-panel-root (reasoning + tool rows too).
+     3 · controls — bigger glyphs get bigger min-heights (never a
+         taller fixed `height`) so nothing clips. Mono tool chips
+         (.verb / .kbd) keep their SIZE; they only gain room.
+     4 · .brand-display — the opt-in wordmark signature treatment.
+
+   OUT OF SCOPE (unchanged, on purpose): code editors (.monaco-editor,
+   .xterm), --font-mono-x / .tnum / .fhdr, mono tool chips (.verb/.kbd),
+   dense data tables (.md table), the display-serif face (display-type.css).
+   The chat reading base IS in scope now — v11.34, chat surface only.
+
+   COLORS: none introduced, none changed. --acc below is the existing
+   accent token, used only for the requested 1px wordmark underline.
+   ============================================================ */
+
+/* ---------- 1 · the multiplier (mirrored in tokens.css) ---------- */
+:root {
+  --app-scale: 1.12;
+}
+
+/* ---------- 2 · body base ----------
+   styles.css owns the same values (its body rule is authored later);
+   this block keeps the factor discoverable here and uses the html-
+   scoped selector so it wins regardless of bundle order. */
+html body {
+  font-size: calc(13px * var(--app-scale));
+  line-height: var(--ui-line, 1.6);
+}
+html[lang='ar'] body,
+html[dir='rtl'] body {
+  font-size: calc(13.5px * var(--app-scale));
+  line-height: var(--ui-line-ar, 1.75);
+}
+
+/* ---------- 3 · token-driven surface scales ----------
+   Higher specificity (html + doubled class) wins regardless of the
+   order in which component sheets are bundled by Vite. v11.34 moves the
+   CHAT tokens too (--chat-base / --chat-ui / --chat-meta) — scoped to
+   .chat-panel-root only. */
+html .page-v14.page-v14 {
+  --pv-title: calc(17px * var(--app-scale));                 /* 19.0px */
+  --pv-h: max(13px, calc(13px * var(--app-scale)));          /* 14.6px */
+  --pv-text: max(13px, calc(12.5px * var(--app-scale)));     /* 14.0px */
+  --pv-meta: max(13px, calc(11px * var(--app-scale)));       /* 13.0px floor */
+  --pv-label: calc(10px * var(--app-scale));                 /* 11.2px — tracked eyebrow stays micro */
+}
+html .chat-panel-root {
+  /* v11.34 BASELINE — retained verbatim because tests/v1134-ui-layout.test.mjs
+     guards these exact literals, and they are the "before" row of the
+     before/after table in docs/CHAT-FONT-V1136.md. Nothing here leaks into
+     code editors, mono tool chips or data tables. */
+  --chat-base: 15.5px;                                       /* was 14px — message body */
+  --chat-ui: 15px;                                           /* was 14.6px — heads / tool rows */
+  --chat-meta: 13.5px;                                       /* was 13px — stamps / clocks */
+
+  /* v11.36 — ONE MORE readable step (founder: "اوضح، اكبر" = clearer, larger).
+     These are the EFFECTIVE tokens: CSS keeps the last declaration. Same scope,
+     same families, same palette — only size moves. */
+  --chat-base: 16.75px;                                      /* 15.5 → 16.75px message body */
+  --chat-ui: 16px;                                           /* 15 → 16px heads / tool rows */
+  --chat-meta: 14.5px;                                       /* 13.5 → 14.5px stamps / clocks */
+}
+/* Body leading tightens a hair so the larger glyphs keep the same rhythm. */
+html .chat-panel-root .chat-stream { line-height: 1.55; }
+
+/* ---------- 4 · core UI chrome from styles.css ----------
+   Doubled classes outrank the plain `.btn`/`.input` rules emitted from
+   styles.css's @layer components. Sizes are calc()s of the ORIGINAL px
+   so the +12% is exact and reviewable; min-height keeps controls
+   aligned instead of clipping enlarged glyphs. */
+.btn.btn,
+.input.input {
+  font-size: var(--fs-ui-sm, calc(13px * var(--app-scale)));
+  min-height: var(--ui-ctrl-min-h, calc(32px * var(--app-scale)));
+}
+.chip.chip {
+  font-size: var(--fs-ui-xs, max(13px, calc(11px * var(--app-scale))));
+  min-height: var(--ui-chip-min-h, calc(22px * var(--app-scale)));
+}
+.stamp.stamp {
+  font-size: var(--fs-ui-xs, max(13px, calc(11px * var(--app-scale))));
+  min-height: var(--ui-stamp-min-h, max(20px, calc(18px * var(--app-scale))));
+}
+.stamp-seg.stamp-seg > button {
+  font-size: var(--fs-ui-xs, max(13px, calc(11px * var(--app-scale))));
+  min-height: var(--ui-chip-min-h, calc(22px * var(--app-scale)));
+}
+/* mono tool chips: SIZE untouched, only the box grows so they line up
+   with the enlarged .chip / .stamp beside them. */
+.verb.verb,
+.kbd.kbd {
+  min-height: var(--ui-kbd-min-h, max(22px, calc(20px * var(--app-scale))));
+}
+.keyrow.keyrow,
+.wscc-row.wscc-row,
+.defrow.defrow {
+  min-height: var(--ui-row-min-h, calc(32px * var(--app-scale)));
+}
+.keyrow.keyrow .key-title,
+.defrow.defrow .def-label,
+.wscc-tile-value.wscc-tile-value,
+.contract-opt.contract-opt .opt-label,
+.qt-label.qt-label {
+  font-size: var(--fs-ui-sm, calc(13px * var(--app-scale)));
+}
+
+/* ---------- 5 · headings under 18px: a touch larger, same role ----------
+   Family/tracking stay owned by display-type.css (Instrument Serif,
+   Cairo in RTL). This only nudges the handful that were < 18px so the
+   signature face has room to breathe; 18px+ headings are untouched. */
+.blank-state.blank-state .bs-title,
+.pm-empty-title.pm-empty-title {
+  font-size: calc(15px * var(--app-scale));
+}
+.caps-md.caps-md,
+.sec-titled.sec-titled .sec-tt,
+.pf-drawer-head-title.pf-drawer-head-title,
+.ft-empty-title.ft-empty-title {
+  font-size: var(--fs-ui-sm, calc(13px * var(--app-scale)));
+}
+html[lang='ar'] .sec-titled.sec-titled .sec-tt,
+html[dir='rtl'] .sec-titled.sec-titled .sec-tt {
+  font-size: max(13px, calc(12.5px * var(--app-scale)));
+}
+
+/* ---------- 6 · .brand-display — the wordmark signature ----------
+   OPT IN on the app-name / brand element only (no TSX edited here).
+   Instrument Serif (Cairo under RTL), tracking one notch tighter than
+   the ordinary display voice, and a 1px underline in the EXISTING
+   --acc accent token. No new color and no other decoration. */
+.brand-display {
+  display: inline-block;
+  font-family: var(--font-display-serif);
+  font-size: calc(20px * var(--app-scale));
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: calc(var(--display-tracking, -0.02em) - 0.01em);
+  border-bottom: 1px solid var(--acc);
+  padding-block-end: 2px;
+}
+:where(html[lang='ar'], html[dir='rtl'], [dir='rtl']) .brand-display {
+  font-family: var(--font-display-ar);
+  letter-spacing: 0;
+}
+
+/* ---------- 6b · v11.34 + v11.36 chat reading steps: reasoning + tool rows --
+   All selectors are html-scoped so they outrank the later-bundled chat.css /
+   console.css at equal specificity. Font FAMILIES are untouched: Instrument
+   Serif still owns display (display-type.css), .tnum / .font-code keep tabular
+   mono numerals. Only size + leading move, and only inside the chat panel. */
+html .chat-panel-root .kb-think-body {
+  font-size: 15.5px;                                         /* v11.34 baseline (guard) */
+  font-size: 16.75px;                                        /* v11.36 effective — reasoning steps up */
+  line-height: 1.58;                                         /* tighter leading preserves density */
+}
+html .chat-panel-root .tl2-card .sc18-tverb {
+  font-size: 10.5px;                                         /* v11.34 baseline (guard) */
+  font-size: 11.5px;                                         /* v11.36 effective — mono verb caps */
+}
+html .chat-panel-root .tl2-card .sc18-targ,
+html .chat-panel-root .tl2-card .tl2-meta,
+html .chat-panel-root .tl-row {
+  font-size: var(--chat-ui);                                 /* token step above */
+}
+html .chat-panel-root .sc18-res-pre {
+  font-size: 12.5px;                                         /* v11.34 baseline (guard) */
+  font-size: 13.5px;                                         /* v11.36 effective — mono result */
+}
+
+/* ---------- 7 · motion guard ----------
+   This sheet introduces NO transitions or animations. The guards below
+   simply re-affirm the app's two kill-switches for any opt-in that adds
+   one later, so the wordmark/type layer can never animate for users who
+   asked for less motion. */
+html.reduce-motion .brand-display {
+  transition: none !important;
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-display {
+    transition: none !important;
+    animation: none !important;
+  }
+}

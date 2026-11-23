@@ -1,0 +1,788 @@
+/* ============================================================
+   SADEEM — pages.css  (STABLE, version-free)
+   ------------------------------------------------------------
+   The v14 section-page skin. ONE cohesive design language for
+   Workspace · Git · Home · DNA · MCP · Usage · Flows · Proof ·
+   Skills · Library · Prompts.
+
+   Applied through the stable `.page-v14` root hook on every
+   section panel. This sheet is deliberately loaded LAST so it
+   is the final word over sections.css / workspace.css / the
+   panel-specific sheets. Palette is UNCHANGED — every colour
+   comes from an existing token, with alpha only through
+   color-mix(). NO gradients, NO glow, NO large shadows, NO
+   hover-lift. Calm, generous, obviously more polished.
+
+   Doubled `.page-v14.page-v14` selectors raise specificity above
+   the legacy `.rd-page-v13 ...` !important rules so the same
+   page looks identical in the RightDock and in Home.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   0 · page root — the v14 rhythm / type scale
+   ------------------------------------------------------------ */
+.page-v14.page-v14 {
+  --pv-gap: 20px;          /* vertical rhythm between blocks      */
+  --pv-card-gap: 14px;     /* grid gutters                        */
+  --pv-pad: 18px;          /* card inner padding                  */
+  --pv-r: 12px;            /* the ONE card radius                 */
+  --pv-r-sm: 8px;          /* controls / rows                     */
+  --pv-title: 17px;        /* page title                          */
+  --pv-h: 13px;            /* section title                       */
+  --pv-text: 12.5px;       /* default reading size                */
+  --pv-meta: 11px;         /* secondary meta                      */
+  --pv-label: 10px;        /* eyebrows / tracked captions         */
+
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  color: var(--dim);
+  font-size: var(--pv-text) !important;
+  line-height: 1.62;
+}
+html[lang='ar'] .page-v14.page-v14 { line-height: 1.75; }
+
+/* the panel root is a direct child of the dock canvas: let the
+   canvas own the outer gutter, and lay our own blocks out in a
+   single calm column with generous spacing. */
+.page-v14.page-v14.rd-content,
+.page-v14.page-v14 {
+  padding: 0 !important;
+}
+.page-v14.page-v14 > * { min-width: 0; }
+
+/* A gentle floor for the legacy arbitrary text utilities: nothing on
+   these pages should still read at 8–11px. Specific component rules
+   below (stamps, titles, rows) come later and win where they must. */
+.page-v14.page-v14 [class*="text-[8"],
+.page-v14.page-v14 [class*="text-[9"] { font-size: var(--pv-meta) !important; }
+.page-v14.page-v14 [class*="text-[10"] { font-size: 11.5px !important; }
+.page-v14.page-v14 [class*="text-[11"] { font-size: 12px !important; }
+
+/* ------------------------------------------------------------
+   1 · PAGE HEADER — eyebrow · title · description · actions
+   ------------------------------------------------------------ */
+.page-v14.page-v14 .pv14-head {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 2px 0 18px !important;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--line) !important;
+  flex-wrap: wrap;
+}
+/* a short limeey rule above the eyebrow — the one brand mark */
+.page-v14.page-v14 .pv14-head::before {
+  content: '';
+  position: absolute;
+  inset-block-start: -2px;
+  inset-inline-start: 0;
+  inline-size: 36px;
+  block-size: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--acc);
+  pointer-events: none;
+}
+.page-v14.page-v14 .pv14-head-copy { flex: 1 1 320px; min-width: 0; }
+.page-v14.page-v14 .pv14-eyebrow {
+  display: block;
+  margin: 0 0 5px;
+  font-family: var(--font-mono-x, var(--font-mono2));
+  font-size: var(--pv-label) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.16em !important;
+  line-height: 1.4 !important;
+  text-transform: uppercase;
+  color: var(--acc) !important;
+}
+html[lang='ar'] .page-v14.page-v14 .pv14-eyebrow { letter-spacing: 0 !important; }
+.page-v14.page-v14 .pv14-title,
+.page-v14.page-v14 .pv14-head h2,
+.page-v14.page-v14 .pv14-head .fl-title {
+  margin: 0 !important;
+  font-family: var(--font-display) !important;
+  font-size: var(--pv-title) !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.25 !important;
+  color: var(--ink) !important;
+}
+html[lang='ar'] .page-v14.page-v14 .pv14-title,
+html[lang='ar'] .page-v14.page-v14 .pv14-head h2 { letter-spacing: 0 !important; }
+.page-v14.page-v14 .pv14-desc {
+  margin: 6px 0 0 !important;
+  font-size: var(--pv-text) !important;
+  line-height: 1.6 !important;
+  color: var(--faint) !important;
+  max-width: 66ch;
+}
+.page-v14.page-v14 .pv14-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  padding-top: 2px;
+}
+.page-v14.page-v14 .pv14-head-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* ------------------------------------------------------------
+   2 · SECTION HEADERS — numbered "01 — TITLE —————"
+   ------------------------------------------------------------ */
+.page-v14.page-v14 .sec-titled {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 26px 0 12px !important;
+}
+.page-v14.page-v14 .sec-titled:first-child { margin-top: 4px !important; }
+.page-v14.page-v14 .sec-titled .sec-no {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  inline-size: 24px !important;
+  block-size: 24px !important;
+  padding: 0 !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: 7px !important;
+  background: var(--bg1) !important;
+  color: var(--acc) !important;
+  font-family: var(--font-mono-x, var(--font-mono2)) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  transform: none !important;
+  flex-shrink: 0;
+}
+.page-v14.page-v14 .sec-titled .sec-tt,
+.page-v14.page-v14 .sec-head {
+  font-size: var(--pv-h) !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.005em !important;
+  color: var(--ink) !important;
+}
+html[lang='ar'] .page-v14.page-v14 .sec-titled .sec-tt { letter-spacing: 0 !important; }
+.page-v14.page-v14 .sec-titled .sec-rule {
+  height: 1px !important;
+  flex: 1 1 auto;
+  min-width: 12px;
+  background: var(--line) !important;
+  transform: none !important;
+}
+.page-v14.page-v14 .micro-label {
+  font-size: var(--pv-label) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em !important;
+  color: var(--faint) !important;
+}
+html[lang='ar'] .page-v14.page-v14 .micro-label { letter-spacing: 0 !important; }
+
+/* ------------------------------------------------------------
+   3 · CARD SYSTEM — flat, hairline, generous
+   ------------------------------------------------------------ */
+.page-v14.page-v14 .aurora-panel,
+.page-v14.page-v14 .aurora-panel-lg,
+.page-v14.page-v14 .card,
+.page-v14.page-v14 .lib-card,
+.page-v14.page-v14 .fl-card,
+.page-v14.page-v14 .fl-editor,
+.page-v14.page-v14 .ar-card,
+.page-v14.page-v14 .hm-card,
+.page-v14.page-v14 .hm-metric,
+.page-v14.page-v14 .hm-proj {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--pv-r) !important;
+  background: var(--panel) !important;
+  box-shadow: none !important;
+  padding: var(--pv-pad) !important;
+  transform: none !important;
+  animation: none !important;
+  transition: border-color 160ms var(--ease-out), background 160ms var(--ease-out) !important;
+}
+.page-v14.page-v14 .aurora-panel-lg,
+.page-v14.page-v14 .hm-card { padding: 20px !important; }
+.page-v14.page-v14 .aurora-panel:hover,
+.page-v14.page-v14 .aurora-panel-lg:hover,
+.page-v14.page-v14 .card:hover,
+.page-v14.page-v14 .lib-card:hover,
+.page-v14.page-v14 .fl-card:hover,
+.page-v14.page-v14 .fl-editor:hover,
+.page-v14.page-v14 .ar-card:hover,
+.page-v14.page-v14 .hm-card:hover,
+.page-v14.page-v14 .hm-metric:not(:disabled):hover,
+.page-v14.page-v14 .hm-proj:hover {
+  border-color: var(--line-strong) !important;
+  background: var(--panel2) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+/* inset list containers keep their tight grammar — the rows pad */
+.page-v14.page-v14 .aurora-panel.keyrow-list,
+.page-v14.page-v14 .aurora-panel.overflow-hidden {
+  padding: 4px 0 !important;
+}
+
+/* ------------------------------------------------------------
+   4 · STAT TILES — calm, big numerals
+   ------------------------------------------------------------ */
+.page-v14.page-v14 .wscc-tile {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  min-height: 78px !important;
+  padding: 14px 16px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--pv-r) !important;
+  background: var(--bg1) !important;
+  box-shadow: none !important;
+}
+.page-v14.page-v14 .wscc-tile-label {
+  font-size: var(--pv-label) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase;
+  color: var(--faint) !important;
+}
+html[lang='ar'] .page-v14.page-v14 .wscc-tile-label { letter-spacing: 0 !important; }
+.page-v14.page-v14 .wscc-tile-value {
+  font-size: 21px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1 !important;
+  color: var(--ink) !important;
+}
+.page-v14.page-v14 .grid,
+.page-v14.page-v14 [class*='grid-cols'],
+.page-v14.page-v14 [class*='grid'] {
+  gap: var(--pv-card-gap) !important;
+}
+
+/* ------------------------------------------------------------
+   5 · LIST ROWS — roomier, hairline-separated, aligned
+   ------------------------------------------------------------ */
+.page-v14.page-v14 .keyrow,
+.page-v14.page-v14 .finding,
+.page-v14.page-v14 .tree-row,
+.page-v14.page-v14 .hm-row,
+.page-v14.page-v14 .mcp-tool-row,
+.page-v14.page-v14 .wsp-row {
+  min-height: 46px !important;
+  gap: 12px !important;
+  padding: 10px 14px !important;
+  border-top: 1px solid var(--line-soft) !important;
+  border-radius: var(--pv-r-sm) !important;
+  color: var(--dim) !important;
+  transition: background 150ms var(--ease-out) !important;
+}
+.page-v14.page-v14 .aurora-panel.overflow-hidden > .keyrow:first-child,
+.page-v14.page-v14 .aurora-panel.keyrow-list > .keyrow:first-child {
+  border-top-color: transparent !important;
+}
+.page-v14.page-v14 .keyrow:hover,
+.page-v14.page-v14 .finding:hover,
+.page-v14.page-v14 .tree-row:hover,
+.page-v14.page-v14 .hm-row:hover,
+.page-v14.page-v14 .mcp-tool-row:hover,
+.page-v14.page-v14 .wsp-row:hover {
+  background: var(--hover) !important;
+}
+.page-v14.page-v14 .key-main,
+.page-v14.page-v14 .hm-row-tx,
+.page-v14.page-v14 .min-w-0 { min-width: 0; }
+.page-v14.page-v14 .key-title {
+  display: block !important;
+  font-size: var(--pv-text) !important;
+  font-weight: 600 !important;
+  line-height: 1.45 !important;
+  color: var(--ink) !important;
+}
+.page-v14.page-v14 .key-sub {
+  font-size: var(--pv-meta) !important;
+  line-height: 1.5 !important;
+  color: var(--faint) !important;
+}
+.page-v14.page-v14 .hm-row-title { font-size: 13px !important; font-weight: 600 !important; }
+.page-v14.page-v14 .hm-row-meta,
+.page-v14.page-v14 .hm-row-time { font-size: var(--pv-meta) !important; }
+.page-v14.page-v14 .f-sev {
+  font-family: var(--font-mono-x, var(--font-mono2)) !important;
+  font-size: var(--pv-label) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+}
+.page-v14.page-v14 .f-file { font-size: var(--pv-meta) !important; color: var(--faint) !important; }
+.page-v14.page-v14 .f-note { font-size: var(--pv-text) !important; color: var(--ink) !important; line-height: 1.5 !important; }
+
+/* ------------------------------------------------------------
+   6 · BADGES / STAMPS / CHIPS — flat, mono, hairline
+   ------------------------------------------------------------ */
+.page-v14.page-v14 .stamp,
+.page-v14.page-v14 .glass-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  min-height: 20px !important;
+  padding: 0 8px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--pv-r-sm) !important;
+  background: var(--bg1) !important;
+  box-shadow: none !important;
+  font-family: var(--font-mono-x, var(--font-mono2)) !important;
+  font-size: var(--pv-label) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.page-v14.page-v14 .stamp-acc { color: var(--acc) !important; border-color: var(--line-accent) !important; }
+.page-v14.page-v14 .stamp-warn { color: var(--warn) !important; border-color: color-mix(in srgb, var(--warn) 38%, transparent) !important; }
+.page-v14.page-v14 .stamp-bad { color: var(--bad) !important; border-color: color-mix(in srgb, var(--bad) 38%, transparent) !important; }
+.page-v14.page-v14 .stamp-clay { color: var(--dim) !important; }
+.page-v14.page-v14 .kbd,
+.page-v14.page-v14 .bs-hint {
+  min-height: 18px !important;
+  font-size: var(--pv-label) !important;
+  border-radius: var(--pv-r-sm) !important;
+}
+.page-v14.page-v14 .fl-scope {
+  min-height: 20px !important;
+  padding: 0 8px !important;
+  font-size: var(--pv-label) !important;
+  border-radius: var(--pv-r-sm) !important;
+}
+.page-v14.page-v14 .led,
+.page-v14.page-v14 .led-idle { width: 7px !important; height: 7px !important; border-radius: var(--radius-pill) !important; }
+
+/* ------------------------------------------------------------
+   7 · TABS / SEGMENTED CONTROLS
+   ------------------------------------------------------------ */
+.page-v14.page-v14 .stamp-seg,
+.page-v14.page-v14 .mcp-tabs,
+.page-v14.page-v14 .fl-seg {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 4px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 10px !important;
+  background: var(--bg1) !important;
+}
+.page-v14.page-v14 .stamp-seg > button,
+.page-v14.page-v14 .mcp-tabs > button,
+.page-v14.page-v14 .fl-seg-btn {
+  position: relative;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 30px !important;
+  padding: 0 13px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: var(--pv-text) !important;
+  font-weight: 600 !important;
+  color: var(--faint) !important;
+  cursor: pointer;
+  transition: color 150ms var(--ease-out), background 150ms var(--ease-out) !important;
+}
+.page-v14.page-v14 .stamp-seg > button:hover,
+.page-v14.page-v14 .mcp-tabs > button:hover,
+.page-v14.page-v14 .fl-seg-btn:hover { color: var(--ink) !important; background: var(--hover) !important; }
+.page-v14.page-v14 .stamp-seg > button.is-active,
+.page-v14.page-v14 .stamp-seg.is-plain > button.is-active,
+.page-v14.page-v14 .mcp-tabs > button.active,
+.page-v14.page-v14 .mcp-tabs > button.is-active,
+.page-v14.page-v14 .fl-seg-btn.is-on {
+  background: var(--bg5) !important;
+  color: var(--acc) !important;
+  box-shadow: none !important;
+}
+/* quiet keyline, never a colored glow */
+.page-v14.page-v14 .stamp-seg > button.is-active::after,
+.page-v14.page-v14 .mcp-tabs > button.active::after,
+.page-v14.page-v14 .mcp-tabs > button.is-active::after,
+.page-v14.page-v14 .fl-seg-btn.is-on::after {
+  content: '';
+  position: absolute;
+  inset-inline: 11px;
+  inset-block-end: 4px;
+  block-size: 2px;
+  border-radius: 2px;
+  background: var(--acc);
+}
+.page-v14.page-v14 .mcp-tab-count {
+  min-height: 16px !important;
+  padding: 0 5px !important;
+  font-size: var(--pv-label) !important;
+  border-radius: var(--radius-pill) !important;
+}
+
+/* ------------------------------------------------------------
+   8 · EMPTY STATES — architectural, calm, not decorative
+   ------------------------------------------------------------ */
+.page-v14.page-v14 .blank-state,
+.page-v14.page-v14 .hero-grid,
+.page-v14.page-v14 .set-note,
+.page-v14.page-v14 .Empty,
+.page-v14.page-v14 .ft-empty {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--pv-r) !important;
+  background: var(--panel) !important;
+  box-shadow: none !important;
+  padding: 44px 26px !important;
+  gap: 14px !important;
+  text-align: center;
+}
+.page-v14.page-v14 .blank-state::before,
+.page-v14.page-v14 .hero-grid::before { display: none !important; }
+.page-v14.page-v14 .hero-grid {
+  background-image: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+.page-v14.page-v14 .bs-title,
+.page-v14.page-v14 .Empty > div:nth-child(2) {
+  font-size: 15px !important;
+  font-weight: 650 !important;
+  color: var(--ink) !important;
+}
+.page-v14.page-v14 .bs-sub {
+  font-size: var(--pv-text) !important;
+  color: var(--faint) !important;
+  line-height: 1.7 !important;
+  max-width: 48ch !important;
+}
+.page-v14.page-v14 .Empty > div:first-child > svg,
+.page-v14.page-v14 .blank-state > svg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px !important;
+  height: 48px !important;
+  padding: 12px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  background: var(--bg1) !important;
+  color: var(--acc) !important;
+  box-sizing: content-box !important;
+}
+.page-v14.page-v14 .ill-img { inline-size: 168px !important; block-size: auto !important; opacity: 0.9 !important; }
+
+/* ------------------------------------------------------------
+   9 · CONTROLS — inputs, buttons, icon buttons
+   ------------------------------------------------------------ */
+.page-v14.page-v14 input:not([type='checkbox']):not([type='radio']),
+.page-v14.page-v14 textarea,
+.page-v14.page-v14 select,
+.page-v14.page-v14 .input,
+.page-v14.page-v14 .set-input {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--pv-r-sm) !important;
+  background: var(--bg1) !important;
+  color: var(--ink) !important;
+  font-size: var(--pv-text) !important;
+  padding-block: 9px !important;
+  padding-inline: 12px !important;
+  box-shadow: none !important;
+}
+.page-v14.page-v14 input:focus,
+.page-v14.page-v14 textarea:focus,
+.page-v14.page-v14 select:focus,
+.page-v14.page-v14 .input:focus,
+.page-v14.page-v14 .set-input:focus {
+  border-color: var(--line-accent) !important;
+  outline: none !important;
+}
+.page-v14.page-v14 input::placeholder,
+.page-v14.page-v14 textarea::placeholder { color: var(--ghost) !important; }
+.page-v14.page-v14 .btn,
+.page-v14.page-v14 .press {
+  min-height: 32px !important;
+  border-radius: var(--pv-r-sm) !important;
+  box-shadow: none !important;
+  font-size: var(--pv-text) !important;
+  transition: background 150ms var(--ease-out), border-color 150ms var(--ease-out) !important;
+}
+.page-v14.page-v14 .btn:hover,
+.page-v14.page-v14 .press:hover { box-shadow: none !important; transform: none !important; }
+.page-v14.page-v14 .ibtn,
+.page-v14.page-v14 .icon-btn {
+  min-width: 28px !important;
+  min-height: 28px !important;
+  border-radius: var(--pv-r-sm) !important;
+}
+.page-v14.page-v14 button:not(.aurora-panel):not(.card):hover { transform: none !important; box-shadow: none !important; }
+.page-v14.page-v14 pre,
+.page-v14.page-v14 .mcp-resource-pre {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--pv-r-sm) !important;
+  box-shadow: none !important;
+  background: var(--bg1) !important;
+  line-height: 1.65 !important;
+  font-size: var(--pv-meta) !important;
+}
+.page-v14.page-v14 .mcp-quarantine {
+  border-radius: var(--pv-r-sm) !important;
+  border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent) !important;
+}
+
+/* ------------------------------------------------------------
+   10 · PANEL-SPECIFIC REFINEMENTS
+   ------------------------------------------------------------ */
+
+/* Workspace — quick-action tiles behave like cards, with room */
+.page-v14.page-v14 .qt-tile {
+  min-height: 82px !important;
+  padding: 14px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--pv-r) !important;
+  background: var(--panel) !important;
+  gap: 10px !important;
+  text-align: start !important;
+}
+.page-v14.page-v14 .qt-tile:hover { border-color: var(--line-strong) !important; background: var(--panel2) !important; transform: none !important; }
+.page-v14.page-v14 .qt-label { font-size: var(--pv-text) !important; font-weight: 600 !important; color: var(--ink) !important; }
+.page-v14.page-v14 .ruler { height: 1px !important; background: var(--line) !important; margin-top: 16px !important; }
+.page-v14.page-v14 .seg-bar { height: 8px !important; border-radius: var(--radius-pill) !important; overflow: hidden !important; }
+.page-v14.page-v14 .seg-bar > span { border-radius: 0 !important; }
+
+/* Git — toolbar + commit composer breathe */
+.page-v14.page-v14 .pv14-toolbar {
+  min-height: 44px !important;
+  padding: 8px 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+.page-v14.page-v14 .glass.grain.press { border-radius: var(--pv-r-sm) !important; background: var(--bg1) !important; box-shadow: none !important; }
+.page-v14.page-v14 .glass.grain.press:hover { background: var(--hover) !important; }
+
+/* DNA — chips & confidence */
+.page-v14.page-v14 .dna-chip {
+  min-height: 26px !important;
+  padding: 0 6px 0 10px !important;
+  font-size: var(--pv-text) !important;
+  border-radius: var(--pv-r-sm) !important;
+  background: var(--bg1) !important;
+}
+.page-v14.page-v14 .dna-add {
+  min-height: 26px !important;
+  font-size: var(--pv-text) !important;
+  border-radius: var(--pv-r-sm) !important;
+}
+.page-v14.page-v14 .dna-conf { width: 44px !important; height: 3px !important; }
+.page-v14.page-v14 .dna-how > summary {
+  font-size: var(--pv-text) !important;
+  padding: 8px 12px !important;
+  border-radius: var(--pv-r-sm) !important;
+}
+
+/* Usage — stat rows, meters & chart */
+.page-v14.page-v14 .usage-bar { background: var(--acc) !important; border-radius: var(--radius-pill) !important; }
+.page-v14.page-v14 .usage-bar.is-today { background: var(--acc) !important; }
+.page-v14.page-v14 .caps.text-\[8\.5px\] { font-size: var(--pv-label) !important; letter-spacing: 0.12em !important; }
+
+/* Library — cards read as gallery tiles */
+.page-v14.page-v14 .lib-grid,
+.page-v14.page-v14 .ar-grid { gap: var(--pv-card-gap) !important; }
+.page-v14.page-v14 .lib-card { min-height: 132px !important; gap: 8px !important; }
+.page-v14.page-v14 .lib-kind {
+  font-size: var(--pv-label) !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase;
+}
+html[lang='ar'] .page-v14.page-v14 .lib-kind { letter-spacing: 0 !important; }
+.page-v14.page-v14 .lib-title { font-size: 13px !important; }
+.page-v14.page-v14 .lib-meta,
+.page-v14.page-v14 .lib-size { font-size: var(--pv-meta) !important; }
+
+/* Flows — cards + editor */
+.page-v14.page-v14 .fl-card { min-height: 108px !important; gap: 9px !important; }
+.page-v14.page-v14 .fl-name { font-size: 13px !important; }
+.page-v14.page-v14 .fl-prompt { font-size: var(--pv-text) !important; }
+.page-v14.page-v14 .fl-meta { font-size: var(--pv-meta) !important; }
+.page-v14.page-v14 .fl-label { font-size: var(--pv-label) !important; letter-spacing: 0.12em !important; }
+.page-v14.page-v14 .fl-btn { min-height: 28px !important; border-radius: var(--pv-r-sm) !important; }
+
+/* Skills — scope groups */
+.page-v14.page-v14 .sk-skill-row {
+  min-height: 56px !important;
+  padding: 12px 14px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--pv-r-sm) !important;
+  background: var(--panel) !important;
+}
+.page-v14.page-v14 .sk-skill-row:hover { border-color: var(--line-strong) !important; background: var(--panel2) !important; }
+
+/* Prompts — rows as cards */
+.page-v14.page-v14 [data-testid^='prompt-item-'] { gap: 10px !important; }
+.page-v14.page-v14 [data-testid^='prompt-item-'] > div:nth-child(2) { font-size: var(--pv-text) !important; }
+
+/* Home — the landing page */
+.page-v14.page-v14.hm-page { padding: 0 !important; background: var(--bg) !important; }
+.page-v14.page-v14 .hm-inner { max-width: 1080px !important; padding: 34px 30px 28px !important; gap: 22px !important; }
+.page-v14.page-v14 .hm-hero { border-radius: var(--pv-r) !important; padding: 24px 26px !important; }
+.page-v14.page-v14 .hm-title { font-size: 26px !important; font-weight: 680 !important; letter-spacing: -0.025em !important; }
+.page-v14.page-v14 .hm-sub { font-size: 13px !important; }
+.page-v14.page-v14 .hm-metrics { gap: var(--pv-card-gap) !important; }
+.page-v14.page-v14 .hm-metric { min-height: 74px !important; padding: 14px 16px !important; }
+.page-v14.page-v14 .hm-metric-label { font-size: var(--pv-label) !important; letter-spacing: 0.08em !important; text-transform: uppercase; }
+.page-v14.page-v14 .hm-metric-value { font-size: 14px !important; }
+.page-v14.page-v14 .hm-card-head .caps { font-size: var(--pv-h) !important; font-weight: 650 !important; color: var(--ink) !important; letter-spacing: -0.005em !important; }
+.page-v14.page-v14 .hm-projects { gap: var(--pv-card-gap) !important; }
+.page-v14.page-v14 .hm-proj { min-height: 88px !important; }
+.page-v14.page-v14 .hm-foot { margin-top: 8px !important; padding-top: 18px !important; border-top: 1px solid var(--line) !important; }
+.page-v14.page-v14 .hm-sec-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+.page-v14.page-v14 .hm-sec-label .pv14-eyebrow { margin: 0 !important; }
+.page-v14.page-v14 .hm-sec-rule { flex: 1; height: 1px; background: var(--line); }
+.page-v14.page-v14 .hm-goal {
+  min-height: 40px !important;
+  padding: 9px 12px !important;
+  border-radius: var(--pv-r-sm) !important;
+  font-size: var(--pv-text) !important;
+}
+.page-v14.page-v14 .hm-goal-tx { font-size: var(--pv-text) !important; }
+.page-v14.page-v14 .hm-empty {
+  padding: 28px 20px !important;
+  border: 1px dashed var(--line) !important;
+  border-radius: var(--pv-r) !important;
+  background: var(--bg1) !important;
+  gap: 10px !important;
+}
+.page-v14.page-v14 .hm-empty p { font-size: var(--pv-text) !important; max-width: 52ch !important; }
+
+/* ------------------------------------------------------------
+   11 · SECTION DIVIDERS & STAGGERED ENTRANCES
+   ------------------------------------------------------------ */
+.page-v14.page-v14 > .pv14-section {
+  padding-top: 20px !important;
+  margin-top: 4px !important;
+  border-top: 1px solid var(--line-soft) !important;
+}
+@keyframes pv14-rise {
+  from { opacity: 0; transform: translateY(9px); }
+  to   { opacity: 1; transform: none; }
+}
+.page-v14.page-v14 .pv14-head { animation: pv14-rise 360ms var(--ease-out) both !important; }
+.page-v14.page-v14 .pv14-stagger > * { animation: pv14-rise 340ms var(--ease-out) both !important; }
+.page-v14.page-v14 .pv14-stagger > *:nth-child(1) { animation-delay: 30ms !important; }
+.page-v14.page-v14 .pv14-stagger > *:nth-child(2) { animation-delay: 60ms !important; }
+.page-v14.page-v14 .pv14-stagger > *:nth-child(3) { animation-delay: 90ms !important; }
+.page-v14.page-v14 .pv14-stagger > *:nth-child(4) { animation-delay: 120ms !important; }
+.page-v14.page-v14 .pv14-stagger > *:nth-child(5) { animation-delay: 150ms !important; }
+.page-v14.page-v14 .pv14-stagger > *:nth-child(n + 6) { animation-delay: 180ms !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-v14.page-v14 .pv14-head,
+  .page-v14.page-v14 .pv14-stagger > * { animation: none !important; transition: none !important; }
+}
+html.reduce-motion .page-v14.page-v14 .pv14-head,
+html.reduce-motion .page-v14.page-v14 .pv14-stagger > * { animation: none !important; transition: none !important; }
+
+/* ============================================================
+   v1142 · BOOK / STACK + GROWTH-RING REFINEMENT (additive)
+   ------------------------------------------------------------
+   · Library + Wiki: a small two-leaf book/stack line-art beside the
+     shelf / spread caption. The leaves fan open ONCE on mount —
+     an original mark, not a boxed card, no fill, token ink only.
+   · DNA: the app's existing growth rings gain a slow, calm turn —
+     a refinement of the existing seal, never a second seal.
+   Transform/opacity motion only; frozen by BOTH reduced-motion
+   signals and the data-art kill switch.
+   ============================================================ */
+
+/* ---- 1 · LIBRARY / WIKI BOOK-STACK --------------------------- */
+.lib-shelf-cap,
+.wiki-spread-cap {
+  position: relative;
+  padding-inline-start: 24px;
+}
+/* lower leaf + upper leaf — two 1px rules that fan open once */
+.lib-shelf-cap::before,
+.wiki-spread-cap::before,
+.lib-shelf-cap::after,
+.wiki-spread-cap::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inline-size: 16px;
+  block-size: 1px;
+  background: var(--line-strong);
+  pointer-events: none;
+  animation: v1142-book-open 900ms var(--ease-out, ease-out) both;
+}
+.lib-shelf-cap::before,
+.wiki-spread-cap::before {
+  inset-block-start: 3px;
+  transform-origin: 0 50%;
+}
+.lib-shelf-cap::after,
+.wiki-spread-cap::after {
+  inset-block-start: 8px;
+  transform-origin: 0 50%;
+  animation-delay: 130ms;
+}
+html[dir='rtl'] .lib-shelf-cap::before,
+html[dir='rtl'] .wiki-spread-cap::before,
+html[dir='rtl'] .lib-shelf-cap::after,
+html[dir='rtl'] .wiki-spread-cap::after { transform-origin: 100% 50%; }
+@keyframes v1142-book-open {
+  from { transform: rotate(-4deg) scaleX(0); opacity: 0; }
+  to   { transform: rotate(0deg) scaleX(1); opacity: 1; }
+}
+
+/* ---- 2 · DNA GROWTH-RING REFINEMENT -------------------------- */
+.art-dna .dn-seal-ring--dash {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: v1142-dna-ring 24s linear infinite;
+}
+@keyframes v1142-dna-ring {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* motion scale + BOTH reduced-motion signals + the art kill switch */
+[data-motion] .art-dna .dn-seal-ring--dash {
+  animation-duration: calc(24s / var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .lib-shelf-cap::before,
+  .wiki-spread-cap::before,
+  .lib-shelf-cap::after,
+  .wiki-spread-cap::after,
+  .art-dna .dn-seal-ring--dash { animation: none !important; }
+  .lib-shelf-cap::before,
+  .wiki-spread-cap::before,
+  .lib-shelf-cap::after,
+  .wiki-spread-cap::after { transform: none !important; opacity: 1 !important; }
+}
+html.reduce-motion .lib-shelf-cap::before,
+html.reduce-motion .wiki-spread-cap::before,
+html.reduce-motion .lib-shelf-cap::after,
+html.reduce-motion .wiki-spread-cap::after,
+html.reduce-motion .art-dna .dn-seal-ring--dash { animation: none !important; }
+html.reduce-motion .lib-shelf-cap::before,
+html.reduce-motion .wiki-spread-cap::before,
+html.reduce-motion .lib-shelf-cap::after,
+html.reduce-motion .wiki-spread-cap::after { transform: none !important; opacity: 1 !important; }
+html[data-art='off'] .lib-shelf-cap::before,
+html[data-art='off'] .wiki-spread-cap::before,
+html[data-art='off'] .lib-shelf-cap::after,
+html[data-art='off'] .wiki-spread-cap::after,
+html[data-art='off'] .art-dna .dn-seal-ring--dash { animation: none !important; }
